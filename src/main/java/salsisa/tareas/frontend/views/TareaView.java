@@ -11,7 +11,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility.Gap;
 
-@PageTitle("MainView")
+@PageTitle("Solidarity Hub")
 @Route("")
 public class TareaView extends MainLayout {
     public TareaView() {

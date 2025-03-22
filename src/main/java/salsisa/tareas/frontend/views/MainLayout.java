@@ -60,6 +60,18 @@ public class MainLayout extends Composite<VerticalLayout> {
         home.getStyle().set("padding", "0");
         //home.getStyle().set("aspect-ratio", "1").set("width", "100%");
 
+        pairing.getStyle().set("aspect-ratio", "1");
+        pairing.getStyle().set("width", "100%");
+        pairing.getStyle().set("padding", "0");
+
+        info.getStyle().set("aspect-ratio", "1");
+        info.getStyle().set("width", "100%");
+        info.getStyle().set("padding", "0");
+
+        logout.getStyle().set("aspect-ratio", "1");
+        logout.getStyle().set("width", "100%");
+        logout.getStyle().set("padding", "0");
+
         layoutColumn2.add(home, pairing, info, logout);
         layoutColumn2.getStyle().set("background-color", "#B64040");
 
@@ -68,6 +80,9 @@ public class MainLayout extends Composite<VerticalLayout> {
         });
         pairing.addClickListener(e -> {
             UI.getCurrent().navigate("pairing");
+        });
+        info.addClickListener(e -> {
+            UI.getCurrent().navigate("information");
         });
     }
 }
