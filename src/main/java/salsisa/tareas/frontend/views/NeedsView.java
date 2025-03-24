@@ -4,6 +4,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteAlias;
 
 @PageTitle("Solidarity Hub") // Nombre que sale arriba en el tab del navegador
 @Route(value="necesidades", layout = MainLayout.class) // Value indica la url y layout indica la clase que usa como base
