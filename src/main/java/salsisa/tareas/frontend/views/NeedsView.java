@@ -11,6 +11,7 @@ import com.vaadin.flow.component.html.Image;
 
 @PageTitle("SH - Visualizar Necesidades") // Nombre que sale arriba en el tab del navegador
 @Route(value="NeedsView", layout = MainLayout.class) // Value indica la url y layout indica la clase que usa como base
+@RouteAlias(value="", layout = MainLayout.class)
 public class NeedsView extends VerticalLayout {
     public NeedsView() {
         setSpacing(false);

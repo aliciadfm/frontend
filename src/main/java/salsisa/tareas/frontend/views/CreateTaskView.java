@@ -38,7 +38,7 @@ public class CreateTaskView extends VerticalLayout {
         VerticalLayout labelArea = new VerticalLayout();
         labelArea.setSpacing(false);
         labelArea.setPadding(false);
-        labelArea.setWidth("20%");
+        labelArea.setWidth("15%");
         //labelArea.getStyle().set("border", "1px solid red");
         Span span = new Span(label);
         labelArea.setAlignSelf(Alignment.END, span);
@@ -70,7 +70,7 @@ public class CreateTaskView extends VerticalLayout {
         VerticalLayout column1 = new VerticalLayout();
         //column1.getStyle().set("border", "1px solid red");
         HorizontalLayout tituloFieldArea = createFieldArea("Título", new TextField(""));
-        HorizontalLayout descripcionFieldArea = createFieldArea("Titulo", new TextField(""));
+        HorizontalLayout descripcionFieldArea = createFieldArea("Descripción", new TextField(""));
         HorizontalLayout necesidadesFieldArea = createFieldArea("Necesidades", new TextField(""));
         column1.add(tituloFieldArea, descripcionFieldArea, necesidadesFieldArea);
 
@@ -83,5 +83,13 @@ public class CreateTaskView extends VerticalLayout {
         column2.add(fechaFieldArea, duracionFieldArea, voluntariosFieldArea);
 
         fields.add(column1, column2);
+        getStyle().set("padding", "0 5%");
+
+    }
+
+    private void createButton() {
+        VerticalLayout buttonArea = new VerticalLayout();
+        buttonArea.getStyle().set("border", "1px solid red");
+        add(buttonArea);
     }
 }
