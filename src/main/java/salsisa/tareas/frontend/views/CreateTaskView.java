@@ -2,6 +2,7 @@ package salsisa.tareas.frontend.views;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H1;
@@ -20,6 +21,7 @@ public class CreateTaskView extends VerticalLayout {
         setPadding(false);
         createHeader();
         createTextFields();
+        createButton();
     }
 
     private void createHeader() {
@@ -89,7 +91,10 @@ public class CreateTaskView extends VerticalLayout {
 
     private void createButton() {
         VerticalLayout buttonArea = new VerticalLayout();
-        buttonArea.getStyle().set("border", "1px solid red");
+        //buttonArea.getStyle().set("border", "1px solid red");
         add(buttonArea);
+        Button aceptarButton = new Button("Crear");
+        buttonArea.add(aceptarButton);
+        buttonArea.setAlignSelf(Alignment.CENTER, aceptarButton);
     }
 }
