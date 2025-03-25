@@ -1,5 +1,6 @@
 package salsisa.tareas.frontend.views;
 
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -18,6 +19,7 @@ public class NeedsView extends VerticalLayout {
         setPadding(false);
         createHeader();
         createNeedsView();
+        add(createNeed("Hola","Soy el sufijo"));
     }
     private void createHeader() {
         VerticalLayout headingDiv = new VerticalLayout();
@@ -28,7 +30,7 @@ public class NeedsView extends VerticalLayout {
         add(headingDiv);
     }
     private void createNeedsView() {
-        //Se pueden ver 6 necesidades a la vez, 3 por fila
+        //Se pueden ver 6 necesidades a la vez, 4 por fila
         VerticalLayout needsDiv = new VerticalLayout();
         needsDiv.setSpacing(false);
         add(needsDiv);
@@ -38,22 +40,41 @@ public class NeedsView extends VerticalLayout {
         VerticalLayout firstNeed = new VerticalLayout();
         VerticalLayout secondNeed = new VerticalLayout();
         VerticalLayout thirdNeed = new VerticalLayout();
-        firstAreaNeed.add(firstNeed, secondNeed, thirdNeed);
+        VerticalLayout fourthNeed = new VerticalLayout();
+        firstAreaNeed.add(firstNeed, secondNeed, thirdNeed, fourthNeed);
         //SEGUNDA FILA
         HorizontalLayout secondAreaNeed = new HorizontalLayout();
-        VerticalLayout fourthNeed = new VerticalLayout();
         VerticalLayout fifthNeed = new VerticalLayout();
         VerticalLayout sixthNeed = new VerticalLayout();
-        secondAreaNeed.add(fourthNeed, fifthNeed, sixthNeed);
+        VerticalLayout seventhNeed = new VerticalLayout();
+        VerticalLayout eighthNeed = new VerticalLayout();
+        secondAreaNeed.add(fifthNeed, sixthNeed, seventhNeed, eighthNeed);
 
         needsDiv.add(firstAreaNeed, secondAreaNeed);
     }
-    private VerticalLayout createNeed(Image image, String label) {
+    private VerticalLayout createNeed(String label, String sufix) {
         VerticalLayout need = new VerticalLayout();
-        need.setWidth("100%");
+        need.setHeight("400px");
+        need.setWidth("400px");
+        HorizontalLayout foto = new HorizontalLayout();
+        Div fotoprueba = new Div();
+        fotoprueba.setWidth("100%");
+        fotoprueba.setHeight("100%");
+        foto.add(fotoprueba);
+        foto.getStyle().set("border", "1px solid red");
+        foto.setHeight("75%");
+        foto.setWidth("100%");
+
+        HorizontalLayout texto = new HorizontalLayout();
+        texto.getStyle().set("border", "1px solid red");
+        texto.setHeight("25%");
+        texto.setWidth("100%");
+
         Span labelArea = new Span(label);
-        need.setJustifyContentMode(JustifyContentMode.CENTER);
-        need.add(image, labelArea);
+        Span sufixArea = new Span(sufix);
+        texto.setJustifyContentMode(JustifyContentMode.CENTER);
+        texto.add(labelArea, sufixArea);
+        need.add(foto, texto);
         return need;
     }
 }
