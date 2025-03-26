@@ -11,7 +11,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.component.button.Button;
 
 @PageTitle("SH - Crear tareas")
 @Route(value="createTask", layout = MainLayout.class)
@@ -94,6 +93,9 @@ public class CreateTaskView extends VerticalLayout {
         //buttonArea.getStyle().set("border", "1px solid red");
         add(buttonArea);
         Button aceptarButton = new Button("Crear");
+        aceptarButton.getStyle().setBackgroundColor("#B64040");
+        aceptarButton.getStyle().set("color", "white");
+        aceptarButton.getStyle().set("cursor", "pointer");
         buttonArea.add(aceptarButton);
         buttonArea.setAlignSelf(Alignment.CENTER, aceptarButton);
     }
