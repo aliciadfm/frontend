@@ -4,6 +4,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -11,6 +12,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+
+import java.time.Duration;
 
 @PageTitle("SH - Crear tareas")
 @Route(value="createTask", layout = MainLayout.class)
@@ -78,10 +81,17 @@ public class CreateTaskView extends VerticalLayout {
         //COLUMNA DE LA DERECHA
         VerticalLayout column2 = new VerticalLayout();
         //column2.getStyle().set("border", "1px solid red");
-        HorizontalLayout fechaFieldArea = createFieldArea("Fecha", new DatePicker(""));
-        HorizontalLayout duracionFieldArea = createFieldArea("Duración", new TextField(""));
+        DateTimePicker inicio = new DateTimePicker("");
+        inicio.setStep(Duration.ofMinutes(30));
+        inicio.setWidth("70%");
+        HorizontalLayout inicioFieldArea = createFieldArea("Inicio", inicio);
+
+        DateTimePicker fin = new DateTimePicker("");
+        fin.setStep(Duration.ofMinutes(30));
+        HorizontalLayout finFieldArea = createFieldArea("Fin", fin);
+
         HorizontalLayout voluntariosFieldArea = createFieldArea("Voluntarios", new TextField(""));
-        column2.add(fechaFieldArea, duracionFieldArea, voluntariosFieldArea);
+        column2.add(inicioFieldArea, finFieldArea, voluntariosFieldArea);
 
         fields.add(column1, column2);
         getStyle().set("padding", "0 5%");
