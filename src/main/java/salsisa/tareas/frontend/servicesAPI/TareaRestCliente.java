@@ -12,7 +12,7 @@ import java.util.List;
 @Component
 public class TareaRestCliente {
 
-    private static final String BASE_URL = "http://localhost:9090/api/tareas";
+    private static final String BASE_URL = "";
 
     @Autowired
     private RestTemplate restTemplate;

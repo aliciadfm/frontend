@@ -20,7 +20,7 @@ import java.util.List;
 @Component
 public class VoluntarioRestCliente {
 
-    private static final String BASE_URL = "https://963252b4-a3b9-4627-93ec-d9656d72237e.mock.pstmn.io";
+    private static final String BASE_URL = "https://963252b4-a3b9-4627-93ec-d9656d72237e.mock.pstmn.io/api/voluntarios";
 
     @Autowired
     private RestTemplate restTemplate;

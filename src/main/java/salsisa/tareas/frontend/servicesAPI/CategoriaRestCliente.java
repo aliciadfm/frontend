@@ -12,7 +12,7 @@ import java.util.List;
 @Component
 public class CategoriaRestCliente {
 
-    private static final String BASE_URL = "https://68040f14-3ef3-42c3-9d80-589b9ff95cac.mock.pstmn.io";
+    private static final String BASE_URL = "https://68040f14-3ef3-42c3-9d80-589b9ff95cac.mock.pstmn.io/api/categorias";
 
     @Autowired
     private RestTemplate restTemplate;

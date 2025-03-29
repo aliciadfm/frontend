@@ -13,7 +13,7 @@ import java.util.List;
 
 @Component
 public class HabilidadesRestCliente {
-    private final String BASE_URL = "http://localhost:9090/api/habilidades";
+    private final String BASE_URL = "";
 
     @Autowired
     private RestTemplate restTemplate;

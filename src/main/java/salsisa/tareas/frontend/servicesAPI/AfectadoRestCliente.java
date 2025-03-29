@@ -11,7 +11,7 @@ import java.util.List;
 
 @Component
 public class AfectadoRestCliente {
-    private final String BASE_URL = "https://ade24970-ffb5-4c4a-a25a-79c1f3a4d9df.mock.pstmn.io";
+    private final String BASE_URL = "https://ade24970-ffb5-4c4a-a25a-79c1f3a4d9df.mock.pstmn.io/api/afectados";
 
     @Autowired
     private RestTemplate restTemplate;

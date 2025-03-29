@@ -17,7 +17,7 @@ import java.util.List;
 @Component
 public class NecesidadRestCliente {
 
-    private static final String BASE_URL = "https://21f594b0-23b6-4c62-8d2c-62fe254a9360.mock.pstmn.io";
+    private static final String BASE_URL = "https://21f594b0-23b6-4c62-8d2c-62fe254a9360.mock.pstmn.io/api/necesidades";
 
     @Autowired
     private RestTemplate restTemplate;
