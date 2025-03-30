@@ -119,7 +119,7 @@ public class CreateTaskView extends VerticalLayout {
         List<NecesidadDTO> listaNecesidades = necesidadRestCliente.obtenerTodos();
 
         voluntariosArea.add(voluntariosFieldArea, createVirtualList(listaVoluntarios));
-        necesidadesArea.add(necesidadesFieldArea, createVirtualListN(listaNecesidades));
+        necesidadesArea.add(necesidadesFieldArea, createVirtualList(listaNecesidades));
 
         column1.add(tituloFieldArea, descripcionFieldArea, necesidadesArea);
         column2.add(inicioFieldArea, finFieldArea, voluntariosArea);
@@ -128,21 +128,29 @@ public class CreateTaskView extends VerticalLayout {
         getStyle().set("padding", "0 5%");
     }
 
-    private VirtualList<NecesidadDTO> createVirtualListN(List<NecesidadDTO> lista) {
-        VirtualList<NecesidadDTO> virtualList = new VirtualList<>();
+    private <T> VirtualList<T> createVirtualList(List<T> lista) {
+        ComponentRenderer<Component, T> renderer = null;
+
+        if (!lista.isEmpty()) {
+            T firstElement = lista.getFirst();
+            if (firstElement instanceof VoluntarioDTO) {
+                renderer = (ComponentRenderer<Component, T>) voluntarioCardRenderer;
+            } else if (firstElement instanceof NecesidadDTO) {
+                renderer = (ComponentRenderer<Component, T>) necesidadCardRenderer;
+            }
+        }
+
+        if (renderer == null) {
+            throw new IllegalArgumentException("No se pudo determinar el renderer para el tipo proporcionado.");
+        }
+
+        VirtualList<T> virtualList = new VirtualList<>();
         virtualList.setItems(lista);
-        virtualList.setRenderer(necesidadCardRenderer);
+        virtualList.setRenderer(renderer);
         return virtualList;
     }
 
-    private VirtualList<VoluntarioDTO> createVirtualList(List<VoluntarioDTO> lista) {
-        VirtualList<VoluntarioDTO> virtualList = new VirtualList<>();
-        virtualList.setItems(lista);
-        virtualList.setRenderer(voluntarioCardRenderer);
-        return virtualList;
-    }
-
-    private final ComponentRenderer<Component, VoluntarioDTO> voluntarioCardRenderer = new ComponentRenderer<>(
+    private ComponentRenderer<Component, VoluntarioDTO> voluntarioCardRenderer = new ComponentRenderer<>(
             voluntario -> {
                 HorizontalLayout cardLayout = new HorizontalLayout();
                 cardLayout.setMargin(true);
