@@ -2,23 +2,41 @@ package salsisa.tareas.frontend.views;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
+import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.virtuallist.VirtualList;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import org.springframework.beans.factory.annotation.Autowired;
+import salsisa.tareas.frontend.dto.NecesidadDTO;
+import salsisa.tareas.frontend.dto.VoluntarioDTO;
+import salsisa.tareas.frontend.servicesAPI.NecesidadRestCliente;
+import salsisa.tareas.frontend.servicesAPI.VoluntarioRestCliente;
 
 import java.time.Duration;
+import java.util.List;
 
 @PageTitle("SH - Crear tareas")
 @Route(value="createTask", layout = MainLayout.class)
 public class CreateTaskView extends VerticalLayout {
-    public CreateTaskView() {
+
+    @Autowired
+    private VoluntarioRestCliente voluntarioRestCliente;
+    @Autowired
+    private NecesidadRestCliente necesidadRestCliente;
+
+    public CreateTaskView(VoluntarioRestCliente voluntarioRestCliente, NecesidadRestCliente necesidadRestCliente) {
+        this.voluntarioRestCliente = voluntarioRestCliente;
+        this.necesidadRestCliente = necesidadRestCliente;
+
         setSpacing(false);
         setPadding(false);
         createHeader();
@@ -75,28 +93,92 @@ public class CreateTaskView extends VerticalLayout {
         //column1.getStyle().set("border", "1px solid red");
         HorizontalLayout tituloFieldArea = createFieldArea("Título", new TextField(""));
         HorizontalLayout descripcionFieldArea = createFieldArea("Descripción", new TextField(""));
-        HorizontalLayout necesidadesFieldArea = createFieldArea("Necesidades", new TextField(""));
-        column1.add(tituloFieldArea, descripcionFieldArea, necesidadesFieldArea);
-
-        //COLUMNA DE LA DERECHA
-        VerticalLayout column2 = new VerticalLayout();
-        //column2.getStyle().set("border", "1px solid red");
         DateTimePicker inicio = new DateTimePicker("");
         inicio.setStep(Duration.ofMinutes(30));
-        inicio.setWidth("70%");
         HorizontalLayout inicioFieldArea = createFieldArea("Inicio", inicio);
 
         DateTimePicker fin = new DateTimePicker("");
         fin.setStep(Duration.ofMinutes(30));
         HorizontalLayout finFieldArea = createFieldArea("Fin", fin);
 
-        HorizontalLayout voluntariosFieldArea = createFieldArea("Voluntarios", new TextField(""));
-        column2.add(inicioFieldArea, finFieldArea, voluntariosFieldArea);
+        //COLUMNA DE LA DERECHA
+        VerticalLayout column2 = new VerticalLayout();
+
+        VerticalLayout voluntariosArea = new VerticalLayout();
+        voluntariosArea.setSpacing(false);
+        voluntariosArea.setPadding(false);
+
+        VerticalLayout necesidadesArea = new VerticalLayout();
+        necesidadesArea.setSpacing(false);
+        necesidadesArea.setPadding(false);
+
+        HorizontalLayout voluntariosFieldArea = createFieldArea("Voluntarios", new Button("Añadir voluntarios"));
+        HorizontalLayout necesidadesFieldArea = createFieldArea("Necesidades", new Button("Añadir necesidades"));
+
+        List<VoluntarioDTO> listaVoluntarios = voluntarioRestCliente.obtenerTodos();
+        List<NecesidadDTO> listaNecesidades = necesidadRestCliente.obtenerTodos();
+
+        voluntariosArea.add(voluntariosFieldArea, createVirtualList(listaVoluntarios));
+        necesidadesArea.add(necesidadesFieldArea, createVirtualListN(listaNecesidades));
+
+        column1.add(tituloFieldArea, descripcionFieldArea, necesidadesArea);
+        column2.add(inicioFieldArea, finFieldArea, voluntariosArea);
 
         fields.add(column1, column2);
         getStyle().set("padding", "0 5%");
-
     }
+
+    private VirtualList<NecesidadDTO> createVirtualListN(List<NecesidadDTO> lista) {
+        VirtualList<NecesidadDTO> virtualList = new VirtualList<>();
+        virtualList.setItems(lista);
+        virtualList.setRenderer(necesidadCardRenderer);
+        return virtualList;
+    }
+
+    private VirtualList<VoluntarioDTO> createVirtualList(List<VoluntarioDTO> lista) {
+        VirtualList<VoluntarioDTO> virtualList = new VirtualList<>();
+        virtualList.setItems(lista);
+        virtualList.setRenderer(voluntarioCardRenderer);
+        return virtualList;
+    }
+
+    private final ComponentRenderer<Component, VoluntarioDTO> voluntarioCardRenderer = new ComponentRenderer<>(
+            voluntario -> {
+                HorizontalLayout cardLayout = new HorizontalLayout();
+                cardLayout.setMargin(true);
+
+                Avatar avatar = new Avatar(voluntario.getNombre());
+                avatar.setHeight("64px");
+                avatar.setWidth("64px");
+
+                VerticalLayout infoLayout = new VerticalLayout();
+                infoLayout.setSpacing(false);
+                infoLayout.setPadding(false);
+                infoLayout.add(new Span(voluntario.getNombre())); // Nombre del voluntario
+                infoLayout.add(new Span("Email: " + voluntario.getEmail())); // Email
+
+                cardLayout.add(avatar, infoLayout);
+                return cardLayout;
+            });
+
+    private final ComponentRenderer<Component, NecesidadDTO> necesidadCardRenderer = new ComponentRenderer<>(
+            necesidad -> {
+                HorizontalLayout cardLayout = new HorizontalLayout();
+                cardLayout.setMargin(true);
+
+                Avatar avatar = new Avatar(necesidad.getNombre());
+                avatar.setHeight("64px");
+                avatar.setWidth("64px");
+
+                VerticalLayout infoLayout = new VerticalLayout();
+                infoLayout.setSpacing(false);
+                infoLayout.setPadding(false);
+                infoLayout.add(new Span(necesidad.getNombre())); // Nombre del voluntario
+                infoLayout.add(new Span(necesidad.getDescripcion())); // Email
+
+                cardLayout.add(avatar, infoLayout);
+                return cardLayout;
+            });
 
     private void createButton() {
         VerticalLayout buttonArea = new VerticalLayout();

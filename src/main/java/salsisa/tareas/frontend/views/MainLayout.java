@@ -36,7 +36,6 @@ public class MainLayout extends AppLayout implements RouterLayout {
         menu.getStyle().set("padding-top", "10%");
         menu.setSpacing(true);
 
-
         addToDrawer(menu);
         setPrimarySection(Section.DRAWER);
 
