@@ -1,25 +1,32 @@
 package salsisa.tareas.frontend.views;
 
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.*;
+                        import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
-import com.vaadin.flow.component.html.Image;
+import org.springframework.beans.factory.annotation.Autowired;
+import salsisa.tareas.frontend.dto.NecesidadDTO;
+import salsisa.tareas.frontend.servicesAPI.NecesidadRestCliente;
+
+import java.util.List;
 
 @PageTitle("SH - Visualizar Necesidades") // Nombre que sale arriba en el tab del navegador
 @Route(value="NeedsView", layout = MainLayout.class) // Value indica la url y layout indica la clase que usa como base
 @RouteAlias(value="", layout = MainLayout.class)
 public class NeedsView extends VerticalLayout {
-    public NeedsView() {
+
+    @Autowired
+    private NecesidadRestCliente necesidadRestCliente;
+
+    public NeedsView(NecesidadRestCliente necesidadRestCliente) {
+        this.necesidadRestCliente = necesidadRestCliente;
         setSpacing(false);
         setPadding(false);
         createHeader();
         createNeedsView();
-        add(createNeed("Hola","Soy el sufijo"));
     }
     private void createHeader() {
         VerticalLayout headingDiv = new VerticalLayout();
@@ -30,6 +37,20 @@ public class NeedsView extends VerticalLayout {
         add(headingDiv);
     }
     private void createNeedsView() {
+        FlexLayout gridLayout = new FlexLayout();
+        gridLayout.setWidth("100%");
+        gridLayout.getStyle()
+                .set("display", "flex")
+                .set("flex-wrap", "wrap")  // Para que se acomoden en filas
+                .set("justify-content", "center") // Centra las tarjetas
+                .set("gap", "10px"); // Espacio entre tarjetas
+        List<NecesidadDTO> listaNecesidades = necesidadRestCliente.obtenerTodos();
+        for (int i = 0; i < listaNecesidades.size(); i++) {
+            gridLayout.add(createCard(listaNecesidades.get(i)));
+        }
+        add(gridLayout);
+        getStyle().set("padding", "0 2%");
+/*
         //Se pueden ver 6 necesidades a la vez, 4 por fila
         VerticalLayout needsDiv = new VerticalLayout();
         needsDiv.setSpacing(false);
@@ -51,30 +72,40 @@ public class NeedsView extends VerticalLayout {
         secondAreaNeed.add(fifthNeed, sixthNeed, seventhNeed, eighthNeed);
 
         needsDiv.add(firstAreaNeed, secondAreaNeed);
+
+ */
     }
-    private VerticalLayout createNeed(String label, String sufix) {
-        VerticalLayout need = new VerticalLayout();
-        need.setHeight("400px");
-        need.setWidth("400px");
-        HorizontalLayout foto = new HorizontalLayout();
-        Div fotoprueba = new Div();
-        fotoprueba.setWidth("100%");
-        fotoprueba.setHeight("100%");
-        foto.add(fotoprueba);
-        foto.getStyle().set("border", "1px solid red");
-        foto.setHeight("75%");
-        foto.setWidth("100%");
-
-        HorizontalLayout texto = new HorizontalLayout();
-        texto.getStyle().set("border", "1px solid red");
-        texto.setHeight("25%");
-        texto.setWidth("100%");
-
-        Span labelArea = new Span(label);
-        Span sufixArea = new Span(sufix);
-        texto.setJustifyContentMode(JustifyContentMode.CENTER);
-        texto.add(labelArea, sufixArea);
-        need.add(foto, texto);
-        return need;
+    private Div createCard(NecesidadDTO necesidadDTO) {
+        Div imageContainer = new Div();
+        imageContainer.setWidth("100%");
+        imageContainer.setHeight("150px");
+        imageContainer.getStyle()
+                .set("border", "2px dashed #ccc")
+                .set("border-radius", "10px")
+                .set("display", "flex")
+                .set("align-items", "center")
+                .set("justify-content", "center")
+                .set("background-color", "#f9f9f9");
+        imageContainer.add(new Span("Imagen no disponible"));            // aqui se cambiara para la imagen, ahora esta puesto q no hay imagen
+        H4 title = new H4(necesidadDTO.getNombre());
+        title.setWidth("80%");
+        H6 subtitulo = new H6("Disponible");
+        subtitulo.setWidth("20%");
+        subtitulo.getStyle().set("text-align", "right");
+        Span margenDerecho = new Span();
+        margenDerecho.setWidth("10px");
+        HorizontalLayout orden = new HorizontalLayout(title, subtitulo, margenDerecho);
+        orden.getStyle().set("padding", "10px");
+        Div card = new Div(imageContainer, orden);
+        card.getStyle()
+                .set("flex", "1")                                               // Se ajusta dinámicamente
+                .set("min-width", "250px")
+                .set("max-width", "400px")
+                .set("padding", "10px")
+                .set("border", "1px solid #ccc")
+                .set("border-radius", "10px")
+                .set("box-shadow", "2px 2px 10px rgba(0,0,0,0.1)")
+                .set("text-align", "left");
+        return card;
     }
 }
