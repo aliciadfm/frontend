@@ -22,8 +22,11 @@ public class VoluntarioRestCliente {
 
     private static final String BASE_URL = "https://963252b4-a3b9-4627-93ec-d9656d72237e.mock.pstmn.io/api/voluntarios";
 
-    @Autowired
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
+
+    public VoluntarioRestCliente(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     public List<VoluntarioDTO> obtenerTodos() {
         ResponseEntity<VoluntarioDTO[]> response = restTemplate.getForEntity(BASE_URL, VoluntarioDTO[].class);

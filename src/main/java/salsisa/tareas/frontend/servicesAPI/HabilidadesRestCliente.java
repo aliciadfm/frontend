@@ -15,8 +15,11 @@ import java.util.List;
 public class HabilidadesRestCliente {
     private final String BASE_URL = "";
 
-    @Autowired
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
+
+    public HabilidadesRestCliente(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     public List<HabilidadDTO> obtenerTodos() {
         ResponseEntity<HabilidadDTO[]> response = restTemplate.getForEntity(BASE_URL, HabilidadDTO[].class);

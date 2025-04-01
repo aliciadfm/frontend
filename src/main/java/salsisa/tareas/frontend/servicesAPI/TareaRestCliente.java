@@ -14,8 +14,11 @@ public class TareaRestCliente {
 
     private static final String BASE_URL = "";
 
-    @Autowired
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
+
+    public TareaRestCliente(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     public List<TareaDTO> obtenerTodos() {
         ResponseEntity<TareaDTO[]> response = restTemplate.getForEntity(BASE_URL, TareaDTO[].class);

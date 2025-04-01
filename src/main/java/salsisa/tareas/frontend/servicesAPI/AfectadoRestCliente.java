@@ -13,8 +13,11 @@ import java.util.List;
 public class AfectadoRestCliente {
     private final String BASE_URL = "https://ade24970-ffb5-4c4a-a25a-79c1f3a4d9df.mock.pstmn.io/api/afectados";
 
-    @Autowired
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
+
+    public AfectadoRestCliente(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     public List<AfectadoDTO> obtenerTodos() {
         ResponseEntity<AfectadoDTO[]> response = restTemplate.getForEntity(BASE_URL, AfectadoDTO[].class);

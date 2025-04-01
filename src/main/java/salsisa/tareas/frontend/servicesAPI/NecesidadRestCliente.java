@@ -19,8 +19,11 @@ public class NecesidadRestCliente {
 
     private static final String BASE_URL = "https://21f594b0-23b6-4c62-8d2c-62fe254a9360.mock.pstmn.io/api/necesidades";
 
-    @Autowired
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
+
+    public NecesidadRestCliente(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     public List<NecesidadDTO> obtenerTodos() {
         ResponseEntity<NecesidadDTO[]> response = restTemplate.getForEntity(BASE_URL, NecesidadDTO[].class);
