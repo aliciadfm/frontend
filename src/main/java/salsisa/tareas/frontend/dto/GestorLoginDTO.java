@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class GestorDTO {
+public class GestorLoginDTO {
     private String usuario;
     private String contrasena;
 }
