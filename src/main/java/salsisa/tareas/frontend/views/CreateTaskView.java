@@ -2,21 +2,26 @@ package salsisa.tareas.frontend.views;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.virtuallist.VirtualList;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import org.checkerframework.checker.units.qual.N;
 import org.springframework.beans.factory.annotation.Autowired;
 import salsisa.tareas.frontend.dto.NecesidadDTO;
+import salsisa.tareas.frontend.dto.TareaDTO;
 import salsisa.tareas.frontend.dto.VoluntarioDTO;
 import salsisa.tareas.frontend.servicesAPI.NecesidadRestCliente;
 import salsisa.tareas.frontend.servicesAPI.VoluntarioRestCliente;
@@ -36,7 +41,6 @@ public class CreateTaskView extends VerticalLayout {
     public CreateTaskView(VoluntarioRestCliente voluntarioRestCliente, NecesidadRestCliente necesidadRestCliente) {
         this.voluntarioRestCliente = voluntarioRestCliente;
         this.necesidadRestCliente = necesidadRestCliente;
-
         setSpacing(false);
         setPadding(false);
         createHeader();
@@ -112,8 +116,13 @@ public class CreateTaskView extends VerticalLayout {
         necesidadesArea.setSpacing(false);
         necesidadesArea.setPadding(false);
 
-        HorizontalLayout voluntariosFieldArea = createFieldArea("Voluntarios", new Button("Añadir voluntarios"));
-        HorizontalLayout necesidadesFieldArea = createFieldArea("Necesidades", new Button("Añadir necesidades"));
+        Button voluntariosButton = new Button("Añdir voluntarios");
+        Button necesidadesButton = new Button("Añadir necesidades");
+        voluntariosButton.addClickListener(e -> {
+            UI.getCurrent().navigate(VolunteersView.class);
+        });
+        HorizontalLayout voluntariosFieldArea = createFieldArea("Voluntarios", voluntariosButton);
+        HorizontalLayout necesidadesFieldArea = createFieldArea("Necesidades", necesidadesButton);
 
         List<VoluntarioDTO> listaVoluntarios = voluntarioRestCliente.obtenerTodos();
         List<NecesidadDTO> listaNecesidades = necesidadRestCliente.obtenerTodos();
@@ -198,5 +207,8 @@ public class CreateTaskView extends VerticalLayout {
         aceptarButton.getStyle().set("cursor", "pointer");
         buttonArea.add(aceptarButton);
         buttonArea.setAlignSelf(Alignment.CENTER, aceptarButton);
+        aceptarButton.addClickListener(e -> {
+            Notification.show("Tarea creada");
+        });
     }
 }
