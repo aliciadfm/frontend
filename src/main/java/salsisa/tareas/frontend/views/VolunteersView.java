@@ -1,6 +1,7 @@
 package salsisa.tareas.frontend.views;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
@@ -100,5 +101,8 @@ public class VolunteersView extends VerticalLayout implements RouterLayout {
         acceptArea.setJustifyContentMode(JustifyContentMode.CENTER);
         acceptArea.setWidth("50%");
         buttons.add(cancelArea, acceptArea);
+        cancelButton.addClickListener(e -> {
+            UI.getCurrent().navigate("createTask");
+        });
     }
 }
