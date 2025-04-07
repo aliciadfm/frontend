@@ -54,9 +54,6 @@ public class NecesidadRestCliente {
 //            }
 //        }
 //
-//        if (filtro.getEstado() != null && !filtro.getEstado().isEmpty()) {
-//            params.add("estado", filtro.getEstado());
-//        }
 //
 //        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 //        ResponseEntity<NecesidadDTO[]> response = restTemplate.postForEntity(FILTRO_URL, request, NecesidadDTO[].class);
