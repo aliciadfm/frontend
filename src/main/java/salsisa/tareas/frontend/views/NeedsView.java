@@ -99,22 +99,50 @@ public class NeedsView extends VerticalLayout {
                 .set("bottom", "10px") // A 10 píxeles del borde inferior de la tarjeta
                 .set("right", "10px"); // A 10 píxeles del borde derecho de la tarjeta
         categoryLabel.getStyle().set("background-color", "#67f913");
+
         Div bottomSection = new Div(title, categoryLabel);
         bottomSection.getStyle()
                 .set("border-radius", "0 0 10px 10px")
                 .set("padding", "10px")
                 .set("display", "flex")
                 .set("justify-content", "space-between");
-        Div card = new Div(imageContainer, bottomSection);
+
+        Span descriptionLabel = new Span(necesidadDTO.getDescripcion());
+        descriptionLabel.getStyle()
+                .set("margin-top", "10px")
+                .set("display", "block");
+        descriptionLabel.setVisible(false);
+
+        Div card = new Div();
+        card.add(imageContainer,bottomSection,descriptionLabel);
         card.getStyle()
-                .set("flex", "1")                                               // Se ajusta dinámicamente
+                .set("flex", "1")     // Se ajusta dinámicamente
                 .set("min-width", "250px")
                 .set("max-width", "400px")
                 .set("padding", "10px")
                 .set("border", "1px solid #ccc")
                 .set("border-radius", "10px")
                 .set("box-shadow", "2px 2px 10px rgba(0,0,0,0.1)")
-                .set("text-align", "left");
+                .set("text-align", "left")
+                .set("min-height", "150px")
+                .set("background-color", "#fff")
+                .set("transition", "all 0.3s ease");
+
+        card.addClickListener(event -> {
+            boolean isExpanded = descriptionLabel.isVisible();
+            descriptionLabel.setVisible(!isExpanded);
+            if (!isExpanded) {
+                card.getStyle()
+                        .set("height", "auto")
+                        .set("box-shadow", "4px 4px 8px rgba(0,0,0,0.2)");
+            } else {
+                card.getStyle()
+                        .set("height", "auto")
+                        .set("box-shadow", "2px 2px 5px rgba(0,0,0,0.1)");
+            }
+        });
+
+
         return card;
     }
 }
