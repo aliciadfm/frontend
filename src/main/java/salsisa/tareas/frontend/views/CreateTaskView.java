@@ -9,19 +9,20 @@ import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.shared.Tooltip;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.virtuallist.VirtualList;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import org.checkerframework.checker.units.qual.N;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import org.springframework.beans.factory.annotation.Autowired;
 import salsisa.tareas.frontend.dto.NecesidadDTO;
-import salsisa.tareas.frontend.dto.TareaDTO;
 import salsisa.tareas.frontend.dto.VoluntarioDTO;
 import salsisa.tareas.frontend.servicesAPI.NecesidadRestCliente;
 import salsisa.tareas.frontend.servicesAPI.VoluntarioRestCliente;
@@ -38,6 +39,12 @@ public class CreateTaskView extends VerticalLayout {
     @Autowired
     private NecesidadRestCliente necesidadRestCliente;
 
+    private TextField tituloField;
+    private TextField descripcionField;
+    private DateTimePicker inicioPicker;
+    private DateTimePicker finPicker;
+    private Checkbox pendienteCheckbox;
+
     public CreateTaskView(VoluntarioRestCliente voluntarioRestCliente, NecesidadRestCliente necesidadRestCliente) {
         this.voluntarioRestCliente = voluntarioRestCliente;
         this.necesidadRestCliente = necesidadRestCliente;
@@ -45,6 +52,7 @@ public class CreateTaskView extends VerticalLayout {
         setPadding(false);
         createHeader();
         createTextFields();
+        createCheckboxArea();
         createButton();
     }
 
@@ -89,21 +97,25 @@ public class CreateTaskView extends VerticalLayout {
         HorizontalLayout fields = new HorizontalLayout();
         fields.setSpacing(false);
         add(fields);
-        //fields.getStyle().set("border", "1px solid red");
         fields.setWidth("100%");
+
+        tituloField = new TextField("");
+        descripcionField = new TextField("");
+        inicioPicker = new DateTimePicker("");
+        finPicker = new DateTimePicker("");
 
         //COLUMNA DE LA IZQUIERDA
         VerticalLayout column1 = new VerticalLayout();
         //column1.getStyle().set("border", "1px solid red");
-        HorizontalLayout tituloFieldArea = createFieldArea("Título", new TextField(""));
-        HorizontalLayout descripcionFieldArea = createFieldArea("Descripción", new TextField(""));
+        HorizontalLayout tituloFieldArea = createFieldArea("Título", tituloField);
+        HorizontalLayout descripcionFieldArea = createFieldArea("Descripción", descripcionField);
         DateTimePicker inicio = new DateTimePicker("");
         inicio.setStep(Duration.ofMinutes(30));
-        HorizontalLayout inicioFieldArea = createFieldArea("Inicio", inicio);
+        HorizontalLayout inicioFieldArea = createFieldArea("Inicio", inicioPicker);
 
         DateTimePicker fin = new DateTimePicker("");
         fin.setStep(Duration.ofMinutes(30));
-        HorizontalLayout finFieldArea = createFieldArea("Fin", fin);
+        HorizontalLayout finFieldArea = createFieldArea("Fin", finPicker);
 
         //COLUMNA DE LA DERECHA
         VerticalLayout column2 = new VerticalLayout();
@@ -135,6 +147,25 @@ public class CreateTaskView extends VerticalLayout {
 
         fields.add(column1, column2);
         getStyle().set("padding", "0 5%");
+    }
+
+    private void createCheckboxArea() {
+        HorizontalLayout checkboxArea = new HorizontalLayout();
+        pendienteCheckbox = new Checkbox("Dejar tarea en estado Pendiente");
+
+        Icon infoIcon = VaadinIcon.INFO_CIRCLE_O.create();
+        infoIcon.getStyle()
+                .set("color", "var(--lumo-secondary-text-color)")
+                .set("cursor", "pointer")
+                .set("font-size", "14px")
+                .set("margin-left", "0px")
+                .set("align-self", "center");
+
+        Tooltip.forComponent(infoIcon).setText("La tarea se quedará visible para voluntarios pero sin asignar.");
+
+        checkboxArea.setAlignItems(FlexComponent.Alignment.CENTER);
+        checkboxArea.add(pendienteCheckbox, infoIcon);
+        add(checkboxArea);
     }
 
     private <T> VirtualList<T> createVirtualList(List<T> lista) {
@@ -208,6 +239,13 @@ public class CreateTaskView extends VerticalLayout {
         buttonArea.add(aceptarButton);
         buttonArea.setAlignSelf(Alignment.CENTER, aceptarButton);
         aceptarButton.addClickListener(e -> {
+            if (tituloField.isEmpty() || descripcionField.isEmpty()
+                    || inicioPicker.isEmpty() || finPicker.isEmpty()) {
+
+                Notification.show("Por favor, rellena todos los campos obligatorios.", 3000, Notification.Position.MIDDLE);
+                return;
+            }
+
             Notification.show("Tarea creada");
         });
     }
