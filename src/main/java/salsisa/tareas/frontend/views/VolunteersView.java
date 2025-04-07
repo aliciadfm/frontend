@@ -64,7 +64,7 @@ public class VolunteersView extends VerticalLayout implements RouterLayout {
         add(volunteersArea); // Agregar el contenedor a la vista
     }
 
-    private ComponentRenderer<Component, VoluntarioDTO> voluntarioCardRenderer = new ComponentRenderer<>(
+    private final ComponentRenderer<Component, VoluntarioDTO> voluntarioCardRenderer = new ComponentRenderer<>(
             voluntario -> {
                 HorizontalLayout cardLayout = new HorizontalLayout();
                 cardLayout.setMargin(true);

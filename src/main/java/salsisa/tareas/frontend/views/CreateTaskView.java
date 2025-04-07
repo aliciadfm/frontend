@@ -39,6 +39,9 @@ public class CreateTaskView extends VerticalLayout {
     @Autowired
     private NecesidadRestCliente necesidadRestCliente;
 
+    List<VoluntarioDTO> listaVoluntarios;
+    List<NecesidadDTO> listaNecesidades;
+
     private TextField tituloField;
     private TextField descripcionField;
     private DateTimePicker inicioPicker;
@@ -136,8 +139,8 @@ public class CreateTaskView extends VerticalLayout {
         HorizontalLayout voluntariosFieldArea = createFieldArea("Voluntarios", voluntariosButton);
         HorizontalLayout necesidadesFieldArea = createFieldArea("Necesidades", necesidadesButton);
 
-        List<VoluntarioDTO> listaVoluntarios = voluntarioRestCliente.obtenerTodos();
-        List<NecesidadDTO> listaNecesidades = necesidadRestCliente.obtenerTodos();
+        listaVoluntarios = voluntarioRestCliente.obtenerTodos();
+        listaNecesidades = necesidadRestCliente.obtenerTodos();
 
         voluntariosArea.add(voluntariosFieldArea, createVirtualList(listaVoluntarios));
         necesidadesArea.add(necesidadesFieldArea, createVirtualList(listaNecesidades));
@@ -239,11 +242,19 @@ public class CreateTaskView extends VerticalLayout {
         buttonArea.add(aceptarButton);
         buttonArea.setAlignSelf(Alignment.CENTER, aceptarButton);
         aceptarButton.addClickListener(e -> {
-            if (tituloField.isEmpty() || descripcionField.isEmpty()
-                    || inicioPicker.isEmpty() || finPicker.isEmpty()) {
-
-                Notification.show("Por favor, rellena todos los campos obligatorios.", 3000, Notification.Position.MIDDLE);
-                return;
+            if(pendienteCheckbox.getValue()) {
+                if(tituloField.isEmpty() || descripcionField.isEmpty()
+                        || inicioPicker.isEmpty() || finPicker.isEmpty()) {
+                    Notification.show("Por favor, rellena todos los campos obligatorios.", 3000, Notification.Position.MIDDLE);
+                    return;
+                }
+            } else {
+                if(tituloField.isEmpty() || descripcionField.isEmpty()
+                        || inicioPicker.isEmpty() || finPicker.isEmpty()
+                        || listaVoluntarios.isEmpty() || listaNecesidades.isEmpty()) {
+                    Notification.show("Por favor, rellena todos los campos obligatorios.", 3000, Notification.Position.MIDDLE);
+                    return;
+                }
             }
 
             Notification.show("Tarea creada");
