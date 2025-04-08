@@ -1,5 +1,7 @@
 package salsisa.tareas.frontend.views;
 
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.html.*;
                         import com.vaadin.flow.component.orderedlayout.FlexLayout;
@@ -70,8 +72,20 @@ public class NeedsView extends VerticalLayout {
         urgencyFilter.setThemeName("vertical");
         filtersContainer.add(urgencyFilter);
         //filtersContainer.getStyle().set("background-color", "grey");
+        Button filtrar = new Button("Filtrar");
+
+        filtrar.addClickListener(e -> {
+
+            });
+
+        filtrar.getStyle().set("border", "1px solid #ccc")
+                .set("border-radius", "10px");
+        filtersContainer.add(filtrar);
+
         mainLayout.add(gridLayout, filtersContainer);
+
         add(mainLayout);
+
         getStyle().set("padding", "0 2%");
 
     }
@@ -106,15 +120,26 @@ public class NeedsView extends VerticalLayout {
                 .set("padding", "10px")
                 .set("display", "flex")
                 .set("justify-content", "space-between");
-
+        Div descriptionContainer = new Div();
         Span descriptionLabel = new Span(necesidadDTO.getDescripcion());
         descriptionLabel.getStyle()
                 .set("margin-top", "10px")
                 .set("display", "block");
-        descriptionLabel.setVisible(false);
+        Button select = new Button("Seleccionar");
+
+        select.addClickListener(e -> {
+            UI.getCurrent().navigate(CreateTaskView.class);
+        });
+
+        descriptionContainer.add(descriptionLabel, select);
+        descriptionContainer.getStyle()
+                .set("margin-top", "10px")
+                .set("display", "flex")
+                .set("flex-direction", "column");
+        descriptionContainer.setVisible(false);
 
         Div card = new Div();
-        card.add(imageContainer,bottomSection,descriptionLabel);
+        card.add(imageContainer,bottomSection,descriptionContainer);
         card.getStyle()
                 .set("flex", "1")     // Se ajusta dinámicamente
                 .set("min-width", "250px")
@@ -129,8 +154,8 @@ public class NeedsView extends VerticalLayout {
                 .set("transition", "all 0.3s ease");
 
         card.addClickListener(event -> {
-            boolean isExpanded = descriptionLabel.isVisible();
-            descriptionLabel.setVisible(!isExpanded);
+            boolean isExpanded = descriptionContainer.isVisible();
+            descriptionContainer.setVisible(!isExpanded);
             if (!isExpanded) {
                 card.getStyle()
                         .set("height", "auto")
