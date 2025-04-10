@@ -4,11 +4,13 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.virtuallist.VirtualList;
+import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -17,19 +19,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import salsisa.tareas.frontend.dto.VoluntarioDTO;
 import salsisa.tareas.frontend.servicesAPI.VoluntarioRestCliente;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @PageTitle("Lista de voluntarios")
-@Route(value="volunteers", layout = MainLayout.class)
+@Route(value = "voluntarios", layout = MainLayout.class)
 public class VolunteersView extends VerticalLayout implements RouterLayout {
 
     @Autowired
     private VoluntarioRestCliente voluntarioRestCliente;
 
+    private final Map<VoluntarioDTO, Checkbox> checkboxMap = new HashMap<>();
+    VirtualList<VoluntarioDTO> virtualList;
+
     public VolunteersView(VoluntarioRestCliente voluntarioRestCliente) {
         this.voluntarioRestCliente = voluntarioRestCliente;
         setSpacing(false);
         setPadding(false);
+        setAlignItems(Alignment.CENTER);
         getStyle().set("padding", "0 5%");
         createHeader();
         createVolunteersList();
@@ -55,7 +65,7 @@ public class VolunteersView extends VerticalLayout implements RouterLayout {
             throw new IllegalArgumentException("La lista de voluntarios está vacía.");
         }
 
-        VirtualList<VoluntarioDTO> virtualList = new VirtualList<>();
+        virtualList = new VirtualList<>();
         virtualList.setItems(lista);
         virtualList.setRenderer(voluntarioCardRenderer);
         virtualList.setHeight("100%"); // Mantén esto si el contenedor ya tiene altura
@@ -76,10 +86,14 @@ public class VolunteersView extends VerticalLayout implements RouterLayout {
                 VerticalLayout infoLayout = new VerticalLayout();
                 infoLayout.setSpacing(false);
                 infoLayout.setPadding(false);
-                infoLayout.add(new Span(voluntario.getNombre())); // Nombre del voluntario
-                infoLayout.add(new Span("Email: " + voluntario.getEmail())); // Email
+                infoLayout.setWidth("30%");
+                infoLayout.add(new Span(voluntario.getNombre()));
+                infoLayout.add(new Span("Email: " + voluntario.getEmail()));
 
-                cardLayout.add(avatar, infoLayout);
+                Checkbox checkBox = new Checkbox("");
+                checkboxMap.put(voluntario, checkBox);
+
+                cardLayout.add(avatar, infoLayout, checkBox);
                 return cardLayout;
             });
 
@@ -101,8 +115,22 @@ public class VolunteersView extends VerticalLayout implements RouterLayout {
         acceptArea.setJustifyContentMode(JustifyContentMode.CENTER);
         acceptArea.setWidth("50%");
         buttons.add(cancelArea, acceptArea);
-        cancelButton.addClickListener(e -> {
-            UI.getCurrent().navigate("createTask");
+        acceptButton.addClickListener(e -> {
+            List<VoluntarioDTO> seleccionados = new ArrayList<>();
+
+            for (Map.Entry<VoluntarioDTO, Checkbox> entry : checkboxMap.entrySet()) {
+                if (entry.getValue().getValue()) {
+                    seleccionados.add(entry.getKey());
+                }
+            }
+
+            VoluntarioSession.setVoluntariosSeleccionados(seleccionados);
+            UI.getCurrent().navigate(CreateTaskView.class);
         });
+
+        //acceptButton.getStyle().set("background-color", "#8dcd7e");
+        //acceptButton.getStyle().set("color", "#ffffff");
+        acceptButton.getStyle().set("background-color", "#B64040");
+        acceptButton.getStyle().set("color", "#ffffff");
     }
 }
