@@ -1,19 +1,13 @@
 package salsisa.tareas.frontend.servicesAPI;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import salsisa.tareas.frontend.dto.FiltroVoluntarioDTO;
-import salsisa.tareas.frontend.dto.TareaDTO;
+import org.springframework.web.util.UriComponentsBuilder;
+import salsisa.tareas.frontend.dto.FiltroVoluntario1DTO;
 import salsisa.tareas.frontend.dto.VoluntarioDTO;
-
-import java.time.format.DateTimeFormatter;
+import salsisa.tareas.frontend.dto.FiltroVoluntario2DTO;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,32 +30,59 @@ public class VoluntarioRestCliente {
     public VoluntarioDTO obtenerPorId(Long id) {
         return restTemplate.getForObject(BASE_URL + "/" + id, VoluntarioDTO.class);
     }
+    public List<VoluntarioDTO> obtenerVoluntariosValidos(FiltroVoluntario1DTO filtro) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString("http://localhost:8081/api/voluntarios/validos");
 
-//    public List<VoluntarioDTO> filtrarVoluntarios(FiltroVoluntarioDTO filtro) {
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-//
-//        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-//        DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
-//        DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_LOCAL_TIME;
-//
-//        if (filtro.getFechaInicio() != null) {
-//            params.add("fechaInicio", filtro.getFechaInicio().format(dateFormatter));
-//        }
-//        if (filtro.getFechaFin() != null) {
-//            params.add("fechaFin", filtro.getFechaFin().format(dateFormatter));
-//        }
-//        if (filtro.getHorarioInicio() != null) {
-//            params.add("horarioInicio", filtro.getHorarioInicio().format(timeFormatter));
-//        }
-//        if (filtro.getHorarioFin() != null) {
-//            params.add("horarioFin", filtro.getHorarioFin().format(timeFormatter));
-//        }
-//
-//        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-//        ResponseEntity<VoluntarioDTO[]> response = restTemplate.postForEntity(FILTRO_URL, request, VoluntarioDTO[].class);
-//        return Arrays.asList(response.getBody());
-//    }
+        if (filtro.getFechaInicio() != null)
+            builder.queryParam("fechaInicio", filtro.getFechaInicio());
+
+        if (filtro.getFechaFin() != null)
+            builder.queryParam("fechaFin", filtro.getFechaFin());
+
+        if (filtro.getHorarioInicio() != null)
+            builder.queryParam("horarioInicio", filtro.getHorarioInicio());
+
+        if (filtro.getHorarioFin() != null)
+            builder.queryParam("horarioFin", filtro.getHorarioFin());
+
+        if (filtro.getIdCategoria() != null)
+            builder.queryParam("idCategoria", filtro.getIdCategoria());
+
+        String finalUrl = builder.toUriString();
+
+        ResponseEntity<VoluntarioDTO[]> response = restTemplate.getForEntity(finalUrl, VoluntarioDTO[].class);
+        return response.getBody() != null ? Arrays.asList(response.getBody()) : new ArrayList<>();
+    }
+    public List<VoluntarioDTO> validarListaDeVoluntarios(FiltroVoluntario2DTO filtro) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString("http://localhost:8081/api/voluntarios/validos/lista");
+
+        if (filtro.getFechaInicio() != null)
+            builder.queryParam("fechaInicio", filtro.getFechaInicio());
+
+        if (filtro.getFechaFin() != null)
+            builder.queryParam("fechaFin", filtro.getFechaFin());
+
+        if (filtro.getHorarioInicio() != null)
+            builder.queryParam("horarioInicio", filtro.getHorarioInicio());
+
+        if (filtro.getHorarioFin() != null)
+            builder.queryParam("horarioFin", filtro.getHorarioFin());
+
+        if (filtro.getIdCategoria() != null)
+            builder.queryParam("idCategoria", filtro.getIdCategoria());
+
+        if (filtro.getVoluntarios() != null && !filtro.getVoluntarios().isEmpty()) {
+            for (Long idVoluntario : filtro.getVoluntarios()) {
+                builder.queryParam("voluntarios", idVoluntario);
+            }
+        }
+
+        String finalUrl = builder.toUriString();
+
+        ResponseEntity<VoluntarioDTO[]> response = restTemplate.getForEntity(finalUrl, VoluntarioDTO[].class);
+        return response.getBody() != null ? Arrays.asList(response.getBody()) : new ArrayList<>();
+    }
+
 
 //    public VoluntarioDTO crear(VoluntarioDTO dto) {
 //        return restTemplate.postForObject(BASE_URL, dto, VoluntarioDTO.class);
