@@ -23,8 +23,10 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import org.springframework.beans.factory.annotation.Autowired;
 import salsisa.tareas.frontend.dto.NecesidadDTO;
+import salsisa.tareas.frontend.dto.TareaDTO;
 import salsisa.tareas.frontend.dto.VoluntarioDTO;
 import salsisa.tareas.frontend.servicesAPI.NecesidadRestCliente;
+import salsisa.tareas.frontend.servicesAPI.TareaRestCliente;
 import salsisa.tareas.frontend.servicesAPI.VoluntarioRestCliente;
 
 import java.time.Duration;
@@ -42,12 +44,13 @@ public class CreateTaskView extends VerticalLayout {
     private VoluntarioRestCliente voluntarioRestCliente;
     @Autowired
     private NecesidadRestCliente necesidadRestCliente;
+    @Autowired
+    private TareaRestCliente tareaRestCliente;
 
     List<VoluntarioDTO> listaVoluntarios;
     List<NecesidadDTO> listaNecesidades;
     private VirtualList<VoluntarioDTO> virtualVoluntarios;
     private VirtualList<NecesidadDTO> virtualNecesidades;
-
 
     private TextField tituloField;
     private TextField descripcionField;
@@ -55,9 +58,10 @@ public class CreateTaskView extends VerticalLayout {
     private DateTimePicker finPicker;
     private Checkbox pendienteCheckbox;
 
-    public CreateTaskView(VoluntarioRestCliente voluntarioRestCliente, NecesidadRestCliente necesidadRestCliente) {
+    public CreateTaskView(VoluntarioRestCliente voluntarioRestCliente, NecesidadRestCliente necesidadRestCliente, TareaRestCliente tareaRestCliente) {
         this.voluntarioRestCliente = voluntarioRestCliente;
         this.necesidadRestCliente = necesidadRestCliente;
+        this.tareaRestCliente = tareaRestCliente;
 
         setSpacing(false);
         setPadding(false);
@@ -285,6 +289,8 @@ public class CreateTaskView extends VerticalLayout {
                     return;
                 }
             }
+
+            //TareaDTO tarea = new TareaDTO(tituloField.getValue(), descripcionField.getValue(), inicioPicker.getValue(), finPicker.getValue());
             Notification.show("Tarea creada");
             clearForm();
         });
