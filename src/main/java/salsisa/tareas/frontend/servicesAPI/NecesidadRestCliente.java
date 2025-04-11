@@ -3,8 +3,6 @@ package salsisa.tareas.frontend.servicesAPI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import salsisa.tareas.frontend.dto.FiltroNecesidadDTO;
@@ -16,27 +14,24 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-public class NecesidadRestCliente {
+public class NecesidadRestCliente extends ClienteRestBase<NecesidadDTO> {
 
-    private static final String BASE_URL = "https://21f594b0-23b6-4c62-8d2c-62fe254a9360.mock.pstmn.io/api/necesidades";
-    private static final String SIN_CUBRIR_URL ="http:/localhost:8081/api/necesidades/sinCubrir" ;
+    private static final String BASE_URL = "http://localhost:8081/api/necesidades";
+    private static final String SIN_CUBRIR_URL = BASE_URL + "/sinCubrir";
+    private static final Class<NecesidadDTO[]> NECESIDAD_ARRAY_CLASS = NecesidadDTO[].class;
 
     private final RestTemplate restTemplate;
+    private final AuthService authService;
 
-    public NecesidadRestCliente(RestTemplate restTemplate) {
+    @Autowired
+    public NecesidadRestCliente(RestTemplate restTemplate, AuthService authService) {
+        super(restTemplate, authService, BASE_URL, NecesidadDTO.class);
         this.restTemplate = restTemplate;
+        this.authService = authService;
     }
 
-    public List<NecesidadDTO> obtenerTodos() {
-        ResponseEntity<NecesidadDTO[]> response = restTemplate.getForEntity(BASE_URL, NecesidadDTO[].class);
-        return Arrays.asList(response.getBody());
-    }
-
-    public NecesidadDTO obtenerPorId(Long id) {
-        return restTemplate.getForObject(BASE_URL + "/" + id, NecesidadDTO.class);
-    }
-    public List<NecesidadDTO> filtrarNecesidades(FiltroNecesidadDTO filtro) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(SIN_CUBRIR_URL); // <-- ej: "http://localhost:8081/api/necesidades/sinCubrir"
+    public List<NecesidadDTO> obtenerSinCubrir(FiltroNecesidadDTO filtro) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(SIN_CUBRIR_URL);
 
         if (filtro.getUrgencias() != null) {
             for (Urgencia urgencia : filtro.getUrgencias()) {
@@ -51,22 +46,16 @@ public class NecesidadRestCliente {
         }
 
         String finalUrl = builder.toUriString();
+        HttpHeaders headers = authService.getAuthHeaders();
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-        ResponseEntity<NecesidadDTO[]> response = restTemplate.getForEntity(finalUrl, NecesidadDTO[].class);
+        ResponseEntity<NecesidadDTO[]> response = restTemplate.exchange(
+                finalUrl,
+                HttpMethod.GET,
+                entity,
+                NECESIDAD_ARRAY_CLASS
+        );
 
         return response.getBody() != null ? Arrays.asList(response.getBody()) : new ArrayList<>();
     }
-
-
-//    public NecesidadDTO crear(NecesidadDTO dto) {
-//        return restTemplate.postForObject(BASE_URL, dto, NecesidadDTO.class);
-//    }
-
-//    public void actualizar(Long id, NecesidadDTO dto) {
-//        restTemplate.put(BASE_URL + "/" + id, dto);
-//    }
-
-//    public void eliminar(Long id) {
-//        restTemplate.delete(BASE_URL + "/" + id);
-//    }
 }

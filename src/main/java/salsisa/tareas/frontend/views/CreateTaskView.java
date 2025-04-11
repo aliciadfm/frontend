@@ -42,6 +42,8 @@ public class CreateTaskView extends VerticalLayout {
     List<VoluntarioDTO> listaVoluntarios;
     List<NecesidadDTO> listaNecesidades;
 
+
+
     private TextField tituloField;
     private TextField descripcionField;
     private DateTimePicker inicioPicker;
@@ -51,6 +53,22 @@ public class CreateTaskView extends VerticalLayout {
     public CreateTaskView(VoluntarioRestCliente voluntarioRestCliente, NecesidadRestCliente necesidadRestCliente) {
         this.voluntarioRestCliente = voluntarioRestCliente;
         this.necesidadRestCliente = necesidadRestCliente;
+        try {
+            listaVoluntarios = voluntarioRestCliente.obtenerTodos();
+        } catch (Exception e) {
+            e.printStackTrace();
+            listaVoluntarios = List.of(); // o new ArrayList<>();
+            Notification.show("Error cargando voluntarios", 3000, Notification.Position.MIDDLE);
+        }
+
+        try {
+            listaNecesidades = necesidadRestCliente.obtenerTodos();
+        } catch (Exception e) {
+            e.printStackTrace();
+            listaNecesidades = List.of(); // evita fallo total de la vista
+            Notification.show("Error cargando necesidades", 3000, Notification.Position.MIDDLE);
+        }
+
         setSpacing(false);
         setPadding(false);
         createHeader();
