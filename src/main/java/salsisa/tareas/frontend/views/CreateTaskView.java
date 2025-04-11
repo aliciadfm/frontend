@@ -302,13 +302,14 @@ public class CreateTaskView extends VerticalLayout {
                 Notification.show("La fecha de inicio no puede ser posterior a la fecha de fin.", 3000, Notification.Position.MIDDLE);
                 return;
             }
-            
+
             if(horaInicio != null && horaFin != null && horaInicio.isAfter(horaFin)) {
                 Notification.show("La hora de inicio no puede ser posterior a la hora de fin.", 3000, Notification.Position.MIDDLE);
                 return;
             }
 
             TareaDTO tarea = new TareaDTO(null, tituloField.getValue(), descripcionField.getValue(), fechaInicio, fechaFin, horaInicio, horaFin, false);
+            tareaRestCliente.crear(tarea);
             Notification.show("Tarea creada");
             clearForm();
         });
