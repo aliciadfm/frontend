@@ -17,7 +17,7 @@ import java.util.List;
 @Component
 public class VoluntarioRestCliente extends ClienteRestBase<VoluntarioDTO> {
 
-    private static final String BASE_URL = "http://localhost:9090/api/voluntarios";
+    private static final String BASE_URL = "http://localhost:8081/api/voluntarios";
     private static final String VOLUNTARIOS_VALIDOS_URL = BASE_URL + "/validos";
     private static final String VOLUNTARIOS_VALIDOS_LISTA_URL = BASE_URL + "/validos/lista";
 

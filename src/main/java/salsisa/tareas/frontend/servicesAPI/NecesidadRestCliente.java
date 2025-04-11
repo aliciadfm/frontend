@@ -16,7 +16,7 @@ import java.util.List;
 @Component
 public class NecesidadRestCliente extends ClienteRestBase<NecesidadDTO> {
 
-    private static final String BASE_URL = "http://localhost:9090/api/necesidades";
+    private static final String BASE_URL = "http://localhost:8081/api/necesidades";
     private static final String SIN_CUBRIR_URL = BASE_URL + "/sinCubrir";
     private static final Class<NecesidadDTO[]> NECESIDAD_ARRAY_CLASS = NecesidadDTO[].class;
 

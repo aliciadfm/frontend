@@ -9,7 +9,7 @@ import salsisa.tareas.frontend.dto.AfectadoDTO;
 @Component
 public class AfectadoRestCliente extends ClienteRestBase<AfectadoDTO> {
 
-    private static final String BASE_URL = "http://localhost:9090/api/afectados";
+    private static final String BASE_URL = "http://localhost:8081/api/afectados";
 
     @Autowired
     public AfectadoRestCliente(RestTemplate restTemplate) {

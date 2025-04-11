@@ -9,7 +9,7 @@ import salsisa.tareas.frontend.dto.HabilidadDTO;
 @Component
 public class HabilidadRestCliente extends ClienteRestBase<HabilidadDTO> {
 
-    private static final String BASE_URL = "http://localhost:9090/api/habilidades";
+    private static final String BASE_URL = "http://localhost:8081/api/habilidades";
 
     @Autowired
     public HabilidadRestCliente(RestTemplate restTemplate) {
