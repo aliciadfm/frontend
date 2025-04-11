@@ -35,7 +35,21 @@ public class VoluntarioRestCliente extends ClienteRestBase<VoluntarioDTO> {
 
     public List<VoluntarioDTO> obtenerVoluntariosValidos(FiltroVoluntario1DTO filtro) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(VOLUNTARIOS_VALIDOS_URL);
-        // ... parámetros ...
+        if (filtro.getFechaInicio() != null)
+            builder.queryParam("fechaInicio", filtro.getFechaInicio());
+
+        if (filtro.getFechaFin() != null)
+            builder.queryParam("fechaFin", filtro.getFechaFin());
+
+        if (filtro.getHorarioInicio() != null)
+            builder.queryParam("horarioInicio", filtro.getHorarioInicio());
+
+        if (filtro.getHorarioFin() != null)
+            builder.queryParam("horarioFin", filtro.getHorarioFin());
+
+        if (filtro.getIdCategoria() != null)
+            builder.queryParam("idCategoria", filtro.getIdCategoria());
+
         HttpEntity<Void> entity = new HttpEntity<>(authService.getAuthHeaders());
 
         ResponseEntity<VoluntarioDTO[]> response = restTemplate.exchange(
