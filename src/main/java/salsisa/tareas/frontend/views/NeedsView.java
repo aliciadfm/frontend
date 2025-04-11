@@ -11,9 +11,14 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 import org.springframework.beans.factory.annotation.Autowired;
+import salsisa.tareas.frontend.dto.CategoriaDTO;
+import salsisa.tareas.frontend.dto.FiltroNecesidadDTO;
 import salsisa.tareas.frontend.dto.NecesidadDTO;
+import salsisa.tareas.frontend.dto.Urgencia;
+import salsisa.tareas.frontend.servicesAPI.CategoriaRestCliente;
 import salsisa.tareas.frontend.servicesAPI.NecesidadRestCliente;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @PageTitle("SH - Visualizar Necesidades") // Nombre que sale arriba en el tab del navegador
@@ -23,9 +28,12 @@ public class NeedsView extends VerticalLayout {
 
     @Autowired
     private NecesidadRestCliente necesidadRestCliente;
+    @Autowired
+    private CategoriaRestCliente categoriaRestCliente;
 
-    public NeedsView(NecesidadRestCliente necesidadRestCliente) {
+    public NeedsView(NecesidadRestCliente necesidadRestCliente, CategoriaRestCliente categoriaRestCliente) {
         this.necesidadRestCliente = necesidadRestCliente;
+        this.categoriaRestCliente = categoriaRestCliente;
         setSpacing(false);
         setPadding(false);
         createHeader();
@@ -50,7 +58,8 @@ public class NeedsView extends VerticalLayout {
                 .set("flex-wrap", "wrap")  // Para que se acomoden en filas
                 .set("justify-content", "center") // Centra las tarjetas
                 .set("gap", "10px"); // Espacio entre tarjetas
-        List<NecesidadDTO> listaNecesidades = necesidadRestCliente.obtenerTodos();
+        FiltroNecesidadDTO vacio = new FiltroNecesidadDTO();
+        List<NecesidadDTO> listaNecesidades = necesidadRestCliente.obtenerSinCubrir(vacio);
         for (int i = 0; i < listaNecesidades.size(); i++) {
             gridLayout.add(createCard(listaNecesidades.get(i)));
         }
@@ -61,21 +70,55 @@ public class NeedsView extends VerticalLayout {
                 .set("box-shadow", "2px 2px 10px rgba(0,0,0,0.1)");
         filtersContainer.setWidth("250px");
         filtersContainer.add(new H3("Filtros"));
+        List<CategoriaDTO> listaurgencias = categoriaRestCliente.obtenerTodos();
         CheckboxGroup<String> categoryFilter = new CheckboxGroup<>();
         categoryFilter.setLabel("Categoría");
-        categoryFilter.setItems("Alimentación", "Salud", "Limpieza");
         categoryFilter.setThemeName("vertical");
+        List<String> cat = new ArrayList<>();
+        for (int i = 0; i < listaurgencias.size(); i++){
+            cat.add(listaurgencias.get(i).getNombre());
+            //categoryFilter.setItems(listaurgencias.get(i).getNombre());
+        }
+        categoryFilter.setItems(cat);
         filtersContainer.add(categoryFilter);
+
+        /*
         CheckboxGroup<String> urgencyFilter = new CheckboxGroup<>();
         urgencyFilter.setLabel("Urgencia");
         urgencyFilter.setItems("Alta", "Media", "Baja");
         urgencyFilter.setThemeName("vertical");
         filtersContainer.add(urgencyFilter);
+         */
+
         //filtersContainer.getStyle().set("background-color", "grey");
         Button filtrar = new Button("Filtrar");
 
         filtrar.addClickListener(e -> {
+            if(categoryFilter.getSelectedItems().isEmpty()){}
+            else {
+                List<String> categoriasSeleccionadas = new ArrayList<>(categoryFilter.getSelectedItems());
+                //List<String> urgenciasSeleccionadas = new ArrayList<>(urgencyFilter.getSelectedItems());
+                FiltroNecesidadDTO filtrosSeleccionados = new FiltroNecesidadDTO();
+                List<Long> listaNecesidadesAplicadas = new ArrayList<>();
+                int limite = Math.min(listaurgencias.size(), categoriasSeleccionadas.size());
+                for (int i = 1; i < limite; i++) {
+                    if (listaurgencias.get(i).getNombre().equals(categoriasSeleccionadas.get(i))) {
+                        listaNecesidadesAplicadas.add(listaurgencias.get(i).getIdCategoria());
+                    }
+                }
+                filtrosSeleccionados.setCategorias(listaNecesidadesAplicadas);
+                //filtrosSeleccionados.setUrgencias();
+                gridLayout.removeAll();
+                List<NecesidadDTO> necesidadesFiltradas = necesidadRestCliente.obtenerSinCubrir(filtrosSeleccionados);
+                for (NecesidadDTO necesidad : necesidadesFiltradas) {
+                    gridLayout.add(createCard(necesidad));
+                }
+                mainLayout.add(gridLayout, filtersContainer);
 
+                add(mainLayout);
+
+                getStyle().set("padding", "0 2%");
+            }
             });
 
         filtrar.getStyle().set("border", "1px solid #ccc")
@@ -169,5 +212,8 @@ public class NeedsView extends VerticalLayout {
 
 
         return card;
+    }
+    private void createNeedsFilterView() {
+
     }
 }
