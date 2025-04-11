@@ -17,18 +17,18 @@ import java.util.List;
 @Component
 public class VoluntarioRestCliente extends ClienteRestBase<VoluntarioDTO> {
 
-    private static final String BASE_URL = "http://localhost:8081/api/voluntarios";
+    private static final String BASE_URL = "http://localhost:9090/api/voluntarios";
     private static final String VOLUNTARIOS_VALIDOS_URL = BASE_URL + "/validos";
     private static final String VOLUNTARIOS_VALIDOS_LISTA_URL = BASE_URL + "/validos/lista";
 
     private final RestTemplate restTemplate;
-    private final AuthService authService;
+
 
     @Autowired
-    public VoluntarioRestCliente(RestTemplate restTemplate, AuthService authService) {
-        super(restTemplate, authService, BASE_URL, VoluntarioDTO.class);
+    public VoluntarioRestCliente(RestTemplate restTemplate) {
+        super(restTemplate, BASE_URL, VoluntarioDTO.class);
         this.restTemplate = restTemplate;
-        this.authService = authService;
+
     }
 
     private static final Class<VoluntarioDTO[]> VOLUNTARIO_ARRAY_CLASS = VoluntarioDTO[].class;
@@ -50,12 +50,11 @@ public class VoluntarioRestCliente extends ClienteRestBase<VoluntarioDTO> {
         if (filtro.getIdCategoria() != null)
             builder.queryParam("idCategoria", filtro.getIdCategoria());
 
-        HttpEntity<Void> entity = new HttpEntity<>(authService.getAuthHeaders());
 
         ResponseEntity<VoluntarioDTO[]> response = restTemplate.exchange(
                 builder.toUriString(),
                 HttpMethod.GET,
-                entity,
+                HttpEntity.EMPTY,
                 VOLUNTARIO_ARRAY_CLASS
         );
 
@@ -87,12 +86,12 @@ public class VoluntarioRestCliente extends ClienteRestBase<VoluntarioDTO> {
         }
 
         String finalUrl = builder.toUriString();
-        HttpEntity<Void> entity = new HttpEntity<>(authService.getAuthHeaders());
+
 
         ResponseEntity<VoluntarioDTO[]> response = restTemplate.exchange(
                 finalUrl,
                 HttpMethod.GET,
-                entity,
+                HttpEntity.EMPTY,
                 VOLUNTARIO_ARRAY_CLASS
         );
 

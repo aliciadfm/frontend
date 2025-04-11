@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -23,4 +24,6 @@ public class TareaDTO {
     @JsonFormat(pattern = "HH:mm")
     private LocalTime horarioFin;
     private Boolean realizada;
+    private List<Long> idsVoluntarios;
+    private List<Long> idsNecesidades;
 }

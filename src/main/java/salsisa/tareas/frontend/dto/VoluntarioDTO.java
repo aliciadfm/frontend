@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -23,4 +24,6 @@ public class VoluntarioDTO {
     private String contrasena;
     private byte[] imagen;
     private String correo;
+    private List<Long> idsVoluntarios;
+    private List<Long> idsNecesidades;
 }
