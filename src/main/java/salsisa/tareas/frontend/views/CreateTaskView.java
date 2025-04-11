@@ -23,12 +23,18 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import org.springframework.beans.factory.annotation.Autowired;
 import salsisa.tareas.frontend.dto.NecesidadDTO;
+import salsisa.tareas.frontend.dto.TareaDTO;
 import salsisa.tareas.frontend.dto.VoluntarioDTO;
 import salsisa.tareas.frontend.servicesAPI.NecesidadRestCliente;
+import salsisa.tareas.frontend.servicesAPI.TareaRestCliente;
 import salsisa.tareas.frontend.servicesAPI.VoluntarioRestCliente;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 @PageTitle("SH - Crear tareas")
 @Route(value="createTask", layout = MainLayout.class)
@@ -38,9 +44,13 @@ public class CreateTaskView extends VerticalLayout {
     private VoluntarioRestCliente voluntarioRestCliente;
     @Autowired
     private NecesidadRestCliente necesidadRestCliente;
+    @Autowired
+    private TareaRestCliente tareaRestCliente;
 
     List<VoluntarioDTO> listaVoluntarios;
     List<NecesidadDTO> listaNecesidades;
+    private VirtualList<VoluntarioDTO> virtualVoluntarios;
+    private VirtualList<NecesidadDTO> virtualNecesidades;
 
 
 
@@ -50,24 +60,10 @@ public class CreateTaskView extends VerticalLayout {
     private DateTimePicker finPicker;
     private Checkbox pendienteCheckbox;
 
-    public CreateTaskView(VoluntarioRestCliente voluntarioRestCliente, NecesidadRestCliente necesidadRestCliente) {
+    public CreateTaskView(VoluntarioRestCliente voluntarioRestCliente, NecesidadRestCliente necesidadRestCliente, TareaRestCliente tareaRestCliente) {
         this.voluntarioRestCliente = voluntarioRestCliente;
         this.necesidadRestCliente = necesidadRestCliente;
-        try {
-            listaVoluntarios = voluntarioRestCliente.obtenerTodos();
-        } catch (Exception e) {
-            e.printStackTrace();
-            listaVoluntarios = List.of(); // o new ArrayList<>();
-            Notification.show("Error cargando voluntarios", 3000, Notification.Position.MIDDLE);
-        }
-
-        try {
-            listaNecesidades = necesidadRestCliente.obtenerTodos();
-        } catch (Exception e) {
-            e.printStackTrace();
-            listaNecesidades = List.of(); // evita fallo total de la vista
-            Notification.show("Error cargando necesidades", 3000, Notification.Position.MIDDLE);
-        }
+        this.tareaRestCliente = tareaRestCliente;
 
         setSpacing(false);
         setPadding(false);
@@ -75,6 +71,15 @@ public class CreateTaskView extends VerticalLayout {
         createTextFields();
         createCheckboxArea();
         createButton();
+        tituloField.setValue(Optional.ofNullable(TaskFormData.getTitulo()).orElse(""));
+        descripcionField.setValue(Optional.ofNullable(TaskFormData.getDescripcion()).orElse(""));
+
+        if (TaskFormData.getFechaInicio() != null) {
+            inicioPicker.setValue(TaskFormData.getFechaInicio().atStartOfDay());
+        }
+        if (TaskFormData.getFechaFin() != null) {
+            finPicker.setValue(TaskFormData.getFechaFin().atStartOfDay());
+        }
     }
 
     private void createHeader() {
@@ -149,19 +154,27 @@ public class CreateTaskView extends VerticalLayout {
         necesidadesArea.setSpacing(false);
         necesidadesArea.setPadding(false);
 
-        Button voluntariosButton = new Button("Añdir voluntarios");
+        Button voluntariosButton = new Button("Añadir voluntarios");
         Button necesidadesButton = new Button("Añadir necesidades");
         voluntariosButton.addClickListener(e -> {
-            UI.getCurrent().navigate(VolunteersView.class);
+            TaskFormData.setTitulo(tituloField.getValue());
+            TaskFormData.setDescripcion(descripcionField.getValue());
+            TaskFormData.setFechaInicio(inicioPicker.getValue() != null ? inicioPicker.getValue().toLocalDate() : null);
+            TaskFormData.setFechaFin(finPicker.getValue() != null ? finPicker.getValue().toLocalDate() : null);
+
+            UI.getCurrent().navigate("voluntarios");
         });
         HorizontalLayout voluntariosFieldArea = createFieldArea("Voluntarios", voluntariosButton);
         HorizontalLayout necesidadesFieldArea = createFieldArea("Necesidades", necesidadesButton);
 
-        listaVoluntarios = voluntarioRestCliente.obtenerTodos();
+        listaVoluntarios = VoluntarioSession.getVoluntariosSeleccionados();
         listaNecesidades = necesidadRestCliente.obtenerTodos();
 
-        voluntariosArea.add(voluntariosFieldArea, createVirtualList(listaVoluntarios));
-        necesidadesArea.add(necesidadesFieldArea, createVirtualList(listaNecesidades));
+        virtualVoluntarios = createVirtualList(listaVoluntarios);
+        virtualNecesidades = createVirtualList(listaNecesidades);
+
+        voluntariosArea.add(voluntariosFieldArea, virtualVoluntarios);
+        necesidadesArea.add(necesidadesFieldArea, virtualNecesidades);
 
         column1.add(tituloFieldArea, descripcionFieldArea, necesidadesArea);
         column2.add(inicioFieldArea, finFieldArea, voluntariosArea);
@@ -172,7 +185,7 @@ public class CreateTaskView extends VerticalLayout {
 
     private void createCheckboxArea() {
         HorizontalLayout checkboxArea = new HorizontalLayout();
-        pendienteCheckbox = new Checkbox("Dejar tarea en estado Pendiente");
+        pendienteCheckbox = new Checkbox("Dejar tarea en estado 'Pendiente' ");
 
         Icon infoIcon = VaadinIcon.INFO_CIRCLE_O.create();
         infoIcon.getStyle()
@@ -182,7 +195,7 @@ public class CreateTaskView extends VerticalLayout {
                 .set("margin-left", "0px")
                 .set("align-self", "center");
 
-        Tooltip.forComponent(infoIcon).setText("La tarea se quedará visible para voluntarios pero sin asignar.");
+        Tooltip.forComponent(infoIcon).setText("La tarea será creada y posteriormente podrá ser modificada para completar todos los campos.");
 
         checkboxArea.setAlignItems(FlexComponent.Alignment.CENTER);
         checkboxArea.add(pendienteCheckbox, infoIcon);
@@ -190,7 +203,7 @@ public class CreateTaskView extends VerticalLayout {
     }
 
     private <T> VirtualList<T> createVirtualList(List<T> lista) {
-        ComponentRenderer<Component, T> renderer = null;
+        ComponentRenderer<Component, T> renderer;
 
         if (!lista.isEmpty()) {
             T firstElement = lista.getFirst();
@@ -198,11 +211,19 @@ public class CreateTaskView extends VerticalLayout {
                 renderer = (ComponentRenderer<Component, T>) voluntarioCardRenderer;
             } else if (firstElement instanceof NecesidadDTO) {
                 renderer = (ComponentRenderer<Component, T>) necesidadCardRenderer;
+            } else {
+                throw new IllegalArgumentException("Tipo de elemento no compatible con ningún renderer.");
             }
-        }
-
-        if (renderer == null) {
-            throw new IllegalArgumentException("No se pudo determinar el renderer para el tipo proporcionado.");
+        } else {
+            // Usamos el tipo de la lista que esperamos para determinar el renderer por contexto
+            // Este es un poco "hardcoded", pero seguro:
+            if (listaVoluntarios == lista) {
+                renderer = (ComponentRenderer<Component, T>) voluntarioCardRenderer;
+            } else if (listaNecesidades == lista) {
+                renderer = (ComponentRenderer<Component, T>) necesidadCardRenderer;
+            } else {
+                throw new IllegalArgumentException("No se pudo determinar el renderer para la lista vacía.");
+            }
         }
 
         VirtualList<T> virtualList = new VirtualList<>();
@@ -210,6 +231,7 @@ public class CreateTaskView extends VerticalLayout {
         virtualList.setRenderer(renderer);
         return virtualList;
     }
+
 
     private ComponentRenderer<Component, VoluntarioDTO> voluntarioCardRenderer = new ComponentRenderer<>(
             voluntario -> {
@@ -223,8 +245,9 @@ public class CreateTaskView extends VerticalLayout {
                 VerticalLayout infoLayout = new VerticalLayout();
                 infoLayout.setSpacing(false);
                 infoLayout.setPadding(false);
-                infoLayout.add(new Span(voluntario.getNombre())); // Nombre del voluntario
-                infoLayout.add(new Span("Email: " + voluntario.getEmail())); // Email
+                infoLayout.setWidth("30%");
+                infoLayout.add(new Span(voluntario.getNombre()));
+                infoLayout.add(new Span("Email: " + voluntario.getEmail()));
 
                 cardLayout.add(avatar, infoLayout);
                 return cardLayout;
@@ -260,14 +283,8 @@ public class CreateTaskView extends VerticalLayout {
         buttonArea.add(aceptarButton);
         buttonArea.setAlignSelf(Alignment.CENTER, aceptarButton);
         aceptarButton.addClickListener(e -> {
-            if(pendienteCheckbox.getValue()) {
-                if(tituloField.isEmpty() || descripcionField.isEmpty()
-                        || inicioPicker.isEmpty() || finPicker.isEmpty()) {
-                    Notification.show("Por favor, rellena todos los campos obligatorios.", 3000, Notification.Position.MIDDLE);
-                    return;
-                }
-            } else {
-                if(tituloField.isEmpty() || descripcionField.isEmpty()
+            if (!pendienteCheckbox.getValue()) {
+                if (tituloField.isEmpty() || descripcionField.isEmpty()
                         || inicioPicker.isEmpty() || finPicker.isEmpty()
                         || listaVoluntarios.isEmpty() || listaNecesidades.isEmpty()) {
                     Notification.show("Por favor, rellena todos los campos obligatorios.", 3000, Notification.Position.MIDDLE);
@@ -275,7 +292,22 @@ public class CreateTaskView extends VerticalLayout {
                 }
             }
 
+            //TareaDTO tarea = new TareaDTO(tituloField.getValue(), descripcionField.getValue(), inicioPicker.getValue(), finPicker.getValue());
             Notification.show("Tarea creada");
+            clearForm();
         });
+    }
+
+    private void clearForm() {
+        tituloField.clear();
+        descripcionField.clear();
+        inicioPicker.clear();
+        finPicker.clear();
+
+        listaVoluntarios = new java.util.ArrayList<>();
+        listaNecesidades = new java.util.ArrayList<>();
+
+        virtualVoluntarios.setItems(listaVoluntarios);
+        virtualNecesidades.setItems(listaNecesidades);
     }
 }
