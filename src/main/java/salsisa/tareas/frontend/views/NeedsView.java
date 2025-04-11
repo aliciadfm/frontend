@@ -19,6 +19,7 @@ import salsisa.tareas.frontend.servicesAPI.CategoriaRestCliente;
 import salsisa.tareas.frontend.servicesAPI.NecesidadRestCliente;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @PageTitle("SH - Visualizar Necesidades") // Nombre que sale arriba en el tab del navegador
@@ -70,56 +71,73 @@ public class NeedsView extends VerticalLayout {
                 .set("box-shadow", "2px 2px 10px rgba(0,0,0,0.1)");
         filtersContainer.setWidth("250px");
         filtersContainer.add(new H3("Filtros"));
-        List<CategoriaDTO> listaurgencias = categoriaRestCliente.obtenerTodos();
+
+
+        List<CategoriaDTO> listaCategoriasF = categoriaRestCliente.obtenerTodos();
         CheckboxGroup<String> categoryFilter = new CheckboxGroup<>();
         categoryFilter.setLabel("Categoría");
-        categoryFilter.setThemeName("vertical");
         List<String> cat = new ArrayList<>();
-        for (int i = 0; i < listaurgencias.size(); i++){
-            cat.add(listaurgencias.get(i).getNombre());
-            //categoryFilter.setItems(listaurgencias.get(i).getNombre());
+        for (int i = 0; i < listaCategoriasF.size(); i++){
+            cat.add(listaCategoriasF.get(i).getNombre());
         }
         categoryFilter.setItems(cat);
+        categoryFilter.setThemeName("vertical");
         filtersContainer.add(categoryFilter);
 
-        /*
-        CheckboxGroup<String> urgencyFilter = new CheckboxGroup<>();
+
+        List<Urgencia> listaUrgenciasF = Arrays.stream(Urgencia.values()).toList();
+        CheckboxGroup<Urgencia> urgencyFilter = new CheckboxGroup<>();
         urgencyFilter.setLabel("Urgencia");
-        urgencyFilter.setItems("Alta", "Media", "Baja");
+        urgencyFilter.setItems(Urgencia.values());
         urgencyFilter.setThemeName("vertical");
         filtersContainer.add(urgencyFilter);
-         */
+
 
         //filtersContainer.getStyle().set("background-color", "grey");
         Button filtrar = new Button("Filtrar");
 
         filtrar.addClickListener(e -> {
-            if(categoryFilter.getSelectedItems().isEmpty()){}
-            else {
-                List<String> categoriasSeleccionadas = new ArrayList<>(categoryFilter.getSelectedItems());
-                //List<String> urgenciasSeleccionadas = new ArrayList<>(urgencyFilter.getSelectedItems());
+            if (!categoryFilter.getSelectedItems().isEmpty() || !urgencyFilter.getSelectedItems().isEmpty()) {
                 FiltroNecesidadDTO filtrosSeleccionados = new FiltroNecesidadDTO();
-                List<Long> listaNecesidadesAplicadas = new ArrayList<>();
-                int limite = Math.min(listaurgencias.size(), categoriasSeleccionadas.size());
-                for (int i = 1; i < limite; i++) {
-                    if (listaurgencias.get(i).getNombre().equals(categoriasSeleccionadas.get(i))) {
-                        listaNecesidadesAplicadas.add(listaurgencias.get(i).getIdCategoria());
+
+                if (!categoryFilter.getSelectedItems().isEmpty()) {
+                    List<String> categoriasSeleccionadas = new ArrayList<>(categoryFilter.getSelectedItems());
+                    List<Long> listaIdsCategoriasSeleccionadas = new ArrayList<>();
+                    for (CategoriaDTO categoria : listaCategoriasF) {
+                        if (categoriasSeleccionadas.contains(categoria.getNombre())) {
+                            listaIdsCategoriasSeleccionadas.add(categoria.getIdCategoria());
+                        }
                     }
+                    filtrosSeleccionados.setCategorias(listaIdsCategoriasSeleccionadas);
                 }
-                filtrosSeleccionados.setCategorias(listaNecesidadesAplicadas);
-                //filtrosSeleccionados.setUrgencias();
+                if (!urgencyFilter.getSelectedItems().isEmpty()) {
+                    List<Urgencia> urgenciasSeleccionadas = new ArrayList<>(urgencyFilter.getSelectedItems());
+                    for (Urgencia urge : urgencyFilter.getSelectedItems()) {
+                        urgenciasSeleccionadas.add(Urgencia.valueOf(urge.toString()));
+                    }
+                    filtrosSeleccionados.setUrgencias(urgenciasSeleccionadas);
+                }
+
+                mainLayout.removeAll();
                 gridLayout.removeAll();
+
                 List<NecesidadDTO> necesidadesFiltradas = necesidadRestCliente.obtenerSinCubrir(filtrosSeleccionados);
-                for (NecesidadDTO necesidad : necesidadesFiltradas) {
-                    gridLayout.add(createCard(necesidad));
+                if (!necesidadesFiltradas.isEmpty()) {
+                    for (NecesidadDTO necesidad : necesidadesFiltradas) {
+                        gridLayout.add(createCard(necesidad));
+                    }
+                    mainLayout.add(gridLayout, filtersContainer);
                 }
-                mainLayout.add(gridLayout, filtersContainer);
-
+                else {
+                    mainLayout.add(filtersContainer);
+                }
                 add(mainLayout);
-
                 getStyle().set("padding", "0 2%");
+
+            } else {
+                System.out.println("No se ha seleccionado ninguna categoría.");
             }
-            });
+        });
 
         filtrar.getStyle().set("border", "1px solid #ccc")
                 .set("border-radius", "10px");
