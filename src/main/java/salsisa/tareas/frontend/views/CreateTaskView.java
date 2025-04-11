@@ -282,6 +282,12 @@ public class CreateTaskView extends VerticalLayout {
         aceptarButton.getStyle().set("cursor", "pointer");
         buttonArea.add(aceptarButton);
         buttonArea.setAlignSelf(Alignment.CENTER, aceptarButton);
+
+        LocalDate fechaInicio = inicioPicker.getValue() != null ? inicioPicker.getValue().toLocalDate() : null;
+        LocalTime horaInicio = inicioPicker.getValue() != null ? inicioPicker.getValue().toLocalTime() : null;
+        LocalDate fechaFin = finPicker.getValue() != null ? finPicker.getValue().toLocalDate() : null;
+        LocalTime horaFin = finPicker.getValue() != null ? finPicker.getValue().toLocalTime() : null;
+
         aceptarButton.addClickListener(e -> {
             if (!pendienteCheckbox.getValue()) {
                 if (tituloField.isEmpty() || descripcionField.isEmpty()
@@ -292,7 +298,17 @@ public class CreateTaskView extends VerticalLayout {
                 }
             }
 
-            //TareaDTO tarea = new TareaDTO(tituloField.getValue(), descripcionField.getValue(), inicioPicker.getValue(), finPicker.getValue());
+            if(fechaInicio != null && fechaFin != null && fechaInicio.isAfter(fechaFin)) {
+                Notification.show("La fecha de inicio no puede ser posterior a la fecha de fin.", 3000, Notification.Position.MIDDLE);
+                return;
+            }
+            
+            if(horaInicio != null && horaFin != null && horaInicio.isAfter(horaFin)) {
+                Notification.show("La hora de inicio no puede ser posterior a la hora de fin.", 3000, Notification.Position.MIDDLE);
+                return;
+            }
+
+            TareaDTO tarea = new TareaDTO(null, tituloField.getValue(), descripcionField.getValue(), fechaInicio, fechaFin, horaInicio, horaFin, false);
             Notification.show("Tarea creada");
             clearForm();
         });
