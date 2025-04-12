@@ -2,9 +2,11 @@ package salsisa.tareas.frontend.views;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.html.*;
-                        import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
@@ -25,16 +27,19 @@ import java.util.List;
 @PageTitle("SH - Visualizar Necesidades") // Nombre que sale arriba en el tab del navegador
 @Route(value="NeedsView", layout = MainLayout.class) // Value indica la url y layout indica la clase que usa como base
 @RouteAlias(value="", layout = MainLayout.class)
-public class NeedsView extends VerticalLayout {
+public class SelectMoreNeeds extends VerticalLayout {
 
     @Autowired
     private NecesidadRestCliente necesidadRestCliente;
     @Autowired
     private CategoriaRestCliente categoriaRestCliente;
+    @Autowired
+    private final List<NecesidadDTO> necesidadesSeleccionadas = new ArrayList<>();
 
-    public NeedsView(NecesidadRestCliente necesidadRestCliente, CategoriaRestCliente categoriaRestCliente) {
+    public SelectMoreNeeds(NecesidadRestCliente necesidadRestCliente, CategoriaRestCliente categoriaRestCliente, List<NecesidadDTO> necesidadesSeleccionadas) {
         this.necesidadRestCliente = necesidadRestCliente;
         this.categoriaRestCliente = categoriaRestCliente;
+        this.necesidadesSeleccionadas.addAll(necesidadesSeleccionadas);
         setSpacing(false);
         setPadding(false);
         createHeader();
@@ -59,7 +64,6 @@ public class NeedsView extends VerticalLayout {
                 .set("flex-wrap", "wrap")  // Para que se acomoden en filas
                 .set("justify-content", "center") // Centra las tarjetas
                 .set("gap", "10px"); // Espacio entre tarjetas
-
         FiltroNecesidadDTO vacio = new FiltroNecesidadDTO();
         List<NecesidadDTO> listaNecesidades = necesidadRestCliente.obtenerSinCubrir(vacio);
         for (int i = 0; i < listaNecesidades.size(); i++) {
@@ -86,7 +90,7 @@ public class NeedsView extends VerticalLayout {
         filtersContainer.add(categoryFilter);
 
 
-        List<Urgencia> listaUrgenciasF = Arrays.stream(Urgencia.values()).toList();
+        //List<Urgencia> listaUrgenciasF = Arrays.stream(Urgencia.values()).toList();
         CheckboxGroup<Urgencia> urgencyFilter = new CheckboxGroup<>();
         urgencyFilter.setLabel("Urgencia");
         urgencyFilter.setItems(Urgencia.values());
@@ -150,10 +154,22 @@ public class NeedsView extends VerticalLayout {
         mainLayout.add(gridLayout, filtersContainer);
 
         add(mainLayout);
-
         getStyle().set("padding", "0 2%");
 
+        Button continuarBtn = new Button("Continuar con seleccionados");
+        continuarBtn.getStyle().set("margin", "20px");
+        continuarBtn.addClickListener(e -> {
+            if (!necesidadesSeleccionadas.isEmpty()) {
+                UI.getCurrent().navigate(CreateTaskView.class);
+            }else {
+                Notification.show("No has seleccionado ninguna necesidad.");
+            }
+
+        });
+        add(continuarBtn);
     }
+
+
     private Div createCard(NecesidadDTO necesidadDTO) {
         Div imageContainer = new Div();
         imageContainer.setWidth("100%");
@@ -166,6 +182,7 @@ public class NeedsView extends VerticalLayout {
                 .set("justify-content", "center")
                 .set("background-color", "#f9f9f9");
         imageContainer.add(new Span("Imagen no disponible"));            // aqui se cambiara para la imagen, ahora esta puesto q no hay imagen
+
         H4 title = new H4(necesidadDTO.getNombre());
         title.setWidth("80%");
         Span categoryLabel = new Span("Disponible");
@@ -185,18 +202,24 @@ public class NeedsView extends VerticalLayout {
                 .set("padding", "10px")
                 .set("display", "flex")
                 .set("justify-content", "space-between");
-        Div descriptionContainer = new Div();
+
+
         Span descriptionLabel = new Span(necesidadDTO.getDescripcion());
         descriptionLabel.getStyle()
                 .set("margin-top", "10px")
                 .set("display", "block");
-        Button select = new Button("Seleccionar");
 
-        select.addClickListener(e -> {
-            UI.getCurrent().navigate(CreateTaskView.class);
+        Checkbox checkbox = new Checkbox("Seleccionar necesidad");
+        checkbox.addValueChangeListener(e -> {
+            if(e.getValue()){
+                necesidadesSeleccionadas.add(necesidadDTO);
+            }
+            else{
+                necesidadesSeleccionadas.removeIf(n -> n.getIdNecesidad().equals(necesidadDTO.getIdNecesidad()));
+            }
         });
 
-        descriptionContainer.add(descriptionLabel, select);
+        Div descriptionContainer = new Div(descriptionLabel,checkbox);
         descriptionContainer.getStyle()
                 .set("margin-top", "10px")
                 .set("display", "flex")
@@ -232,7 +255,8 @@ public class NeedsView extends VerticalLayout {
             }
         });
 
-
         return card;
     }
+
 }
+
