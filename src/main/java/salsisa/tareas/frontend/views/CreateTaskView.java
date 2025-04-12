@@ -33,6 +33,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,8 +53,6 @@ public class CreateTaskView extends VerticalLayout {
     private VirtualList<VoluntarioDTO> virtualVoluntarios;
     private VirtualList<NecesidadDTO> virtualNecesidades;
 
-
-
     private TextField tituloField;
     private TextField descripcionField;
     private DateTimePicker inicioPicker;
@@ -64,7 +63,6 @@ public class CreateTaskView extends VerticalLayout {
         this.voluntarioRestCliente = voluntarioRestCliente;
         this.necesidadRestCliente = necesidadRestCliente;
         this.tareaRestCliente = tareaRestCliente;
-
         setSpacing(false);
         setPadding(false);
         createHeader();
@@ -298,6 +296,15 @@ public class CreateTaskView extends VerticalLayout {
                 }
             }
 
+            if(pendienteCheckbox.getValue()) {
+                if(tituloField.isEmpty() || descripcionField.isEmpty()
+                        || inicioPicker.isEmpty() || finPicker.isEmpty()
+                        || listaNecesidades.isEmpty()) {
+                    Notification.show("Por favor, rellena todos los campos obligatorios.", 3000, Notification.Position.MIDDLE);
+                    return;
+                }
+            }
+
             if(fechaInicio != null && fechaFin != null && fechaInicio.isAfter(fechaFin)) {
                 Notification.show("La fecha de inicio no puede ser posterior a la fecha de fin.", 3000, Notification.Position.MIDDLE);
                 return;
@@ -308,7 +315,21 @@ public class CreateTaskView extends VerticalLayout {
                 return;
             }
 
-            TareaDTO tarea = new TareaDTO(null, tituloField.getValue(), descripcionField.getValue(), fechaInicio, fechaFin, horaInicio, horaFin, false);
+            List<Long> idsVoluntarios = new ArrayList<>();
+            List<Long> idsNecesidades = new ArrayList<>();
+
+            for(VoluntarioDTO voluntario : listaVoluntarios) {
+                idsVoluntarios.add(voluntario.getIdVoluntario());
+                System.out.println(voluntario.getIdVoluntario());
+            }
+
+            for(NecesidadDTO necesidad : listaNecesidades) {
+                idsVoluntarios.add(necesidad.getIdNecesidad());
+                System.out.println(necesidad.getIdNecesidad());
+            }
+
+            TareaDTO tarea = new TareaDTO(null, tituloField.getValue(), descripcionField.getValue(),
+                    fechaInicio, fechaFin, horaInicio, horaFin, false, idsVoluntarios, idsNecesidades);
             tareaRestCliente.crear(tarea);
             Notification.show("Tarea creada");
             clearForm();
