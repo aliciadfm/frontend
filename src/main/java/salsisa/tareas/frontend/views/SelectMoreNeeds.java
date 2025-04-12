@@ -25,15 +25,14 @@ import java.util.Arrays;
 import java.util.List;
 
 @PageTitle("SH - Visualizar Necesidades") // Nombre que sale arriba en el tab del navegador
-@Route(value="NeedsView", layout = MainLayout.class) // Value indica la url y layout indica la clase que usa como base
-@RouteAlias(value="", layout = MainLayout.class)
+@Route(value="SelectMoreNeeds", layout = MainLayout.class) // Value indica la url y layout indica la clase que usa como base
 public class SelectMoreNeeds extends VerticalLayout {
 
     @Autowired
     private NecesidadRestCliente necesidadRestCliente;
     @Autowired
     private CategoriaRestCliente categoriaRestCliente;
-    @Autowired
+
     private final List<NecesidadDTO> necesidadesSeleccionadas = new ArrayList<>();
 
     public SelectMoreNeeds(NecesidadRestCliente necesidadRestCliente, CategoriaRestCliente categoriaRestCliente, List<NecesidadDTO> necesidadesSeleccionadas) {
