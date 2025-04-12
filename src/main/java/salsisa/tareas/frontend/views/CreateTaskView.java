@@ -174,7 +174,7 @@ public class CreateTaskView extends VerticalLayout {
         HorizontalLayout necesidadesFieldArea = createFieldArea("Necesidades", necesidadesButton);
 
         listaVoluntarios = VoluntarioSession.getVoluntariosSeleccionados();
-        listaNecesidades = necesidadRestCliente.obtenerTodos();
+        listaNecesidades = TaskFormData.getNecesidadesSeleccionadas();
 
         virtualVoluntarios = createVirtualList(listaVoluntarios);
         virtualNecesidades = createVirtualList(listaNecesidades);

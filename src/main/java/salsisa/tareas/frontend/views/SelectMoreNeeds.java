@@ -13,16 +13,11 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
 import org.springframework.beans.factory.annotation.Autowired;
-import salsisa.tareas.frontend.dto.CategoriaDTO;
-import salsisa.tareas.frontend.dto.FiltroNecesidadDTO;
-import salsisa.tareas.frontend.dto.NecesidadDTO;
-import salsisa.tareas.frontend.dto.Urgencia;
+import salsisa.tareas.frontend.dto.*;
 import salsisa.tareas.frontend.servicesAPI.CategoriaRestCliente;
 import salsisa.tareas.frontend.servicesAPI.NecesidadRestCliente;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @PageTitle("SH - Visualizar Necesidades") // Nombre que sale arriba en el tab del navegador
 @Route(value="SelectMoreNeeds", layout = MainLayout.class) // Value indica la url y layout indica la clase que usa como base
@@ -34,6 +29,8 @@ public class SelectMoreNeeds extends VerticalLayout {
     private CategoriaRestCliente categoriaRestCliente;
 
     private final List<NecesidadDTO> necesidadesSeleccionadas = new ArrayList<>();
+
+    private final Map<NecesidadDTO, Checkbox> checkboxMap = new HashMap<>(); // este mapa es para relacionar cada necesidad con su correspondiente checkbox
 
     public SelectMoreNeeds(NecesidadRestCliente necesidadRestCliente, CategoriaRestCliente categoriaRestCliente, List<NecesidadDTO> necesidadesSeleccionadas) {
         this.necesidadRestCliente = necesidadRestCliente;
@@ -159,6 +156,13 @@ public class SelectMoreNeeds extends VerticalLayout {
         continuarBtn.getStyle().set("margin", "20px");
         continuarBtn.addClickListener(e -> {
             if (!necesidadesSeleccionadas.isEmpty()) {
+                List<NecesidadDTO> seleccionados = new ArrayList<>();
+                for (Map.Entry<NecesidadDTO, Checkbox> entry : checkboxMap.entrySet()) {
+                    if (entry.getValue().getValue()) {
+                        seleccionados.add(entry.getKey());
+                    }
+                }
+                TaskFormData.setNecesidadesSeleccionadas(seleccionados);
                 UI.getCurrent().navigate(CreateTaskView.class);
             }else {
                 Notification.show("No has seleccionado ninguna necesidad.");
@@ -253,9 +257,8 @@ public class SelectMoreNeeds extends VerticalLayout {
                         .set("box-shadow", "2px 2px 5px rgba(0,0,0,0.1)");
             }
         });
-
+        checkboxMap.put(necesidadDTO, checkbox); // así tenemos una manera fácil de acceder a la necesidad a partir de una checkbox
         return card;
     }
-
 }
 
