@@ -162,6 +162,14 @@ public class CreateTaskView extends VerticalLayout {
 
             UI.getCurrent().navigate("voluntarios");
         });
+        necesidadesButton.addClickListener(e -> {
+            TaskFormData.setTitulo(tituloField.getValue());
+            TaskFormData.setDescripcion(descripcionField.getValue());
+            TaskFormData.setFechaInicio(inicioPicker.getValue() != null ? inicioPicker.getValue().toLocalDate() : null);
+            TaskFormData.setFechaFin(finPicker.getValue() != null ? finPicker.getValue().toLocalDate() : null);
+
+            UI.getCurrent().navigate("SelectMoreNeeds");
+        });
         HorizontalLayout voluntariosFieldArea = createFieldArea("Voluntarios", voluntariosButton);
         HorizontalLayout necesidadesFieldArea = createFieldArea("Necesidades", necesidadesButton);
 

@@ -23,6 +23,7 @@ public class MainLayout extends AppLayout implements RouterLayout {
 
         RouterLink needs = new RouterLink();
         RouterLink createTask = new RouterLink();
+        RouterLink tasks = new RouterLink();
 
         needs.add(new Image("icons/needsVisualization.png", "Necesidades"));
         needs.setRoute(NeedsView.class);
@@ -30,7 +31,10 @@ public class MainLayout extends AppLayout implements RouterLayout {
         createTask.add(new Image("icons/taskCreation.png", "Crear tarea"));
         createTask.setRoute(CreateTaskView.class);
 
-        VerticalLayout menu = new VerticalLayout(needs, createTask);
+        tasks.add(new Image("icons/tareasVisualization.png", "Ver tareas"));
+        tasks.setRoute(TareasView.class);
+
+        VerticalLayout menu = new VerticalLayout(needs, createTask, tasks);
         menu.getStyle().set("background-color", "#B64040").setHeight("100%"); // Cambia el color
         menu.setAlignItems(Alignment.CENTER);
         menu.getStyle().set("padding-top", "10%");
