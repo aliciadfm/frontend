@@ -71,12 +71,11 @@ public class CreateTaskView extends VerticalLayout {
         createButton();
         tituloField.setValue(Optional.ofNullable(TaskFormData.getTitulo()).orElse(""));
         descripcionField.setValue(Optional.ofNullable(TaskFormData.getDescripcion()).orElse(""));
-
-        if (TaskFormData.getFechaInicio() != null) {
-            inicioPicker.setValue(TaskFormData.getFechaInicio().atStartOfDay());
+        if (TaskFormData.getFechaInicio() != null && TaskFormData.getHoraInicio() != null) {
+            inicioPicker.setValue(LocalDateTime.of(TaskFormData.getFechaInicio(), TaskFormData.getHoraInicio()));
         }
-        if (TaskFormData.getFechaFin() != null) {
-            finPicker.setValue(TaskFormData.getFechaFin().atStartOfDay());
+        if (TaskFormData.getFechaFin() != null && TaskFormData.getHoraFin() != null) {
+            finPicker.setValue(LocalDateTime.of(TaskFormData.getFechaFin(), TaskFormData.getHoraFin()));
         }
     }
 
@@ -155,25 +154,18 @@ public class CreateTaskView extends VerticalLayout {
         Button voluntariosButton = new Button("Añadir voluntarios");
         Button necesidadesButton = new Button("Añadir necesidades");
         voluntariosButton.addClickListener(e -> {
-            TaskFormData.setTitulo(tituloField.getValue());
-            TaskFormData.setDescripcion(descripcionField.getValue());
-            TaskFormData.setFechaInicio(inicioPicker.getValue() != null ? inicioPicker.getValue().toLocalDate() : null);
-            TaskFormData.setFechaFin(finPicker.getValue() != null ? finPicker.getValue().toLocalDate() : null);
-
+            saveData();
             UI.getCurrent().navigate("voluntarios");
         });
         necesidadesButton.addClickListener(e -> {
-            TaskFormData.setTitulo(tituloField.getValue());
-            TaskFormData.setDescripcion(descripcionField.getValue());
-            TaskFormData.setFechaInicio(inicioPicker.getValue() != null ? inicioPicker.getValue().toLocalDate() : null);
-            TaskFormData.setFechaFin(finPicker.getValue() != null ? finPicker.getValue().toLocalDate() : null);
-
+            saveData();
             UI.getCurrent().navigate("SelectMoreNeeds");
         });
+
         HorizontalLayout voluntariosFieldArea = createFieldArea("Voluntarios", voluntariosButton);
         HorizontalLayout necesidadesFieldArea = createFieldArea("Necesidades", necesidadesButton);
 
-        listaVoluntarios = VoluntarioSession.getVoluntariosSeleccionados();
+        listaVoluntarios = TaskFormData.getVoluntariosSeleccionados();
         listaNecesidades = TaskFormData.getNecesidadesSeleccionadas();
 
         virtualVoluntarios = createVirtualList(listaVoluntarios);
@@ -187,6 +179,15 @@ public class CreateTaskView extends VerticalLayout {
 
         fields.add(column1, column2);
         getStyle().set("padding", "0 5%");
+    }
+
+    private void saveData() {
+        TaskFormData.setTitulo(tituloField.getValue());
+        TaskFormData.setDescripcion(descripcionField.getValue());
+        TaskFormData.setFechaInicio(inicioPicker.getValue() != null ? inicioPicker.getValue().toLocalDate() : null);
+        TaskFormData.setFechaFin(finPicker.getValue() != null ? finPicker.getValue().toLocalDate() : null);
+        TaskFormData.setHoraInicio(inicioPicker.getValue() != null ? inicioPicker.getValue().toLocalTime() : null);
+        TaskFormData.setHoraFin(finPicker.getValue() != null ? finPicker.getValue().toLocalTime() : null);
     }
 
     private void createCheckboxArea() {
@@ -289,12 +290,13 @@ public class CreateTaskView extends VerticalLayout {
         buttonArea.add(aceptarButton);
         buttonArea.setAlignSelf(Alignment.CENTER, aceptarButton);
 
-        LocalDate fechaInicio = inicioPicker.getValue() != null ? inicioPicker.getValue().toLocalDate() : null;
-        LocalTime horaInicio = inicioPicker.getValue() != null ? inicioPicker.getValue().toLocalTime() : null;
-        LocalDate fechaFin = finPicker.getValue() != null ? finPicker.getValue().toLocalDate() : null;
-        LocalTime horaFin = finPicker.getValue() != null ? finPicker.getValue().toLocalTime() : null;
-
         aceptarButton.addClickListener(e -> {
+            LocalDate fechaInicio = inicioPicker.getValue() != null ? inicioPicker.getValue().toLocalDate() : null;
+            LocalTime horaInicio = inicioPicker.getValue() != null ? inicioPicker.getValue().toLocalTime() : null;
+            System.out.println("Hora inicio: " + horaInicio);
+            LocalDate fechaFin = finPicker.getValue() != null ? finPicker.getValue().toLocalDate() : null;
+            LocalTime horaFin = finPicker.getValue() != null ? finPicker.getValue().toLocalTime() : null;
+            System.out.println("Hora fin: " + horaFin);
             if (!pendienteCheckbox.getValue()) {
                 if (tituloField.isEmpty() || descripcionField.isEmpty()
                         || inicioPicker.isEmpty() || finPicker.isEmpty()
@@ -328,16 +330,21 @@ public class CreateTaskView extends VerticalLayout {
 
             for(VoluntarioDTO voluntario : listaVoluntarios) {
                 idsVoluntarios.add(voluntario.getIdVoluntario());
-                System.out.println(voluntario.getIdVoluntario());
             }
 
             for(NecesidadDTO necesidad : listaNecesidades) {
-                idsVoluntarios.add(necesidad.getIdNecesidad());
-                System.out.println(necesidad.getIdNecesidad());
+                idsNecesidades.add(necesidad.getIdNecesidad());
             }
 
             TareaDTO tarea = new TareaDTO(null, tituloField.getValue(), descripcionField.getValue(),
                     fechaInicio, fechaFin, horaInicio, horaFin, false, idsVoluntarios, idsNecesidades);
+            for(VoluntarioDTO voluntario : listaVoluntarios) {
+                System.out.println("Voluntario: " + voluntario.getIdVoluntario());
+            }
+            for(NecesidadDTO necesidad : listaNecesidades) {
+                System.out.println("Necesidad: " + necesidad.getIdNecesidad());
+            }
+            System.out.println(horaInicio);
             tareaRestCliente.crear(tarea);
             Notification.show("Tarea creada");
             clearForm();

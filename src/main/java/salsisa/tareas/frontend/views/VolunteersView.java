@@ -16,13 +16,13 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.config.Task;
+import salsisa.tareas.frontend.dto.FiltroVoluntario1DTO;
+import salsisa.tareas.frontend.dto.NecesidadDTO;
 import salsisa.tareas.frontend.dto.VoluntarioDTO;
 import salsisa.tareas.frontend.servicesAPI.VoluntarioRestCliente;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @PageTitle("Lista de voluntarios")
@@ -42,7 +42,11 @@ public class VolunteersView extends VerticalLayout implements RouterLayout {
         setAlignItems(Alignment.CENTER);
         getStyle().set("padding", "0 5%");
         createHeader();
-        createVolunteersList();
+        try {
+            createVolunteersList();
+        } catch (IllegalArgumentException e) {
+            add(new Span("No hay voluntarios disponibles"));
+        }
         createButtons();
     }
 
@@ -60,13 +64,27 @@ public class VolunteersView extends VerticalLayout implements RouterLayout {
         volunteersArea.setWidth("100%");
         volunteersArea.setHeight("500px"); // Asigna una altura fija o usa setSizeFull()
 
-        List<VoluntarioDTO> lista = voluntarioRestCliente.obtenerTodos();
-        if (lista.isEmpty()) {
+        List<VoluntarioDTO> voluntariosValidosList = new ArrayList<>();
+        List<NecesidadDTO> necesidadesSeleccionadas = TaskFormData.getNecesidadesSeleccionadas();
+        List<Long> categoriasSeleccionadas = new ArrayList<>();
+
+        for(NecesidadDTO necesidad : necesidadesSeleccionadas) {
+            categoriasSeleccionadas.add(necesidad.getIdCategoria());
+        }
+
+        for(Long id : categoriasSeleccionadas) {
+            FiltroVoluntario1DTO filtro = new FiltroVoluntario1DTO(TaskFormData.getFechaInicio(), TaskFormData.getFechaFin(),
+                    TaskFormData.getHoraInicio(), TaskFormData.getHoraFin(),
+                    id);
+            voluntariosValidosList = (voluntarioRestCliente.obtenerVoluntariosValidos(filtro));
+        }
+
+        if (voluntariosValidosList.isEmpty()) {
             throw new IllegalArgumentException("La lista de voluntarios está vacía.");
         }
 
         virtualList = new VirtualList<>();
-        virtualList.setItems(lista);
+        virtualList.setItems(voluntariosValidosList);
         virtualList.setRenderer(voluntarioCardRenderer);
         virtualList.setHeight("100%"); // Mantén esto si el contenedor ya tiene altura
 
@@ -124,7 +142,7 @@ public class VolunteersView extends VerticalLayout implements RouterLayout {
                 }
             }
 
-            VoluntarioSession.setVoluntariosSeleccionados(seleccionados);
+            TaskFormData.setVoluntariosSeleccionados(seleccionados);
             UI.getCurrent().navigate(CreateTaskView.class);
         });
 
@@ -132,5 +150,8 @@ public class VolunteersView extends VerticalLayout implements RouterLayout {
         //acceptButton.getStyle().set("color", "#ffffff");
         acceptButton.getStyle().set("background-color", "#B64040");
         acceptButton.getStyle().set("color", "#ffffff");
+        cancelButton.addClickListener(e -> {
+            UI.getCurrent().navigate(CreateTaskView.class);
+        });
     }
 }
