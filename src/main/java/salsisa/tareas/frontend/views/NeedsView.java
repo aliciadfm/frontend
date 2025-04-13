@@ -86,7 +86,7 @@ public class NeedsView extends VerticalLayout {
         filtersContainer.add(categoryFilter);
 
 
-        List<Urgencia> listaUrgenciasF = Arrays.stream(Urgencia.values()).toList();
+        //List<Urgencia> listaUrgenciasF = Arrays.stream(Urgencia.values()).toList();
         CheckboxGroup<Urgencia> urgencyFilter = new CheckboxGroup<>();
         urgencyFilter.setLabel("Urgencia");
         urgencyFilter.setItems(Urgencia.values());
@@ -118,9 +118,6 @@ public class NeedsView extends VerticalLayout {
                     }
                     filtrosSeleccionados.setUrgencias(urgenciasSeleccionadas);
                 }
-                else{
-                    filtrosSeleccionados = vacio;
-                }
 
                 mainLayout.removeAll();
                 gridLayout.removeAll();
@@ -130,11 +127,17 @@ public class NeedsView extends VerticalLayout {
                     for (NecesidadDTO necesidad : necesidadesFiltradas) {
                         gridLayout.add(createCard(necesidad));
                     }
-                    mainLayout.add(gridLayout, filtersContainer);
+                } else {
+                    // Para mantener el espacio aunque esté vacío
+                    Div emptyMessage = new Div(new Span("No se encontraron necesidades con los filtros seleccionados."));
+                    emptyMessage.getStyle()
+                            .set("padding", "20px")
+                            .set("color", "#888")
+                            .set("font-style", "italic");
+
+                    gridLayout.add(emptyMessage);
                 }
-                else {
-                    mainLayout.add(filtersContainer);
-                }
+                mainLayout.add(gridLayout, filtersContainer);
                 add(mainLayout);
                 getStyle().set("padding", "0 2%");
 
@@ -193,6 +196,9 @@ public class NeedsView extends VerticalLayout {
         Button select = new Button("Seleccionar");
 
         select.addClickListener(e -> {
+            List<NecesidadDTO> necesidadesSeleccionadas = new ArrayList<>();
+            necesidadesSeleccionadas.add(necesidadDTO);
+            TaskFormData.setNecesidadesSeleccionadas(necesidadesSeleccionadas);
             UI.getCurrent().navigate(CreateTaskView.class);
         });
 

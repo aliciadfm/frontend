@@ -118,24 +118,29 @@ public class SelectMoreNeeds extends VerticalLayout {
                     }
                     filtrosSeleccionados.setUrgencias(urgenciasSeleccionadas);
                 }
-                else{
-                    filtrosSeleccionados = vacio;
-                }
 
                 mainLayout.removeAll();
                 gridLayout.removeAll();
+                
 
                 List<NecesidadDTO> necesidadesFiltradas = necesidadRestCliente.obtenerSinCubrir(filtrosSeleccionados);
                 if (!necesidadesFiltradas.isEmpty()) {
                     for (NecesidadDTO necesidad : necesidadesFiltradas) {
                         gridLayout.add(createCard(necesidad));
                     }
-                    mainLayout.add(gridLayout, filtersContainer);
+                } else {
+                    // Para mantener el espacio aunque esté vacío
+                    Div emptyMessage = new Div(new Span("No se encontraron necesidades con los filtros seleccionados."));
+                    emptyMessage.getStyle()
+                            .set("padding", "20px")
+                            .set("color", "#888")
+                            .set("font-style", "italic");
+
+                    gridLayout.add(emptyMessage);
                 }
-                else {
-                    mainLayout.add(filtersContainer);
-                }
+                mainLayout.add(gridLayout, filtersContainer);
                 add(mainLayout);
+
                 getStyle().set("padding", "0 2%");
 
             } else {
@@ -244,9 +249,16 @@ public class SelectMoreNeeds extends VerticalLayout {
                 .set("background-color", "#fff")
                 .set("transition", "all 0.3s ease");
 
-        card.addClickListener(event -> {
+        card.getElement().addEventListener("click", e -> {
+            String clickedTag = e.getEventData().getString("event.target.tagName");
+
+            if ("VAADIN-CHECKBOX".equals(clickedTag) || "LABEL".equals(clickedTag) || "INPUT".equals(clickedTag)) {
+                return; // No expandas si se hizo clic en el checkbox
+            }
+
             boolean isExpanded = descriptionContainer.isVisible();
             descriptionContainer.setVisible(!isExpanded);
+
             if (!isExpanded) {
                 card.getStyle()
                         .set("height", "auto")
@@ -256,7 +268,8 @@ public class SelectMoreNeeds extends VerticalLayout {
                         .set("height", "auto")
                         .set("box-shadow", "2px 2px 5px rgba(0,0,0,0.1)");
             }
-        });
+        }).addEventData("event.target.tagName");
+
         checkboxMap.put(necesidadDTO, checkbox); // así tenemos una manera fácil de acceder a la necesidad a partir de una checkbox
         return card;
     }
