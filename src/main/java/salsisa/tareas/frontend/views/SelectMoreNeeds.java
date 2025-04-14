@@ -296,9 +296,18 @@ public class SelectMoreNeeds extends VerticalLayout implements HasUrlParameter<L
                     }
                 }
 
+                // Añadir la necesidad seleccionada
                 necesidadesSeleccionadas.add(necesidadDTO);
             } else {
+                // Eliminar necesidad desmarcada
                 necesidadesSeleccionadas.removeIf(n -> n.getIdNecesidad().equals(necesidadDTO.getIdNecesidad()));
+
+                // Si ya no queda ninguna seleccionada, se puede volver a seleccionar cualquier categoría
+                if (necesidadesSeleccionadas.isEmpty()) {
+                    // Aquí no necesitas hacer nada extra, pero si tienes lógica adicional
+                    // para habilitar checkboxes deshabilitados, puedes ponerla aquí
+                    // Ejemplo: actualizar una variable o estado visual
+                }
             }
         });
 
