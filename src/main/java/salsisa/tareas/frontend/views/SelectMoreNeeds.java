@@ -12,11 +12,13 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
+import com.vaadin.flow.server.StreamResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import salsisa.tareas.frontend.dto.*;
 import salsisa.tareas.frontend.servicesAPI.CategoriaRestCliente;
 import salsisa.tareas.frontend.servicesAPI.NecesidadRestCliente;
 
+import java.io.ByteArrayInputStream;
 import java.util.*;
 
 @PageTitle("SH - Visualizar Necesidades") // Nombre que sale arriba en el tab del navegador
@@ -35,7 +37,12 @@ public class SelectMoreNeeds extends VerticalLayout {
     public SelectMoreNeeds(NecesidadRestCliente necesidadRestCliente, CategoriaRestCliente categoriaRestCliente, List<NecesidadDTO> necesidadesSeleccionadas) {
         this.necesidadRestCliente = necesidadRestCliente;
         this.categoriaRestCliente = categoriaRestCliente;
-        this.necesidadesSeleccionadas.addAll(necesidadesSeleccionadas);
+        if (!TaskFormData.getNecesidadesSeleccionadas().isEmpty()) {necesidadesSeleccionadas = TaskFormData.getNecesidadesSeleccionadas();}
+        necesidadesSeleccionadas.forEach(n -> {
+            if (this.necesidadesSeleccionadas.stream().noneMatch(existing -> existing.getIdNecesidad().equals(n.getIdNecesidad()))) {
+                this.necesidadesSeleccionadas.add(n);
+            }
+        });
         setSpacing(false);
         setPadding(false);
         createHeader();
@@ -118,7 +125,16 @@ public class SelectMoreNeeds extends VerticalLayout {
                     }
                     filtrosSeleccionados.setUrgencias(urgenciasSeleccionadas);
                 }
-
+                // Esto sirve para guardar el estado de los checkbox antes de filtrar
+                for (Map.Entry<NecesidadDTO, Checkbox> entry : checkboxMap.entrySet()) {
+                    if (entry.getValue().getValue()) {
+                        if (!necesidadesSeleccionadas.contains(entry.getKey())) {
+                            necesidadesSeleccionadas.add(entry.getKey());
+                        }
+                    } else {
+                        necesidadesSeleccionadas.removeIf(n -> n.getIdNecesidad().equals(entry.getKey().getIdNecesidad()));
+                    }
+                }
                 mainLayout.removeAll();
                 gridLayout.removeAll();
                 
@@ -189,7 +205,19 @@ public class SelectMoreNeeds extends VerticalLayout {
                 .set("align-items", "center")
                 .set("justify-content", "center")
                 .set("background-color", "#f9f9f9");
-        imageContainer.add(new Span("Imagen no disponible"));            // aqui se cambiara para la imagen, ahora esta puesto q no hay imagen
+        byte[] imagenBytes = necesidadDTO.getImagen();
+        if (imagenBytes != null && imagenBytes.length > 0) {
+            StreamResource resource = new StreamResource("imagen.png", () -> new ByteArrayInputStream(imagenBytes));
+            Image imagen = new Image(resource, "Imagen de la necesidad");
+            imagen.setWidth("100%");
+            imagen.setHeight("100%");
+            imagen.getStyle()
+                    .set("object-fit", "cover") // Se ajusta bien al contenedor con mínima deformación
+                    .set("border-radius", "10px"); // Borde redondeado igual que el contenedor
+            imageContainer.add(imagen);
+        } else {
+            imageContainer.add(new Span("Imagen no disponible"));
+        }
 
         H4 title = new H4(necesidadDTO.getNombre());
         title.setWidth("80%");
@@ -218,9 +246,21 @@ public class SelectMoreNeeds extends VerticalLayout {
                 .set("display", "block");
 
         Checkbox checkbox = new Checkbox("Seleccionar necesidad");
+
+        boolean yaSeleccionada = necesidadesSeleccionadas.stream()
+                .anyMatch(n -> n.getIdNecesidad().equals(necesidadDTO.getIdNecesidad()));
+        if (yaSeleccionada) {
+            checkbox.setValue(true);
+        }
+
         checkbox.addValueChangeListener(e -> {
-            if(e.getValue()){
-                necesidadesSeleccionadas.add(necesidadDTO);
+            if (e.getValue()) {
+                boolean yaSeleccionadas = necesidadesSeleccionadas.stream()
+                        .anyMatch(n -> n.getIdNecesidad().equals(necesidadDTO.getIdNecesidad()));
+                if (!yaSeleccionadas) {
+                    necesidadesSeleccionadas.add(necesidadDTO);
+                }
+
             }
             else{
                 necesidadesSeleccionadas.removeIf(n -> n.getIdNecesidad().equals(necesidadDTO.getIdNecesidad()));

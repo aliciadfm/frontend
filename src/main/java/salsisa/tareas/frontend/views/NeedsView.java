@@ -10,6 +10,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
+import com.vaadin.flow.server.StreamResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import salsisa.tareas.frontend.dto.CategoriaDTO;
 import salsisa.tareas.frontend.dto.FiltroNecesidadDTO;
@@ -18,6 +19,7 @@ import salsisa.tareas.frontend.dto.Urgencia;
 import salsisa.tareas.frontend.servicesAPI.CategoriaRestCliente;
 import salsisa.tareas.frontend.servicesAPI.NecesidadRestCliente;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -168,7 +170,20 @@ public class NeedsView extends VerticalLayout {
                 .set("align-items", "center")
                 .set("justify-content", "center")
                 .set("background-color", "#f9f9f9");
-        imageContainer.add(new Span("Imagen no disponible"));            // aqui se cambiara para la imagen, ahora esta puesto q no hay imagen
+        byte[] imagenBytes = necesidadDTO.getImagen();
+        if (imagenBytes != null && imagenBytes.length > 0) {
+            StreamResource resource = new StreamResource("imagen.png", () -> new ByteArrayInputStream(imagenBytes));
+            Image imagen = new Image(resource, "Imagen de la necesidad");
+            imagen.setWidth("100%");
+            imagen.setHeight("100%");
+            imagen.getStyle()
+                    .set("object-fit", "cover") // Se ajusta bien al contenedor con mínima deformación
+                    .set("border-radius", "10px"); // Borde redondeado igual que el contenedor
+            imageContainer.add(imagen);
+        } else {
+            imageContainer.add(new Span("Imagen no disponible"));
+        }
+
         H4 title = new H4(necesidadDTO.getNombre());
         title.setWidth("80%");
         Span categoryLabel = new Span("Disponible");
