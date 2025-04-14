@@ -176,19 +176,26 @@ public class SelectMoreNeeds extends VerticalLayout {
         Button continuarBtn = new Button("Continuar con seleccionados");
         continuarBtn.getStyle().set("margin", "20px");
         continuarBtn.addClickListener(e -> {
-            if (!necesidadesSeleccionadas.isEmpty()) {
+            if (!necesidadesSeleccionadas.isEmpty() || checkboxMap.values().stream().anyMatch(Checkbox::getValue)) {
+                Set<Long> idsYaAgregados = new HashSet<>();
                 List<NecesidadDTO> seleccionados = new ArrayList<>();
+
+                // Agrega los ya seleccionados si aún tienen el checkbox marcado
                 for (Map.Entry<NecesidadDTO, Checkbox> entry : checkboxMap.entrySet()) {
                     if (entry.getValue().getValue()) {
-                        seleccionados.add(entry.getKey());
+                        Long id = entry.getKey().getIdNecesidad();
+                        if (!idsYaAgregados.contains(id)) {
+                            idsYaAgregados.add(id);
+                            seleccionados.add(entry.getKey());
+                        }
                     }
                 }
+
                 TaskFormData.setNecesidadesSeleccionadas(seleccionados);
                 UI.getCurrent().navigate(CreateTaskView.class);
-            }else {
+            } else {
                 Notification.show("No has seleccionado ninguna necesidad.");
             }
-
         });
         add(continuarBtn);
     }
