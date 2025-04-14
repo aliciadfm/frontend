@@ -282,14 +282,22 @@ public class SelectMoreNeeds extends VerticalLayout implements HasUrlParameter<L
 
         checkbox.addValueChangeListener(e -> {
             if (e.getValue()) {
-                boolean yaSeleccionadas = necesidadesSeleccionadas.stream()
-                        .anyMatch(n -> n.getIdNecesidad().equals(necesidadDTO.getIdNecesidad()));
-                if (!yaSeleccionadas) {
-                    necesidadesSeleccionadas.add(necesidadDTO);
+                // Comprobar si hay ya una necesidad seleccionada de otra categoría
+                if (!necesidadesSeleccionadas.isEmpty()) {
+                    Long categoriaActual = necesidadDTO.getIdCategoria();
+                    boolean categoriaDiferente = necesidadesSeleccionadas.stream()
+                            .anyMatch(n -> !n.getIdCategoria().equals(categoriaActual));
+
+                    if (categoriaDiferente) {
+                        // No permitir seleccionar esta necesidad
+                        Notification.show("Solo puedes seleccionar necesidades de una misma categoría.");
+                        checkbox.setValue(false); // desmarcar de nuevo
+                        return;
+                    }
                 }
 
-            }
-            else{
+                necesidadesSeleccionadas.add(necesidadDTO);
+            } else {
                 necesidadesSeleccionadas.removeIf(n -> n.getIdNecesidad().equals(necesidadDTO.getIdNecesidad()));
             }
         });
