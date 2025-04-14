@@ -166,7 +166,7 @@ public class CreateTaskView extends VerticalLayout {
             virtualVoluntarios.setItems(listaVoluntarios);
             if (!listaNecesidades.isEmpty()) {
                 long categoriaId = listaNecesidades.getFirst().getIdCategoria();
-                UI.getCurrent().navigate("SelectMoreNeeds/" + categoriaId);
+                UI.getCurrent().navigate(SelectMoreNeeds.class, categoriaId);
             } else {
                 UI.getCurrent().navigate("SelectMoreNeeds");
             }

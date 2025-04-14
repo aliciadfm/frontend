@@ -9,9 +9,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouteAlias;
+import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.StreamResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import salsisa.tareas.frontend.dto.*;
@@ -22,19 +20,20 @@ import java.io.ByteArrayInputStream;
 import java.util.*;
 
 @PageTitle("SH - Visualizar Necesidades") // Nombre que sale arriba en el tab del navegador
-@Route(value="SelectMoreNeeds", layout = MainLayout.class) // Value indica la url y layout indica la clase que usa como base
-public class SelectMoreNeeds extends VerticalLayout {
+@Route(value = "SelectMoreNeeds", layout = MainLayout.class)
+public class SelectMoreNeeds extends VerticalLayout implements HasUrlParameter<Long> {
 
     @Autowired
     private NecesidadRestCliente necesidadRestCliente;
     @Autowired
     private CategoriaRestCliente categoriaRestCliente;
-
     private final List<NecesidadDTO> necesidadesSeleccionadas = new ArrayList<>();
-
     private final Map<NecesidadDTO, Checkbox> checkboxMap = new HashMap<>(); // este mapa es para relacionar cada necesidad con su correspondiente checkbox
+    private Long categoriaId;
+    private boolean comprobacion;
 
-    public SelectMoreNeeds(NecesidadRestCliente necesidadRestCliente, CategoriaRestCliente categoriaRestCliente, List<NecesidadDTO> necesidadesSeleccionadas) {
+    public SelectMoreNeeds(NecesidadRestCliente necesidadRestCliente, CategoriaRestCliente categoriaRestCliente,
+                           List<NecesidadDTO> necesidadesSeleccionadas) {
         this.necesidadRestCliente = necesidadRestCliente;
         this.categoriaRestCliente = categoriaRestCliente;
         if (!TaskFormData.getNecesidadesSeleccionadas().isEmpty()) {necesidadesSeleccionadas = TaskFormData.getNecesidadesSeleccionadas();}
@@ -46,7 +45,7 @@ public class SelectMoreNeeds extends VerticalLayout {
         setSpacing(false);
         setPadding(false);
         createHeader();
-        createNeedsView();
+
     }
     private void createHeader() {
         VerticalLayout headingDiv = new VerticalLayout();
@@ -56,6 +55,19 @@ public class SelectMoreNeeds extends VerticalLayout {
         headingDiv.add(title);
         add(headingDiv);
     }
+
+    private List<NecesidadDTO> necesidadesCategorizadas() {
+        FiltroNecesidadDTO vacio = new FiltroNecesidadDTO();
+        List<NecesidadDTO> list = necesidadRestCliente.obtenerSinCubrir(vacio);
+        List<NecesidadDTO> resultado = new ArrayList<>();
+        for(NecesidadDTO necesidad : list) {
+            if(necesidad.getIdCategoria().equals(this.categoriaId)) {
+                resultado.add(necesidad);
+            }
+        }
+        return resultado;
+    }
+
     private void createNeedsView() {
         HorizontalLayout mainLayout = new HorizontalLayout();
         mainLayout.setSizeFull();
@@ -68,7 +80,16 @@ public class SelectMoreNeeds extends VerticalLayout {
                 .set("justify-content", "center") // Centra las tarjetas
                 .set("gap", "10px"); // Espacio entre tarjetas
         FiltroNecesidadDTO vacio = new FiltroNecesidadDTO();
-        List<NecesidadDTO> listaNecesidades = necesidadRestCliente.obtenerSinCubrir(vacio);
+        List<NecesidadDTO> listaNecesidades = new ArrayList<>();
+        if(comprobacion) {
+            listaNecesidades = necesidadesCategorizadas();
+        } else {
+            FiltroNecesidadDTO filtro = new FiltroNecesidadDTO();
+            listaNecesidades = necesidadRestCliente.obtenerSinCubrir(vacio);
+        }
+        System.out.println("Categoria ID: " + categoriaId);
+
+
         for (int i = 0; i < listaNecesidades.size(); i++) {
             gridLayout.add(createCard(listaNecesidades.get(i)));
         }
@@ -200,7 +221,6 @@ public class SelectMoreNeeds extends VerticalLayout {
         add(continuarBtn);
     }
 
-
     private Div createCard(NecesidadDTO necesidadDTO) {
         Div imageContainer = new Div();
         imageContainer.setWidth("100%");
@@ -319,6 +339,26 @@ public class SelectMoreNeeds extends VerticalLayout {
 
         checkboxMap.put(necesidadDTO, checkbox); // así tenemos una manera fácil de acceder a la necesidad a partir de una checkbox
         return card;
+    }
+
+    @Override
+    public void setParameter(BeforeEvent beforeEvent, @OptionalParameter Long aLong) {
+        if (aLong == null) {
+            comprobacion = false;
+        } else {
+            comprobacion = true;
+            this.categoriaId = aLong;
+        }
+
+        if (!TaskFormData.getNecesidadesSeleccionadas().isEmpty()) {
+            TaskFormData.getNecesidadesSeleccionadas().forEach(n -> {
+                if (this.necesidadesSeleccionadas.stream().noneMatch(existing -> existing.getIdNecesidad().equals(n.getIdNecesidad()))) {
+                    this.necesidadesSeleccionadas.add(n);
+                }
+            });
+        }
+
+        createNeedsView();
     }
 }
 
