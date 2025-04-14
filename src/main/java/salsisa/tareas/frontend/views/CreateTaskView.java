@@ -7,6 +7,7 @@ import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -21,6 +22,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.server.StreamResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import salsisa.tareas.frontend.dto.NecesidadDTO;
 import salsisa.tareas.frontend.dto.TareaDTO;
@@ -29,6 +31,7 @@ import salsisa.tareas.frontend.servicesAPI.NecesidadRestCliente;
 import salsisa.tareas.frontend.servicesAPI.TareaRestCliente;
 import salsisa.tareas.frontend.servicesAPI.VoluntarioRestCliente;
 
+import java.io.ByteArrayInputStream;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -159,7 +162,14 @@ public class CreateTaskView extends VerticalLayout {
         });
         necesidadesButton.addClickListener(e -> {
             saveData();
-            UI.getCurrent().navigate("SelectMoreNeeds");
+            listaVoluntarios.clear();
+            virtualVoluntarios.setItems(listaVoluntarios);
+            if (!listaNecesidades.isEmpty()) {
+                long categoriaId = listaNecesidades.getFirst().getIdCategoria();
+                UI.getCurrent().navigate("SelectMoreNeeds/" + categoriaId);
+            } else {
+                UI.getCurrent().navigate("SelectMoreNeeds");
+            }
         });
 
         HorizontalLayout voluntariosFieldArea = createFieldArea("Voluntarios", voluntariosButton);
@@ -245,7 +255,16 @@ public class CreateTaskView extends VerticalLayout {
                 HorizontalLayout cardLayout = new HorizontalLayout();
                 cardLayout.setMargin(true);
 
-                Avatar avatar = new Avatar(voluntario.getNombre());
+                StreamResource imageResource = new StreamResource(
+                        voluntario.getNombre() + ".png",
+                        () -> new ByteArrayInputStream(voluntario.getImagen())
+                );
+
+                Image avatar = new Image(imageResource, "Avatar");
+                avatar.getStyle()
+                        .set("border-radius", "50%")
+                        .set("object-fit", "cover")
+                        .set("border", "2px solid #ccc");
                 avatar.setHeight("64px");
                 avatar.setWidth("64px");
 
@@ -265,7 +284,16 @@ public class CreateTaskView extends VerticalLayout {
                 HorizontalLayout cardLayout = new HorizontalLayout();
                 cardLayout.setMargin(true);
 
-                Avatar avatar = new Avatar(necesidad.getNombre());
+                StreamResource imageResource = new StreamResource(
+                        necesidad.getNombre() + ".png",
+                        () -> new ByteArrayInputStream(necesidad.getImagen())
+                );
+
+                Image avatar = new Image(imageResource, "Avatar");
+                avatar.getStyle()
+                        .set("border-radius", "50%")
+                        .set("object-fit", "cover")
+                        .set("border", "2px solid #ccc");
                 avatar.setHeight("64px");
                 avatar.setWidth("64px");
 
