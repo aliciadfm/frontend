@@ -9,9 +9,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouteAlias;
+import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.StreamResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import salsisa.tareas.frontend.dto.*;
@@ -22,19 +20,20 @@ import java.io.ByteArrayInputStream;
 import java.util.*;
 
 @PageTitle("SH - Visualizar Necesidades") // Nombre que sale arriba en el tab del navegador
-@Route(value="SelectMoreNeeds", layout = MainLayout.class) // Value indica la url y layout indica la clase que usa como base
-public class SelectMoreNeeds extends VerticalLayout {
+@Route(value = "SelectMoreNeeds", layout = MainLayout.class)
+public class SelectMoreNeeds extends VerticalLayout implements HasUrlParameter<Long> {
 
     @Autowired
     private NecesidadRestCliente necesidadRestCliente;
     @Autowired
     private CategoriaRestCliente categoriaRestCliente;
-
     private final List<NecesidadDTO> necesidadesSeleccionadas = new ArrayList<>();
-
     private final Map<NecesidadDTO, Checkbox> checkboxMap = new HashMap<>(); // este mapa es para relacionar cada necesidad con su correspondiente checkbox
+    private Long categoriaId;
+    private boolean comprobacion;
 
-    public SelectMoreNeeds(NecesidadRestCliente necesidadRestCliente, CategoriaRestCliente categoriaRestCliente, List<NecesidadDTO> necesidadesSeleccionadas) {
+    public SelectMoreNeeds(NecesidadRestCliente necesidadRestCliente, CategoriaRestCliente categoriaRestCliente,
+                           List<NecesidadDTO> necesidadesSeleccionadas) {
         this.necesidadRestCliente = necesidadRestCliente;
         this.categoriaRestCliente = categoriaRestCliente;
         if (!TaskFormData.getNecesidadesSeleccionadas().isEmpty()) {necesidadesSeleccionadas = TaskFormData.getNecesidadesSeleccionadas();}
@@ -46,7 +45,7 @@ public class SelectMoreNeeds extends VerticalLayout {
         setSpacing(false);
         setPadding(false);
         createHeader();
-        createNeedsView();
+
     }
     private void createHeader() {
         VerticalLayout headingDiv = new VerticalLayout();
@@ -56,6 +55,19 @@ public class SelectMoreNeeds extends VerticalLayout {
         headingDiv.add(title);
         add(headingDiv);
     }
+
+    private List<NecesidadDTO> necesidadesCategorizadas() {
+        FiltroNecesidadDTO vacio = new FiltroNecesidadDTO();
+        List<NecesidadDTO> list = necesidadRestCliente.obtenerSinCubrir(vacio);
+        List<NecesidadDTO> resultado = new ArrayList<>();
+        for(NecesidadDTO necesidad : list) {
+            if(necesidad.getIdCategoria().equals(this.categoriaId)) {
+                resultado.add(necesidad);
+            }
+        }
+        return resultado;
+    }
+
     private void createNeedsView() {
         HorizontalLayout mainLayout = new HorizontalLayout();
         mainLayout.setSizeFull();
@@ -68,7 +80,16 @@ public class SelectMoreNeeds extends VerticalLayout {
                 .set("justify-content", "center") // Centra las tarjetas
                 .set("gap", "10px"); // Espacio entre tarjetas
         FiltroNecesidadDTO vacio = new FiltroNecesidadDTO();
-        List<NecesidadDTO> listaNecesidades = necesidadRestCliente.obtenerSinCubrir(vacio);
+        List<NecesidadDTO> listaNecesidades = new ArrayList<>();
+        if(comprobacion) {
+            listaNecesidades = necesidadesCategorizadas();
+        } else {
+            FiltroNecesidadDTO filtro = new FiltroNecesidadDTO();
+            listaNecesidades = necesidadRestCliente.obtenerSinCubrir(vacio);
+        }
+        System.out.println("Categoria ID: " + categoriaId);
+
+
         for (int i = 0; i < listaNecesidades.size(); i++) {
             gridLayout.add(createCard(listaNecesidades.get(i)));
         }
@@ -176,23 +197,29 @@ public class SelectMoreNeeds extends VerticalLayout {
         Button continuarBtn = new Button("Continuar con seleccionados");
         continuarBtn.getStyle().set("margin", "20px");
         continuarBtn.addClickListener(e -> {
-            if (!necesidadesSeleccionadas.isEmpty()) {
+            if (!necesidadesSeleccionadas.isEmpty() || checkboxMap.values().stream().anyMatch(Checkbox::getValue)) {
+                Set<Long> idsYaAgregados = new HashSet<>();
                 List<NecesidadDTO> seleccionados = new ArrayList<>();
+
+                // Agrega los ya seleccionados si aún tienen el checkbox marcado
                 for (Map.Entry<NecesidadDTO, Checkbox> entry : checkboxMap.entrySet()) {
                     if (entry.getValue().getValue()) {
-                        seleccionados.add(entry.getKey());
+                        Long id = entry.getKey().getIdNecesidad();
+                        if (!idsYaAgregados.contains(id)) {
+                            idsYaAgregados.add(id);
+                            seleccionados.add(entry.getKey());
+                        }
                     }
                 }
+
                 TaskFormData.setNecesidadesSeleccionadas(seleccionados);
                 UI.getCurrent().navigate(CreateTaskView.class);
-            }else {
+            } else {
                 Notification.show("No has seleccionado ninguna necesidad.");
             }
-
         });
         add(continuarBtn);
     }
-
 
     private Div createCard(NecesidadDTO necesidadDTO) {
         Div imageContainer = new Div();
@@ -255,15 +282,32 @@ public class SelectMoreNeeds extends VerticalLayout {
 
         checkbox.addValueChangeListener(e -> {
             if (e.getValue()) {
-                boolean yaSeleccionadas = necesidadesSeleccionadas.stream()
-                        .anyMatch(n -> n.getIdNecesidad().equals(necesidadDTO.getIdNecesidad()));
-                if (!yaSeleccionadas) {
-                    necesidadesSeleccionadas.add(necesidadDTO);
+                // Comprobar si hay ya una necesidad seleccionada de otra categoría
+                if (!necesidadesSeleccionadas.isEmpty()) {
+                    Long categoriaActual = necesidadDTO.getIdCategoria();
+                    boolean categoriaDiferente = necesidadesSeleccionadas.stream()
+                            .anyMatch(n -> !n.getIdCategoria().equals(categoriaActual));
+
+                    if (categoriaDiferente) {
+                        // No permitir seleccionar esta necesidad
+                        Notification.show("Solo puedes seleccionar necesidades de una misma categoría.");
+                        checkbox.setValue(false); // desmarcar de nuevo
+                        return;
+                    }
                 }
 
-            }
-            else{
+                // Añadir la necesidad seleccionada
+                necesidadesSeleccionadas.add(necesidadDTO);
+            } else {
+                // Eliminar necesidad desmarcada
                 necesidadesSeleccionadas.removeIf(n -> n.getIdNecesidad().equals(necesidadDTO.getIdNecesidad()));
+
+                // Si ya no queda ninguna seleccionada, se puede volver a seleccionar cualquier categoría
+                if (necesidadesSeleccionadas.isEmpty()) {
+                    // Aquí no necesitas hacer nada extra, pero si tienes lógica adicional
+                    // para habilitar checkboxes deshabilitados, puedes ponerla aquí
+                    // Ejemplo: actualizar una variable o estado visual
+                }
             }
         });
 
@@ -312,6 +356,26 @@ public class SelectMoreNeeds extends VerticalLayout {
 
         checkboxMap.put(necesidadDTO, checkbox); // así tenemos una manera fácil de acceder a la necesidad a partir de una checkbox
         return card;
+    }
+
+    @Override
+    public void setParameter(BeforeEvent beforeEvent, @OptionalParameter Long aLong) {
+        if (aLong == null) {
+            comprobacion = false;
+        } else {
+            comprobacion = true;
+            this.categoriaId = aLong;
+        }
+
+        if (!TaskFormData.getNecesidadesSeleccionadas().isEmpty()) {
+            TaskFormData.getNecesidadesSeleccionadas().forEach(n -> {
+                if (this.necesidadesSeleccionadas.stream().noneMatch(existing -> existing.getIdNecesidad().equals(n.getIdNecesidad()))) {
+                    this.necesidadesSeleccionadas.add(n);
+                }
+            });
+        }
+
+        createNeedsView();
     }
 }
 
