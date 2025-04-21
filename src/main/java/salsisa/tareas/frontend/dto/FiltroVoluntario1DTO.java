@@ -12,7 +12,7 @@ import java.time.LocalTime;
 public class FiltroVoluntario1DTO {
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
-    private LocalTime horarioInicio;
-    private LocalTime horarioFin;
+    private Boolean turnoManana;
+    private Boolean turnoTarde;
     private Long idCategoria;
 }

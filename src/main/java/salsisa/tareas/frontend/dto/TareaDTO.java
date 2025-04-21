@@ -20,10 +20,12 @@ public class TareaDTO {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate fechaFin;
     @JsonFormat(pattern = "HH:mm")
-    private LocalTime horarioInicio;
-    @JsonFormat(pattern = "HH:mm")
-    private LocalTime horarioFin;
-    private Boolean realizada;
+    private LocalTime horaEncuentro;
+    private String puntoEncuentro;
+    private Boolean turnoManana;
+    private Boolean turnoTarde;
+    private Estado estado;
+
     private List<Long> idsVoluntarios;
     private List<Long> idsNecesidades;
 }

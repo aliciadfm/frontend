@@ -14,8 +14,8 @@ import java.util.List;
 public class FiltroVoluntario2DTO {
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
-    private LocalTime horarioInicio;
-    private LocalTime horarioFin;
+    private Boolean turnoManana;
+    private Boolean turnoTarde;
     private Long idCategoria;
     private List<Long> voluntarios;
 }
