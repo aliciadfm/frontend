@@ -36,6 +36,8 @@ public class VolunteersView extends VerticalLayout implements RouterLayout {
     VirtualList<VoluntarioDTO> virtualList;
 
     public VolunteersView(VoluntarioRestCliente voluntarioRestCliente) {
+        long startTime = System.currentTimeMillis();
+
         this.voluntarioRestCliente = voluntarioRestCliente;
         setSpacing(false);
         setPadding(false);
@@ -48,6 +50,10 @@ public class VolunteersView extends VerticalLayout implements RouterLayout {
             add(new Span("No hay voluntarios disponibles"));
         }
         createButtons();
+
+        long endTime = System.currentTimeMillis();
+        long totalTime = endTime - startTime;
+        System.out.println("Total time: " + totalTime);
     }
 
     private void createHeader() {
@@ -62,35 +68,36 @@ public class VolunteersView extends VerticalLayout implements RouterLayout {
     private void createVolunteersList() {
         HorizontalLayout volunteersArea = new HorizontalLayout();
         volunteersArea.setWidth("100%");
-        volunteersArea.setHeight("500px"); // Asigna una altura fija o usa setSizeFull()
+        volunteersArea.setHeight("500px");
 
-        List<VoluntarioDTO> voluntariosValidosList = new ArrayList<>();
         List<NecesidadDTO> necesidadesSeleccionadas = TaskFormData.getNecesidadesSeleccionadas();
-        List<Long> categoriasSeleccionadas = new ArrayList<>();
+        Set<VoluntarioDTO> totalVoluntarios = new HashSet<>();
 
-        for(NecesidadDTO necesidad : necesidadesSeleccionadas) {
-            categoriasSeleccionadas.add(necesidad.getIdCategoria());
-        }
+//        for (NecesidadDTO necesidad : necesidadesSeleccionadas) {
+//            FiltroVoluntario1DTO filtro = new FiltroVoluntario1DTO(
+//                    TaskFormData.getFechaInicio(),
+//                    TaskFormData.getFechaFin(),
+//                    TaskFormData.getHoraInicio(),
+//                    TaskFormData.getHoraFin(),
+//                    necesidad.getIdCategoria()
+//            );
+//            List<VoluntarioDTO> respuesta = voluntarioRestCliente.obtenerVoluntariosValidos(filtro);
+//            totalVoluntarios.addAll(respuesta);
+//        }
 
-        for(Long id : categoriasSeleccionadas) {
-            FiltroVoluntario1DTO filtro = new FiltroVoluntario1DTO(TaskFormData.getFechaInicio(), TaskFormData.getFechaFin(),
-                    TaskFormData.getHoraInicio(), TaskFormData.getHoraFin(),
-                    id);
-            voluntariosValidosList = (voluntarioRestCliente.obtenerVoluntariosValidos(filtro));
-        }
-
-        if (voluntariosValidosList.isEmpty()) {
+        if (totalVoluntarios.isEmpty()) {
             throw new IllegalArgumentException("La lista de voluntarios está vacía.");
         }
 
         virtualList = new VirtualList<>();
-        virtualList.setItems(voluntariosValidosList);
+        virtualList.setItems(totalVoluntarios); // Si aún no implementas paginación, al menos es una sola carga
         virtualList.setRenderer(voluntarioCardRenderer);
-        virtualList.setHeight("100%"); // Mantén esto si el contenedor ya tiene altura
+        virtualList.setHeight("100%");
 
         volunteersArea.add(virtualList);
-        add(volunteersArea); // Agregar el contenedor a la vista
+        add(volunteersArea);
     }
+
 
     private final ComponentRenderer<Component, VoluntarioDTO> voluntarioCardRenderer = new ComponentRenderer<>(
             voluntario -> {
@@ -146,8 +153,6 @@ public class VolunteersView extends VerticalLayout implements RouterLayout {
             UI.getCurrent().navigate(CreateTaskView.class);
         });
 
-        //acceptButton.getStyle().set("background-color", "#8dcd7e");
-        //acceptButton.getStyle().set("color", "#ffffff");
         acceptButton.getStyle().set("background-color", "#B64040");
         acceptButton.getStyle().set("color", "#ffffff");
         cancelButton.addClickListener(e -> {

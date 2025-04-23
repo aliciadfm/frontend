@@ -41,11 +41,11 @@ public class VoluntarioRestCliente extends ClienteRestBase<VoluntarioDTO> {
         if (filtro.getFechaFin() != null)
             builder.queryParam("fechaFin", filtro.getFechaFin());
 
-        if (filtro.getHorarioInicio() != null)
-            builder.queryParam("horarioInicio", filtro.getHorarioInicio());
+        if (filtro.getTurnoManana()!= null)
+            builder.queryParam("horarioInicio", filtro.getTurnoManana());
 
-        if (filtro.getHorarioFin() != null)
-            builder.queryParam("horarioFin", filtro.getHorarioFin());
+        if (filtro.getTurnoTarde() != null)
+            builder.queryParam("horarioFin", filtro.getTurnoTarde());
 
         if (filtro.getIdCategoria() != null)
             builder.queryParam("idCategoria", filtro.getIdCategoria());
@@ -70,11 +70,11 @@ public class VoluntarioRestCliente extends ClienteRestBase<VoluntarioDTO> {
         if (filtro.getFechaFin() != null)
             builder.queryParam("fechaFin", filtro.getFechaFin());
 
-        if (filtro.getHorarioInicio() != null)
-            builder.queryParam("horarioInicio", filtro.getHorarioInicio());
+        if (filtro.getTurnoManana()!= null)
+            builder.queryParam("horarioInicio", filtro.getTurnoManana());
 
-        if (filtro.getHorarioFin() != null)
-            builder.queryParam("horarioFin", filtro.getHorarioFin());
+        if (filtro.getTurnoTarde() != null)
+            builder.queryParam("horarioFin", filtro.getTurnoTarde());
 
         if (filtro.getIdCategoria() != null)
             builder.queryParam("idCategoria", filtro.getIdCategoria());

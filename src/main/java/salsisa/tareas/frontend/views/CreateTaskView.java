@@ -5,6 +5,7 @@ import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Image;
@@ -17,12 +18,15 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.component.virtuallist.VirtualList;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.server.StreamResource;
+import com.vaadin.flow.theme.lumo.LumoUtility;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import salsisa.tareas.frontend.dto.NecesidadDTO;
 import salsisa.tareas.frontend.dto.TareaDTO;
@@ -58,8 +62,11 @@ public class CreateTaskView extends VerticalLayout {
 
     private TextField tituloField;
     private TextField descripcionField;
-    private DateTimePicker inicioPicker;
-    private DateTimePicker finPicker;
+    private TextField puntoEncuentro;
+
+    private DatePicker inicioPicker;
+    private DatePicker finPicker;
+    private TimePicker horaEncuentroPicker;
     private Checkbox pendienteCheckbox;
 
     public CreateTaskView(VoluntarioRestCliente voluntarioRestCliente, NecesidadRestCliente necesidadRestCliente, TareaRestCliente tareaRestCliente) {
@@ -74,11 +81,11 @@ public class CreateTaskView extends VerticalLayout {
         createButton();
         tituloField.setValue(Optional.ofNullable(TaskFormData.getTitulo()).orElse(""));
         descripcionField.setValue(Optional.ofNullable(TaskFormData.getDescripcion()).orElse(""));
-        if (TaskFormData.getFechaInicio() != null && TaskFormData.getHoraInicio() != null) {
-            inicioPicker.setValue(LocalDateTime.of(TaskFormData.getFechaInicio(), TaskFormData.getHoraInicio()));
+        if (TaskFormData.getFechaInicio() != null) {
+            inicioPicker.setValue(TaskFormData.getFechaInicio());
         }
-        if (TaskFormData.getFechaFin() != null && TaskFormData.getHoraFin() != null) {
-            finPicker.setValue(LocalDateTime.of(TaskFormData.getFechaFin(), TaskFormData.getHoraFin()));
+        if (TaskFormData.getFechaFin() != null) {
+            finPicker.setValue(TaskFormData.getFechaFin());
         }
     }
 
@@ -127,14 +134,17 @@ public class CreateTaskView extends VerticalLayout {
 
         tituloField = new TextField("");
         descripcionField = new TextField("");
-        inicioPicker = new DateTimePicker("");
-        finPicker = new DateTimePicker("");
+        puntoEncuentro = new TextField("");
+        inicioPicker = new DatePicker("");
+        finPicker = new DatePicker("");
+        horaEncuentroPicker = new TimePicker("");
 
         //COLUMNA DE LA IZQUIERDA
         VerticalLayout column1 = new VerticalLayout();
         //column1.getStyle().set("border", "1px solid red");
         HorizontalLayout tituloFieldArea = createFieldArea("Título", tituloField);
         HorizontalLayout descripcionFieldArea = createFieldArea("Descripción", descripcionField);
+        HorizontalLayout puntoEncuentroArea = createFieldArea("Punto de encuentro", puntoEncuentro);
         DateTimePicker inicio = new DateTimePicker("");
         inicio.setStep(Duration.ofMinutes(30));
         HorizontalLayout inicioFieldArea = createFieldArea("Inicio", inicioPicker);
@@ -142,6 +152,31 @@ public class CreateTaskView extends VerticalLayout {
         DateTimePicker fin = new DateTimePicker("");
         fin.setStep(Duration.ofMinutes(30));
         HorizontalLayout finFieldArea = createFieldArea("Fin", finPicker);
+
+        // Componente para "Turno de trabajo"
+        Span turnoLabel = new Span("Turno de trabajo");
+        Checkbox manana = new Checkbox("Mañana");
+        Checkbox tarde = new Checkbox("Tarde");
+
+        VerticalLayout turnoColumn = new VerticalLayout(turnoLabel, manana, tarde);
+        turnoColumn.setSpacing(false);
+        turnoColumn.setPadding(false);
+        turnoColumn.setWidth("50%");
+
+// Componente para "Hora de encuentro"
+        Span horaEncuentroLabel = new Span("Hora de encuentro");
+        horaEncuentroPicker.setPlaceholder("Hora de comienzo");
+        VerticalLayout horaColumn = new VerticalLayout(horaEncuentroLabel, horaEncuentroPicker);
+        horaColumn.setSpacing(false);
+        horaColumn.setPadding(false);
+        horaColumn.setWidth("50%");
+
+// Layout final combinado
+        HorizontalLayout turnoYHora = new HorizontalLayout(turnoColumn, horaColumn);
+        turnoYHora.setWidthFull();
+        turnoYHora.setAlignItems(Alignment.END); // Para alinear la parte inferior si hace falta
+
+
 
         //COLUMNA DE LA DERECHA
         VerticalLayout column2 = new VerticalLayout();
@@ -184,8 +219,8 @@ public class CreateTaskView extends VerticalLayout {
         voluntariosArea.add(voluntariosFieldArea, virtualVoluntarios);
         necesidadesArea.add(necesidadesFieldArea, virtualNecesidades);
 
-        column1.add(tituloFieldArea, descripcionFieldArea, necesidadesArea);
-        column2.add(inicioFieldArea, finFieldArea, voluntariosArea);
+        column1.add(tituloFieldArea, descripcionFieldArea, puntoEncuentroArea, necesidadesArea);
+        column2.add(inicioFieldArea, finFieldArea, turnoYHora, voluntariosArea);
 
         fields.add(column1, column2);
         getStyle().set("padding", "0 5%");
@@ -194,10 +229,10 @@ public class CreateTaskView extends VerticalLayout {
     private void saveData() {
         TaskFormData.setTitulo(tituloField.getValue());
         TaskFormData.setDescripcion(descripcionField.getValue());
-        TaskFormData.setFechaInicio(inicioPicker.getValue() != null ? inicioPicker.getValue().toLocalDate() : null);
-        TaskFormData.setFechaFin(finPicker.getValue() != null ? finPicker.getValue().toLocalDate() : null);
-        TaskFormData.setHoraInicio(inicioPicker.getValue() != null ? inicioPicker.getValue().toLocalTime() : null);
-        TaskFormData.setHoraFin(finPicker.getValue() != null ? finPicker.getValue().toLocalTime() : null);
+        TaskFormData.setFechaInicio(inicioPicker.getValue());
+        TaskFormData.setFechaFin(finPicker.getValue());
+        TaskFormData.setPuntoEncuentro(puntoEncuentro.getValue());
+        TaskFormData.setHoraEncuentro(horaEncuentroPicker.getValue());
     }
 
     private void createCheckboxArea() {
@@ -319,12 +354,8 @@ public class CreateTaskView extends VerticalLayout {
         buttonArea.setAlignSelf(Alignment.CENTER, aceptarButton);
 
         aceptarButton.addClickListener(e -> {
-            LocalDate fechaInicio = inicioPicker.getValue() != null ? inicioPicker.getValue().toLocalDate() : null;
-            LocalTime horaInicio = inicioPicker.getValue() != null ? inicioPicker.getValue().toLocalTime() : null;
-            System.out.println("Hora inicio: " + horaInicio);
-            LocalDate fechaFin = finPicker.getValue() != null ? finPicker.getValue().toLocalDate() : null;
-            LocalTime horaFin = finPicker.getValue() != null ? finPicker.getValue().toLocalTime() : null;
-            System.out.println("Hora fin: " + horaFin);
+            LocalDate fechaInicio = inicioPicker.getValue();
+            LocalDate fechaFin = finPicker.getValue();
             if (!pendienteCheckbox.getValue()) {
                 if (tituloField.isEmpty() || descripcionField.isEmpty()
                         || inicioPicker.isEmpty() || finPicker.isEmpty()
@@ -348,11 +379,6 @@ public class CreateTaskView extends VerticalLayout {
                 return;
             }
 
-            if(horaInicio != null && horaFin != null && horaInicio.isAfter(horaFin)) {
-                Notification.show("La hora de inicio no puede ser posterior a la hora de fin.", 3000, Notification.Position.MIDDLE);
-                return;
-            }
-
             List<Long> idsVoluntarios = new ArrayList<>();
             List<Long> idsNecesidades = new ArrayList<>();
 
@@ -364,16 +390,15 @@ public class CreateTaskView extends VerticalLayout {
                 idsNecesidades.add(necesidad.getIdNecesidad());
             }
 
-            TareaDTO tarea = new TareaDTO(null, tituloField.getValue(), descripcionField.getValue(),
-                    fechaInicio, fechaFin, horaInicio, horaFin, false, idsVoluntarios, idsNecesidades);
+            //TareaDTO tarea = new TareaDTO(null, tituloField.getValue(), descripcionField.getValue(),
+                    //fechaInicio, fechaFin, horaInicio, horaFin, false, idsVoluntarios, idsNecesidades);
             for(VoluntarioDTO voluntario : listaVoluntarios) {
                 System.out.println("Voluntario: " + voluntario.getIdVoluntario());
             }
             for(NecesidadDTO necesidad : listaNecesidades) {
                 System.out.println("Necesidad: " + necesidad.getIdNecesidad());
             }
-            System.out.println(horaInicio);
-            tareaRestCliente.crear(tarea);
+            //tareaRestCliente.crear(tarea);
             Notification.show("Tarea creada");
             clearForm();
         });
@@ -384,6 +409,8 @@ public class CreateTaskView extends VerticalLayout {
         descripcionField.clear();
         inicioPicker.clear();
         finPicker.clear();
+        puntoEncuentro.clear();
+        horaEncuentroPicker.clear();
 
         listaVoluntarios = new java.util.ArrayList<>();
         listaNecesidades = new java.util.ArrayList<>();
