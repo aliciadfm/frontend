@@ -25,7 +25,9 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.server.StreamResource;
 import org.springframework.beans.factory.annotation.Autowired;
+import salsisa.tareas.frontend.dto.Estado;
 import salsisa.tareas.frontend.dto.NecesidadDTO;
+import salsisa.tareas.frontend.dto.TareaDTO;
 import salsisa.tareas.frontend.dto.VoluntarioDTO;
 import salsisa.tareas.frontend.servicesAPI.NecesidadRestCliente;
 import salsisa.tareas.frontend.servicesAPI.TareaRestCliente;
@@ -61,6 +63,8 @@ public class CreateTaskView extends VerticalLayout {
     private DatePicker inicioPicker;
     private DatePicker finPicker;
     private TimePicker horaEncuentroPicker;
+    private Checkbox manana;
+    private Checkbox tarde;
     private Checkbox pendienteCheckbox;
 
     public CreateTaskView(VoluntarioRestCliente voluntarioRestCliente, NecesidadRestCliente necesidadRestCliente, TareaRestCliente tareaRestCliente) {
@@ -156,8 +160,8 @@ public class CreateTaskView extends VerticalLayout {
         turnoLabelArea.add(turnoLabel);
         turnoLabelArea.setAlignSelf(Alignment.END, turnoLabel);
         turnoLabelArea.setJustifyContentMode(JustifyContentMode.CENTER);
-        Checkbox manana = new Checkbox("Mañana");
-        Checkbox tarde = new Checkbox("Tarde");
+        manana = new Checkbox("Mañana");
+        tarde = new Checkbox("Tarde");
         HorizontalLayout turnoArea = new HorizontalLayout();
         turnoArea.setSpacing(false);
         VerticalLayout turnoCheckBoxArea = new VerticalLayout();
@@ -389,15 +393,19 @@ public class CreateTaskView extends VerticalLayout {
                 idsNecesidades.add(necesidad.getIdNecesidad());
             }
 
-            //TareaDTO tarea = new TareaDTO(null, tituloField.getValue(), descripcionField.getValue(),
-                    //fechaInicio, fechaFin, horaInicio, horaFin, false, idsVoluntarios, idsNecesidades);
+            TareaDTO tarea = new TareaDTO(null, tituloField.getValue(), descripcionField.getValue(),
+                    fechaInicio, fechaFin, horaEncuentroPicker.getValue(), puntoEncuentro.getValue(),
+                    manana.getValue(), tarde.getValue(),
+                    pendienteCheckbox.getValue() ? Estado.PENDIENTE : Estado.ASIGNADA,
+                    idsVoluntarios, idsNecesidades);
+
             for(VoluntarioDTO voluntario : listaVoluntarios) {
                 System.out.println("Voluntario: " + voluntario.getIdVoluntario());
             }
             for(NecesidadDTO necesidad : listaNecesidades) {
                 System.out.println("Necesidad: " + necesidad.getIdNecesidad());
             }
-            //tareaRestCliente.crear(tarea);
+            tareaRestCliente.crear(tarea);
             Notification.show("Tarea creada");
             clearForm();
         });
