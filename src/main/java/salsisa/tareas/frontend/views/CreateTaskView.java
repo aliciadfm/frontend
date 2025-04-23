@@ -3,7 +3,6 @@ package salsisa.tareas.frontend.views;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
@@ -25,11 +24,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.server.StreamResource;
-import com.vaadin.flow.theme.lumo.LumoUtility;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import salsisa.tareas.frontend.dto.NecesidadDTO;
-import salsisa.tareas.frontend.dto.TareaDTO;
 import salsisa.tareas.frontend.dto.VoluntarioDTO;
 import salsisa.tareas.frontend.servicesAPI.NecesidadRestCliente;
 import salsisa.tareas.frontend.servicesAPI.TareaRestCliente;
@@ -38,8 +34,6 @@ import salsisa.tareas.frontend.servicesAPI.VoluntarioRestCliente;
 import java.io.ByteArrayInputStream;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -154,29 +148,34 @@ public class CreateTaskView extends VerticalLayout {
         HorizontalLayout finFieldArea = createFieldArea("Fin", finPicker);
 
         // Componente para "Turno de trabajo"
+        VerticalLayout turnoLabelArea = new VerticalLayout();
+        turnoLabelArea.setSpacing(false);
+        turnoLabelArea.setPadding(false);
+        turnoLabelArea.setWidth("50%");
         Span turnoLabel = new Span("Turno de trabajo");
+        turnoLabelArea.add(turnoLabel);
+        turnoLabelArea.setAlignSelf(Alignment.END, turnoLabel);
+        turnoLabelArea.setJustifyContentMode(JustifyContentMode.CENTER);
         Checkbox manana = new Checkbox("Mañana");
         Checkbox tarde = new Checkbox("Tarde");
+        HorizontalLayout turnoArea = new HorizontalLayout();
+        turnoArea.setSpacing(false);
+        VerticalLayout turnoCheckBoxArea = new VerticalLayout();
+        turnoCheckBoxArea.setSpacing(false);
+        turnoCheckBoxArea.setPadding(false);
+        turnoCheckBoxArea.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        turnoCheckBoxArea.add(manana, tarde);
+        turnoArea.add(turnoLabelArea, turnoCheckBoxArea);
 
-        VerticalLayout turnoColumn = new VerticalLayout(turnoLabel, manana, tarde);
-        turnoColumn.setSpacing(false);
-        turnoColumn.setPadding(false);
-        turnoColumn.setWidth("50%");
-
-// Componente para "Hora de encuentro"
-        Span horaEncuentroLabel = new Span("Hora de encuentro");
-        horaEncuentroPicker.setPlaceholder("Hora de comienzo");
-        VerticalLayout horaColumn = new VerticalLayout(horaEncuentroLabel, horaEncuentroPicker);
-        horaColumn.setSpacing(false);
-        horaColumn.setPadding(false);
-        horaColumn.setWidth("50%");
-
-// Layout final combinado
-        HorizontalLayout turnoYHora = new HorizontalLayout(turnoColumn, horaColumn);
+        HorizontalLayout turnoYHora = new HorizontalLayout();
         turnoYHora.setWidthFull();
-        turnoYHora.setAlignItems(Alignment.END); // Para alinear la parte inferior si hace falta
-
-
+        //turnoYHora.getStyle().set("border", "1px solid red");
+        HorizontalLayout horaEncuentro = createFieldArea("Hora de encuentro", horaEncuentroPicker);
+        turnoYHora.add(turnoArea, horaEncuentro);
+        turnoArea.setWidthFull();
+        turnoCheckBoxArea.setWidthFull();
+        turnoYHora.setFlexGrow(7, turnoArea);
+        turnoYHora.setFlexGrow(3, horaEncuentro);
 
         //COLUMNA DE LA DERECHA
         VerticalLayout column2 = new VerticalLayout();
