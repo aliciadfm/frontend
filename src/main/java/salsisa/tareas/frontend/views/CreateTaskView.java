@@ -85,6 +85,10 @@ public class CreateTaskView extends VerticalLayout {
         if (TaskFormData.getFechaFin() != null) {
             finPicker.setValue(TaskFormData.getFechaFin());
         }
+        puntoEncuentro.setValue(Optional.ofNullable(TaskFormData.getPuntoEncuentro()).orElse(""));
+        manana.setValue(Optional.ofNullable(TaskFormData.getTurnoManana()).orElse(false));
+        tarde.setValue(Optional.ofNullable(TaskFormData.getTurnoTarde()).orElse(false));
+        horaEncuentroPicker.setValue(TaskFormData.getHoraEncuentro());
     }
 
     private void createHeader() {
@@ -236,6 +240,8 @@ public class CreateTaskView extends VerticalLayout {
         TaskFormData.setFechaFin(finPicker.getValue());
         TaskFormData.setPuntoEncuentro(puntoEncuentro.getValue());
         TaskFormData.setHoraEncuentro(horaEncuentroPicker.getValue());
+        TaskFormData.setTurnoManana(manana.getValue());
+        TaskFormData.setTurnoTarde(tarde.getValue());
     }
 
     private void createCheckboxArea() {

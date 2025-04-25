@@ -73,17 +73,17 @@ public class VolunteersView extends VerticalLayout implements RouterLayout {
         List<NecesidadDTO> necesidadesSeleccionadas = TaskFormData.getNecesidadesSeleccionadas();
         Set<VoluntarioDTO> totalVoluntarios = new HashSet<>();
 
-//        for (NecesidadDTO necesidad : necesidadesSeleccionadas) {
-//            FiltroVoluntario1DTO filtro = new FiltroVoluntario1DTO(
-//                    TaskFormData.getFechaInicio(),
-//                    TaskFormData.getFechaFin(),
-//                    TaskFormData.getHoraInicio(),
-//                    TaskFormData.getHoraFin(),
-//                    necesidad.getIdCategoria()
-//            );
-//            List<VoluntarioDTO> respuesta = voluntarioRestCliente.obtenerVoluntariosValidos(filtro);
-//            totalVoluntarios.addAll(respuesta);
-//        }
+        for (NecesidadDTO necesidad : necesidadesSeleccionadas) {
+            FiltroVoluntario1DTO filtro = new FiltroVoluntario1DTO(
+                    TaskFormData.getFechaInicio(),
+                    TaskFormData.getFechaFin(),
+                    TaskFormData.getTurnoManana(),
+                    TaskFormData.getTurnoTarde(),
+                    necesidad.getIdCategoria()
+            );
+            List<VoluntarioDTO> respuesta = voluntarioRestCliente.obtenerVoluntariosValidos(filtro);
+            totalVoluntarios.addAll(respuesta);
+        }
 
         if (totalVoluntarios.isEmpty()) {
             throw new IllegalArgumentException("La lista de voluntarios está vacía.");

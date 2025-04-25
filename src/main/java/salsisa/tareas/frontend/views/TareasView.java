@@ -33,7 +33,6 @@ public class TareasView extends VerticalLayout {
         centralContainer.setWidth("100%");
         add(centralContainer);
         centralContainer.add(volunteersListView());
-
     }
 
     public VerticalLayout volunteersListView() {
