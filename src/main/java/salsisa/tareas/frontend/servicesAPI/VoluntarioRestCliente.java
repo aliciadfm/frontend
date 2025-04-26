@@ -42,10 +42,10 @@ public class VoluntarioRestCliente extends ClienteRestBase<VoluntarioDTO> {
             builder.queryParam("fechaFin", filtro.getFechaFin());
 
         if (filtro.getTurnoManana()!= null)
-            builder.queryParam("horarioInicio", filtro.getTurnoManana());
+            builder.queryParam("turnoManana", filtro.getTurnoManana());
 
         if (filtro.getTurnoTarde() != null)
-            builder.queryParam("horarioFin", filtro.getTurnoTarde());
+            builder.queryParam("turnoTarde", filtro.getTurnoTarde());
 
         if (filtro.getIdCategoria() != null)
             builder.queryParam("idCategoria", filtro.getIdCategoria());
@@ -71,10 +71,10 @@ public class VoluntarioRestCliente extends ClienteRestBase<VoluntarioDTO> {
             builder.queryParam("fechaFin", filtro.getFechaFin());
 
         if (filtro.getTurnoManana()!= null)
-            builder.queryParam("horarioInicio", filtro.getTurnoManana());
+            builder.queryParam("turnoManana", filtro.getTurnoManana());
 
         if (filtro.getTurnoTarde() != null)
-            builder.queryParam("horarioFin", filtro.getTurnoTarde());
+            builder.queryParam("turnoTarde", filtro.getTurnoTarde());
 
         if (filtro.getIdCategoria() != null)
             builder.queryParam("idCategoria", filtro.getIdCategoria());
