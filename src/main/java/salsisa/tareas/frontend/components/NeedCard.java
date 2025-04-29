@@ -1,6 +1,8 @@
 package salsisa.tareas.frontend.components;
 
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.notification.Notification;
 import salsisa.tareas.frontend.dto.NecesidadDTO;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -8,13 +10,13 @@ import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.server.StreamResource;
 import salsisa.tareas.frontend.views.CreateTaskView;
 import salsisa.tareas.frontend.views.TaskFormData;
-
+import java.util.Map;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class NeedCard extends Div {
-    public static Div createCard(NecesidadDTO necesidadDTO) {
+    public static Div createCard(NecesidadDTO necesidadDTO, Boolean check, List<NecesidadDTO> necesidadesSeleccionadas, Map<NecesidadDTO, Checkbox> checkboxMap) {
         Div imageContainer = new Div();
         imageContainer.setWidth("100%");
         imageContainer.setHeight("150px");
@@ -56,14 +58,46 @@ public class NeedCard extends Div {
 
         Div descriptionContainer = new Div();
         Span descriptionLabel = new Span(necesidadDTO.getDescripcion());
-        Button select = new Button("Seleccionar", event -> {
-            List<NecesidadDTO> necesidadesSeleccionadas = new ArrayList<>();
-            necesidadesSeleccionadas.add(necesidadDTO);
-            TaskFormData.setNecesidadesSeleccionadas(necesidadesSeleccionadas);
-            UI.getCurrent().navigate(CreateTaskView.class);
-        });
 
-        descriptionContainer.add(descriptionLabel, select);
+        if (check) {
+            Checkbox checkbox = new Checkbox("Seleccionar necesidad");
+
+            boolean yaSeleccionada = necesidadesSeleccionadas.stream()
+                    .anyMatch(n -> n.getIdNecesidad().equals(necesidadDTO.getIdNecesidad()));
+            if (yaSeleccionada) {
+                checkbox.setValue(true);
+            }
+
+            checkbox.addValueChangeListener(e -> {
+                if (e.getValue()) {
+                    Long categoriaActual = necesidadDTO.getIdCategoria();
+                    boolean categoriaDiferente = necesidadesSeleccionadas.stream()
+                            .anyMatch(n -> !n.getIdCategoria().equals(categoriaActual));
+                    if (categoriaDiferente) {
+                        Notification.show("Solo puedes seleccionar necesidades de una misma categoría.");
+                        checkbox.setValue(false);
+                        return;
+                    }
+                    necesidadesSeleccionadas.add(necesidadDTO);
+                } else {
+                    necesidadesSeleccionadas.removeIf(n -> n.getIdNecesidad().equals(necesidadDTO.getIdNecesidad()));
+                }
+            });
+            checkboxMap.put(necesidadDTO, checkbox);
+            descriptionContainer .add(descriptionLabel,checkbox);
+        }
+
+        else {
+            Button select = new Button("Seleccionar", event -> {
+                List<NecesidadDTO> necesidadSeleccionada = new ArrayList<>();
+                necesidadSeleccionada.add(necesidadDTO);
+                TaskFormData.setNecesidadesSeleccionadas(necesidadSeleccionada);
+                UI.getCurrent().navigate(CreateTaskView.class);
+            });
+
+            descriptionContainer.add(descriptionLabel, select);
+        }
+
         descriptionContainer.getStyle()
                 .set("margin-top", "10px")
                 .set("display", "flex")

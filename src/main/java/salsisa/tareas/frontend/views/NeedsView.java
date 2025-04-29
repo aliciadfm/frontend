@@ -62,7 +62,7 @@ public class NeedsView extends VerticalLayout {
         FiltroNecesidadDTO vacio = new FiltroNecesidadDTO();
         List<NecesidadDTO> listaNecesidades = necesidadRestCliente.obtenerSinCubrir(vacio);
         for (NecesidadDTO necesidad : listaNecesidades) {
-            gridLayout.add(NeedCard.createCard(necesidad));
+            gridLayout.add(NeedCard.createCard(necesidad,false,null,null));
         }
 
         // Creamos el panel de filtros usando la nueva clase NeedFilters
@@ -74,7 +74,7 @@ public class NeedsView extends VerticalLayout {
             List<NecesidadDTO> necesidadesFiltradas = necesidadRestCliente.obtenerSinCubrir(filtros);
             if (!necesidadesFiltradas.isEmpty()) {
                 for (NecesidadDTO necesidad : necesidadesFiltradas) {
-                    gridLayout.add(NeedCard.createCard(necesidad));
+                    gridLayout.add(NeedCard.createCard(necesidad,false,null,null));
                 }
             } else {
                 // Mostrar mensaje si no hay necesidades
@@ -93,5 +93,4 @@ public class NeedsView extends VerticalLayout {
 
         getStyle().set("padding", "0 2%");
     }
-
 }

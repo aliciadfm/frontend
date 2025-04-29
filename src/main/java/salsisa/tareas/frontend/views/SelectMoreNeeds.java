@@ -15,9 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import salsisa.tareas.frontend.dto.*;
 import salsisa.tareas.frontend.servicesAPI.CategoriaRestCliente;
 import salsisa.tareas.frontend.servicesAPI.NecesidadRestCliente;
-
 import java.io.ByteArrayInputStream;
 import java.util.*;
+import salsisa.tareas.frontend.components.NeedCard;
 
 @PageTitle("SH - Visualizar Necesidades") // Nombre que sale arriba en el tab del navegador
 @Route(value = "SelectMoreNeeds", layout = MainLayout.class)
@@ -91,7 +91,8 @@ public class SelectMoreNeeds extends VerticalLayout implements HasUrlParameter<L
 
 
         for (int i = 0; i < listaNecesidades.size(); i++) {
-            gridLayout.add(createCard(listaNecesidades.get(i)));
+            NecesidadDTO necesidad = listaNecesidades.get(i);
+            gridLayout.add(NeedCard.createCard(necesidad,true,necesidadesSeleccionadas,checkboxMap));
         }
         VerticalLayout filtersContainer = new VerticalLayout();
         filtersContainer.getStyle()
