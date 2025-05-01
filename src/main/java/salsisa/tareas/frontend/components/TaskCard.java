@@ -1,5 +1,6 @@
 package salsisa.tareas.frontend.components;
 
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -16,7 +17,10 @@ public class TaskCard extends HorizontalLayout {
         Span localizacion = new Span(tarea.getPuntoEncuentro());
         Span estado = new Span(tarea.getEstado().toString());
         getStyle().set("background-color", getColorForStatus(tarea.getEstado().toString()));
-        add(titulo, fechaInicio, fechaFin, localizacion, estado);
+        Integer numVol = tarea.getIdsVoluntarios().size();
+        Image icon = new Image("icons/numeroVoluntarios.png", "Voluntario");
+        Span nVoluntarios = new Span(numVol.toString());
+        add(titulo, fechaInicio, fechaFin, localizacion, estado,icon,nVoluntarios);
     }
     private String getColorForStatus(String status) {
         return switch (status.toLowerCase()) {
