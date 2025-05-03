@@ -421,7 +421,7 @@ public class CreateTaskView extends VerticalLayout {
             List<Long> idsNecesidades = new ArrayList<>();
 
             for(VoluntarioDTO voluntario : listaVoluntarios) {
-                idsVoluntarios.add(voluntario.getIdVoluntario());
+                idsVoluntarios.add(voluntario.getId());
             }
 
             for(NecesidadDTO necesidad : listaNecesidades) {
@@ -435,7 +435,7 @@ public class CreateTaskView extends VerticalLayout {
                     idsVoluntarios, idsNecesidades);
 
             for(VoluntarioDTO voluntario : listaVoluntarios) {
-                System.out.println("Voluntario: " + voluntario.getIdVoluntario());
+                System.out.println("Voluntario: " + voluntario.getId());
             }
             for(NecesidadDTO necesidad : listaNecesidades) {
                 System.out.println("Necesidad: " + necesidad.getIdNecesidad());

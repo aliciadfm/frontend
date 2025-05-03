@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VoluntarioDTO {
-    private Long idVoluntario;
+    private Long id;
     private String nombre;
     private String apellidos;
     private LocalDate fecha;
