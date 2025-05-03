@@ -393,6 +393,7 @@ public class CreateTaskView extends VerticalLayout {
 
             for(VoluntarioDTO voluntario : listaVoluntarios) {
                 idsVoluntarios.add(voluntario.getIdVoluntario());
+                listaVoluntarios.add(voluntario);
             }
 
             for(NecesidadDTO necesidad : listaNecesidades) {
