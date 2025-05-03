@@ -34,6 +34,8 @@ import salsisa.tareas.frontend.servicesAPI.TareaRestCliente;
 import salsisa.tareas.frontend.servicesAPI.VoluntarioRestCliente;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -71,12 +73,17 @@ public class CreateTaskView extends VerticalLayout {
         this.voluntarioRestCliente = voluntarioRestCliente;
         this.necesidadRestCliente = necesidadRestCliente;
         this.tareaRestCliente = tareaRestCliente;
+
+        this.listaVoluntarios = TaskFormData.getVoluntariosSeleccionados();
+        System.out.println("Voluntarios recuperados: " + listaVoluntarios);
+
+        this.listaNecesidades = TaskFormData.getNecesidadesSeleccionadas();
+
         setSpacing(false);
         setPadding(false);
         createHeader();
         createTextFields();
         createCheckboxArea();
-        createButton();
         tituloField.setValue(Optional.ofNullable(TaskFormData.getTitulo()).orElse(""));
         descripcionField.setValue(Optional.ofNullable(TaskFormData.getDescripcion()).orElse(""));
         if (TaskFormData.getFechaInicio() != null) {
@@ -89,6 +96,8 @@ public class CreateTaskView extends VerticalLayout {
         manana.setValue(Optional.ofNullable(TaskFormData.getTurnoManana()).orElse(false));
         tarde.setValue(Optional.ofNullable(TaskFormData.getTurnoTarde()).orElse(false));
         horaEncuentroPicker.setValue(TaskFormData.getHoraEncuentro());
+
+        createButton();
     }
 
     private void createHeader() {
@@ -242,6 +251,9 @@ public class CreateTaskView extends VerticalLayout {
         TaskFormData.setHoraEncuentro(horaEncuentroPicker.getValue());
         TaskFormData.setTurnoManana(manana.getValue());
         TaskFormData.setTurnoTarde(tarde.getValue());
+        TaskFormData.setVoluntariosSeleccionados(listaVoluntarios);
+        System.out.println("Voluntarios guardados: " + listaVoluntarios);
+        TaskFormData.setNecesidadesSeleccionadas(listaNecesidades);
     }
 
     private void createCheckboxArea() {
@@ -301,7 +313,14 @@ public class CreateTaskView extends VerticalLayout {
 
                 StreamResource imageResource = new StreamResource(
                         voluntario.getNombre() + ".png",
-                        () -> new ByteArrayInputStream(voluntario.getImagen())
+                        () -> {
+                            byte[] imagen = voluntario.getImagen();
+                            if (imagen == null) {
+                                // Cargar la imagen predeterminada si no existe imagen del voluntario
+                                return new ByteArrayInputStream(getDefaultImage());
+                            }
+                            return new ByteArrayInputStream(imagen);
+                        }
                 );
 
                 Image avatar = new Image(imageResource, "Avatar");
@@ -322,6 +341,16 @@ public class CreateTaskView extends VerticalLayout {
                 cardLayout.add(avatar, infoLayout);
                 return cardLayout;
             });
+
+    private byte[] getDefaultImage() {
+        // Aquí debes cargar la imagen predeterminada como un byte[] (puede estar en resources, por ejemplo)
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream("defaultuserimage.png")) {
+            return is != null ? is.readAllBytes() : new byte[0];
+        } catch (IOException e) {
+            // Si no se encuentra la imagen, puedes devolver un array vacío o alguna imagen por defecto.
+            return new byte[0];
+        }
+    }
 
     private final ComponentRenderer<Component, NecesidadDTO> necesidadCardRenderer = new ComponentRenderer<>(
             necesidad -> {
@@ -393,7 +422,6 @@ public class CreateTaskView extends VerticalLayout {
 
             for(VoluntarioDTO voluntario : listaVoluntarios) {
                 idsVoluntarios.add(voluntario.getIdVoluntario());
-                listaVoluntarios.add(voluntario);
             }
 
             for(NecesidadDTO necesidad : listaNecesidades) {
@@ -426,8 +454,8 @@ public class CreateTaskView extends VerticalLayout {
         puntoEncuentro.clear();
         horaEncuentroPicker.clear();
 
-        listaVoluntarios = new java.util.ArrayList<>();
-        listaNecesidades = new java.util.ArrayList<>();
+        listaVoluntarios.clear();
+        listaNecesidades.clear();
 
         virtualVoluntarios.setItems(listaVoluntarios);
         virtualNecesidades.setItems(listaNecesidades);
