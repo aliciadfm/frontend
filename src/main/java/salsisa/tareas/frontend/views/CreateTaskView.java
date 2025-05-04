@@ -155,7 +155,7 @@ public class CreateTaskView extends VerticalLayout {
         //column1.getStyle().set("border", "1px solid red");
         HorizontalLayout tituloFieldArea = createFieldArea("Título", tituloField);
         HorizontalLayout descripcionFieldArea = createFieldArea("Descripción", descripcionField);
-        HorizontalLayout puntoEncuentroArea = createFieldArea("Punto de encuentro", puntoEncuentro);
+        HorizontalLayout puntoEncuentroArea = createFieldArea("Punto encuentro", puntoEncuentro);
         DateTimePicker inicio = new DateTimePicker("");
         inicio.setStep(Duration.ofMinutes(30));
         HorizontalLayout inicioFieldArea = createFieldArea("Inicio", inicioPicker);
@@ -453,10 +453,8 @@ public class CreateTaskView extends VerticalLayout {
         finPicker.clear();
         puntoEncuentro.clear();
         horaEncuentroPicker.clear();
-
         listaVoluntarios.clear();
         listaNecesidades.clear();
-
         virtualVoluntarios.setItems(listaVoluntarios);
         virtualNecesidades.setItems(listaNecesidades);
     }
