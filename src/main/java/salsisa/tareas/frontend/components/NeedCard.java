@@ -66,6 +66,8 @@ public class NeedCard extends Div {
                     .anyMatch(n -> n.getIdNecesidad().equals(necesidadDTO.getIdNecesidad()));
             if (yaSeleccionada) {
                 checkbox.setValue(true);
+                categoryLabel.setText("Seleccionado");
+                categoryLabel.getStyle().set("background-color", "#ffa500");
             }
 
             checkbox.addValueChangeListener(e -> {
@@ -79,8 +81,12 @@ public class NeedCard extends Div {
                         return;
                     }
                     necesidadesSeleccionadas.add(necesidadDTO);
+                    categoryLabel.setText("Seleccionado");
+                    categoryLabel.getStyle().set("background-color", "#ffa500");
                 } else {
                     necesidadesSeleccionadas.removeIf(n -> n.getIdNecesidad().equals(necesidadDTO.getIdNecesidad()));
+                    categoryLabel.setText("Disponible");
+                    categoryLabel.getStyle().set("background-color", "#67f913");
                 }
             });
             checkboxMap.put(necesidadDTO, checkbox);
