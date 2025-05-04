@@ -2,20 +2,44 @@ package salsisa.tareas.frontend.views;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.timepicker.TimePicker;
+import com.vaadin.flow.component.virtuallist.VirtualList;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
+import org.springframework.beans.factory.annotation.Autowired;
+import salsisa.tareas.frontend.dto.NecesidadDTO;
+import salsisa.tareas.frontend.dto.VoluntarioDTO;
+import salsisa.tareas.frontend.servicesAPI.NecesidadRestCliente;
+import salsisa.tareas.frontend.servicesAPI.TareaRestCliente;
+import salsisa.tareas.frontend.servicesAPI.VoluntarioRestCliente;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 
 @PageTitle("Editar tarea")
 @Route(value="editTask", layout = MainLayout.class)
 public class EditTask extends VerticalLayout {
+
+    @Autowired
+    private VoluntarioRestCliente voluntarioRestCliente;
+    @Autowired
+    private NecesidadRestCliente necesidadRestCliente;
+    @Autowired
+    private TareaRestCliente tareaRestCliente;
 
     // Column1
     private TextField tituloField;
@@ -29,12 +53,22 @@ public class EditTask extends VerticalLayout {
     private Checkbox tarde;
     private Checkbox pendienteCheckbox;
 
-    public EditTask() {
+    List<VoluntarioDTO> listaVoluntarios;
+    List<NecesidadDTO> listaNecesidades;
+    private VirtualList<VoluntarioDTO> virtualVoluntarios;
+    private VirtualList<NecesidadDTO> virtualNecesidades;
+
+    public EditTask(VoluntarioRestCliente voluntarioRestCliente, NecesidadRestCliente necesidadRestCliente, TareaRestCliente tareaRestCliente) {
+        this.voluntarioRestCliente = voluntarioRestCliente;
+        this.necesidadRestCliente = necesidadRestCliente;
+        this.tareaRestCliente = tareaRestCliente;
+
         setSpacing(false);
         setPadding(false);
         getStyle().set("padding", "0 5%");
         createHeader();
         createCentralContainer(false);
+        createButton();
     }
 
     public void createHeader() {
@@ -78,8 +112,46 @@ public class EditTask extends VerticalLayout {
         HorizontalLayout finPickerArea = createFieldArea("Fin", finPicker);
         HorizontalLayout turnoYHora = createHoraYTurnoArea(borders);
 
-        column1.add(tituloFieldArea, descripcionFieldArea, puntoEncuentroArea);
-        column2.add(inicioPickerArea, finPickerArea, turnoYHora);
+        VerticalLayout voluntariosArea = new VerticalLayout();
+        voluntariosArea.setSpacing(false);
+        voluntariosArea.setPadding(false);
+
+        VerticalLayout necesidadesArea = new VerticalLayout();
+        necesidadesArea.setSpacing(false);
+        necesidadesArea.setPadding(false);
+
+        Button voluntariosButton = new Button("Añadir voluntarios");
+        Button necesidadesButton = new Button("Añadir necesidades");
+        voluntariosButton.addClickListener(e -> {
+            saveData();
+            UI.getCurrent().navigate("voluntarios");
+        });
+        necesidadesButton.addClickListener(e -> {
+            saveData();
+            listaVoluntarios.clear();
+            virtualVoluntarios.setItems(listaVoluntarios);
+            if (!listaNecesidades.isEmpty()) {
+                long categoriaId = listaNecesidades.getFirst().getIdCategoria();
+                UI.getCurrent().navigate(SelectMoreNeeds.class, categoriaId);
+            } else {
+                UI.getCurrent().navigate("SelectMoreNeeds");
+            }
+        });
+
+        HorizontalLayout voluntariosFieldArea = createFieldArea("Voluntarios", voluntariosButton);
+        HorizontalLayout necesidadesFieldArea = createFieldArea("Necesidades", necesidadesButton);
+
+        listaVoluntarios = TaskFormData.getVoluntariosSeleccionados();
+        listaNecesidades = TaskFormData.getNecesidadesSeleccionadas();
+
+        virtualVoluntarios = createVirtualList(listaVoluntarios);
+        virtualNecesidades = createVirtualList(listaNecesidades);
+
+        voluntariosArea.add(voluntariosFieldArea, virtualVoluntarios);
+        necesidadesArea.add(necesidadesFieldArea, virtualNecesidades);
+
+        column1.add(tituloFieldArea, descripcionFieldArea, puntoEncuentroArea, necesidadesArea);
+        column2.add(inicioPickerArea, finPickerArea, turnoYHora, voluntariosArea);
 
         if(borders) {
             fieldsArea.getStyle().set("border", "1px solid red");
@@ -152,6 +224,17 @@ public class EditTask extends VerticalLayout {
         return turnoYHora;
     }
 
+    private void createButton() {
+        VerticalLayout buttonArea = new VerticalLayout();
+        add(buttonArea);
+        Button editarButton = new Button("Editar");
+        editarButton.getStyle().setBackgroundColor("#B64040");
+        editarButton.getStyle().set("color", "white");
+        editarButton.getStyle().set("cursor", "pointer");
+        buttonArea.add(editarButton);
+        buttonArea.setAlignSelf(Alignment.CENTER, editarButton);
+    }
+
     private HorizontalLayout createFieldArea(String label, Component field) {
         HorizontalLayout area = new HorizontalLayout();
         area.setWidth("100%");
@@ -177,4 +260,123 @@ public class EditTask extends VerticalLayout {
         area.add(fieldArea);
         return area;
     }
+
+    private <T> VirtualList<T> createVirtualList(List<T> lista) {
+        ComponentRenderer<Component, T> renderer;
+
+        if (!lista.isEmpty()) {
+            T firstElement = lista.getFirst();
+            if (firstElement instanceof VoluntarioDTO) {
+                renderer = (ComponentRenderer<Component, T>) voluntarioCardRenderer;
+            } else if (firstElement instanceof NecesidadDTO) {
+                renderer = (ComponentRenderer<Component, T>) necesidadCardRenderer;
+            } else {
+                throw new IllegalArgumentException("Tipo de elemento no compatible con ningún renderer.");
+            }
+        } else {
+            // Usamos el tipo de la lista que esperamos para determinar el renderer por contexto
+            // Este es un poco "hardcoded", pero seguro:
+            if (listaVoluntarios == lista) {
+                renderer = (ComponentRenderer<Component, T>) voluntarioCardRenderer;
+            } else if (listaNecesidades == lista) {
+                renderer = (ComponentRenderer<Component, T>) necesidadCardRenderer;
+            } else {
+                throw new IllegalArgumentException("No se pudo determinar el renderer para la lista vacía.");
+            }
+        }
+
+        VirtualList<T> virtualList = new VirtualList<>();
+        virtualList.setItems(lista);
+        virtualList.setRenderer(renderer);
+        return virtualList;
+    }
+
+    private ComponentRenderer<Component, VoluntarioDTO> voluntarioCardRenderer = new ComponentRenderer<>(
+            voluntario -> {
+                HorizontalLayout cardLayout = new HorizontalLayout();
+                cardLayout.setMargin(true);
+
+                StreamResource imageResource = new StreamResource(
+                        voluntario.getNombre() + ".png",
+                        () -> {
+                            byte[] imagen = voluntario.getImagen();
+                            if (imagen == null) {
+                                // Cargar la imagen predeterminada si no existe imagen del voluntario
+                                return new ByteArrayInputStream(getDefaultImage());
+                            }
+                            return new ByteArrayInputStream(imagen);
+                        }
+                );
+
+                Image avatar = new Image(imageResource, "Avatar");
+                avatar.getStyle()
+                        .set("border-radius", "50%")
+                        .set("object-fit", "cover")
+                        .set("border", "2px solid #ccc");
+                avatar.setHeight("64px");
+                avatar.setWidth("64px");
+
+                VerticalLayout infoLayout = new VerticalLayout();
+                infoLayout.setSpacing(false);
+                infoLayout.setPadding(false);
+                infoLayout.setWidth("30%");
+                infoLayout.add(new Span(voluntario.getNombre()));
+                infoLayout.add(new Span("Email: " + voluntario.getEmail()));
+
+                cardLayout.add(avatar, infoLayout);
+                return cardLayout;
+            });
+
+    private byte[] getDefaultImage() {
+        // Aquí debes cargar la imagen predeterminada como un byte[] (puede estar en resources, por ejemplo)
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream("defaultuserimage.png")) {
+            return is != null ? is.readAllBytes() : new byte[0];
+        } catch (IOException e) {
+            // Si no se encuentra la imagen, puedes devolver un array vacío o alguna imagen por defecto.
+            return new byte[0];
+        }
+    }
+
+    private final ComponentRenderer<Component, NecesidadDTO> necesidadCardRenderer = new ComponentRenderer<>(
+            necesidad -> {
+                HorizontalLayout cardLayout = new HorizontalLayout();
+                cardLayout.setMargin(true);
+
+                StreamResource imageResource = new StreamResource(
+                        necesidad.getNombre() + ".png",
+                        () -> new ByteArrayInputStream(necesidad.getImagen())
+                );
+
+                Image avatar = new Image(imageResource, "Avatar");
+                avatar.getStyle()
+                        .set("border-radius", "50%")
+                        .set("object-fit", "cover")
+                        .set("border", "2px solid #ccc");
+                avatar.setHeight("64px");
+                avatar.setWidth("64px");
+
+                VerticalLayout infoLayout = new VerticalLayout();
+                infoLayout.setSpacing(false);
+                infoLayout.setPadding(false);
+                infoLayout.add(new Span(necesidad.getNombre())); // Nombre del voluntario
+                infoLayout.add(new Span(necesidad.getDescripcion())); // Email
+
+                cardLayout.add(avatar, infoLayout);
+                return cardLayout;
+            });
+
+    private void saveData() {
+        TaskFormData.setTitulo(tituloField.getValue());
+        TaskFormData.setDescripcion(descripcionField.getValue());
+        TaskFormData.setFechaInicio(inicioPicker.getValue());
+        TaskFormData.setFechaFin(finPicker.getValue());
+        TaskFormData.setPuntoEncuentro(puntoEncuentro.getValue());
+        TaskFormData.setHoraEncuentro(horaEncuentroPicker.getValue());
+        TaskFormData.setTurnoManana(manana.getValue());
+        TaskFormData.setTurnoTarde(tarde.getValue());
+        TaskFormData.setVoluntariosSeleccionados(listaVoluntarios);
+        System.out.println("Voluntarios guardados: " + listaVoluntarios);
+        TaskFormData.setNecesidadesSeleccionadas(listaNecesidades);
+    }
+
 }
