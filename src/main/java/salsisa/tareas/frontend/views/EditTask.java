@@ -9,17 +9,18 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.component.virtuallist.VirtualList;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.StreamResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import salsisa.tareas.frontend.dto.NecesidadDTO;
+import salsisa.tareas.frontend.dto.TareaDTO;
 import salsisa.tareas.frontend.dto.VoluntarioDTO;
 import salsisa.tareas.frontend.servicesAPI.NecesidadRestCliente;
 import salsisa.tareas.frontend.servicesAPI.TareaRestCliente;
@@ -32,7 +33,7 @@ import java.util.List;
 
 @PageTitle("Editar tarea")
 @Route(value="editTask", layout = MainLayout.class)
-public class EditTask extends VerticalLayout {
+public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
 
     @Autowired
     private VoluntarioRestCliente voluntarioRestCliente;
@@ -58,7 +59,11 @@ public class EditTask extends VerticalLayout {
     private VirtualList<VoluntarioDTO> virtualVoluntarios;
     private VirtualList<NecesidadDTO> virtualNecesidades;
 
-    public EditTask(VoluntarioRestCliente voluntarioRestCliente, NecesidadRestCliente necesidadRestCliente, TareaRestCliente tareaRestCliente) {
+    TareaDTO tarea;
+
+    @Autowired
+    public EditTask(VoluntarioRestCliente voluntarioRestCliente, NecesidadRestCliente necesidadRestCliente,
+                    TareaRestCliente tareaRestCliente) {
         this.voluntarioRestCliente = voluntarioRestCliente;
         this.necesidadRestCliente = necesidadRestCliente;
         this.tareaRestCliente = tareaRestCliente;
@@ -67,8 +72,6 @@ public class EditTask extends VerticalLayout {
         setPadding(false);
         getStyle().set("padding", "0 5%");
         createHeader();
-        createCentralContainer(false);
-        createButton();
     }
 
     public void createHeader() {
@@ -92,13 +95,27 @@ public class EditTask extends VerticalLayout {
         add(fieldsArea);
 
         tituloField = new TextField("");
+        tituloField.setPlaceholder(tarea.getTitulo());
         descripcionField = new TextField("");
+        descripcionField.setPlaceholder(tarea.getDescripcion());
         puntoEncuentro = new TextField("");
+        puntoEncuentro.setPlaceholder(tarea.getPuntoEncuentro());
         inicioPicker = new DatePicker("");
+        if(tarea.getFechaInicio() != null) {
+            inicioPicker.setPlaceholder(tarea.getFechaInicio().toString());
+        }
         finPicker = new DatePicker("");
+        if(tarea.getFechaFin() != null) {
+            finPicker.setPlaceholder(tarea.getFechaFin().toString());
+        }
         horaEncuentroPicker = new TimePicker("");
+        if(tarea.getFechaInicio() != null) {
+            horaEncuentroPicker.setPlaceholder(tarea.getFechaInicio().toString());
+        }
         manana = new Checkbox("Mañana");
+        manana.setValue(tarea.getTurnoManana());
         tarde = new Checkbox("Tarde");
+        tarde.setValue(tarea.getTurnoTarde());
 
         VerticalLayout column1 = new VerticalLayout();
         VerticalLayout column2 = new VerticalLayout();
@@ -233,6 +250,17 @@ public class EditTask extends VerticalLayout {
         editarButton.getStyle().set("cursor", "pointer");
         buttonArea.add(editarButton);
         buttonArea.setAlignSelf(Alignment.CENTER, editarButton);
+
+        editarButton.addClickListener(e -> {
+            if(!tituloField.getValue().isEmpty()) tarea.setTitulo(tituloField.getValue());
+            if(!descripcionField.getValue().isEmpty()) tarea.setDescripcion(descripcionField.getValue());
+            if(!puntoEncuentro.getValue().isEmpty()) tarea.setPuntoEncuentro(puntoEncuentro.getValue());
+            if(inicioPicker.getValue() != null) tarea.setFechaInicio(inicioPicker.getValue());
+            if(finPicker.getValue() != null) tarea.setFechaFin(finPicker.getValue());
+            tarea.setTurnoManana(manana.getValue());
+            tarea.setTurnoTarde(tarde.getValue());
+            tareaRestCliente.actualizar(tarea.getIdTarea(), tarea);
+        });
     }
 
     private HorizontalLayout createFieldArea(String label, Component field) {
@@ -379,4 +407,19 @@ public class EditTask extends VerticalLayout {
         TaskFormData.setNecesidadesSeleccionadas(listaNecesidades);
     }
 
+    @Override
+    public void setParameter(BeforeEvent event, @OptionalParameter Long tareaId) {
+        if (tareaId == null) {
+            Notification.show("No se ha proporcionado una tarea.");
+            return;
+        }
+
+        tarea = tareaRestCliente.obtenerPorId(tareaId);
+        if (tarea == null) {
+            Notification.show("Tarea no encontrada.");
+            return;
+        }
+        createCentralContainer(false);
+        createButton();
+    }
 }
