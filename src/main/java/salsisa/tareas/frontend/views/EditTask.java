@@ -29,6 +29,7 @@ import salsisa.tareas.frontend.servicesAPI.VoluntarioRestCliente;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 @PageTitle("Editar tarea")
@@ -54,10 +55,13 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
     private Checkbox tarde;
     private Checkbox pendienteCheckbox;
 
-    List<VoluntarioDTO> listaVoluntarios;
-    List<NecesidadDTO> listaNecesidades;
+    private List<VoluntarioDTO> listaVoluntarios;
+    private List<NecesidadDTO> listaNecesidades;
     private VirtualList<VoluntarioDTO> virtualVoluntarios;
     private VirtualList<NecesidadDTO> virtualNecesidades;
+
+    List<Long> idsVoluntariosID;
+    List<Long> idsNecesidadesID;
 
     TareaDTO tarea;
 
@@ -67,6 +71,12 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
         this.voluntarioRestCliente = voluntarioRestCliente;
         this.necesidadRestCliente = necesidadRestCliente;
         this.tareaRestCliente = tareaRestCliente;
+
+        this.idsVoluntariosID = new ArrayList<>();
+        this.idsNecesidadesID = new ArrayList<>();
+
+        this.listaVoluntarios = new ArrayList<>();
+        this.listaNecesidades = new ArrayList<>();
 
         setSpacing(false);
         setPadding(false);
@@ -110,7 +120,7 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
         }
         horaEncuentroPicker = new TimePicker("");
         if(tarea.getFechaInicio() != null) {
-            horaEncuentroPicker.setPlaceholder(tarea.getFechaInicio().toString());
+            horaEncuentroPicker.setPlaceholder(tarea.getHoraEncuentro().toString());
         }
         manana = new Checkbox("Mañana");
         manana.setValue(tarea.getTurnoManana());
@@ -141,7 +151,7 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
         Button necesidadesButton = new Button("Añadir necesidades");
         voluntariosButton.addClickListener(e -> {
             saveData();
-            UI.getCurrent().navigate("voluntarios");
+            UI.getCurrent().navigate("voluntarios", QueryParameters.fromString("edit-task"));
         });
         necesidadesButton.addClickListener(e -> {
             saveData();
@@ -158,8 +168,21 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
         HorizontalLayout voluntariosFieldArea = createFieldArea("Voluntarios", voluntariosButton);
         HorizontalLayout necesidadesFieldArea = createFieldArea("Necesidades", necesidadesButton);
 
-        listaVoluntarios = TaskFormData.getVoluntariosSeleccionados();
-        listaNecesidades = TaskFormData.getNecesidadesSeleccionadas();
+        List<Long> listaVoluntariosID = tarea.getIdsVoluntarios();
+        if (listaVoluntariosID != null) {
+            for(Long idVol : listaVoluntariosID) {
+                VoluntarioDTO voluntario = voluntarioRestCliente.obtenerPorId(idVol);
+                listaVoluntarios.add(voluntario);
+            }
+        }
+
+        List<Long> listaNecesidadesID = tarea.getIdsNecesidades();
+        if (listaNecesidadesID != null) {
+            for(Long idNec : listaNecesidadesID) {
+                NecesidadDTO necesidad = necesidadRestCliente.obtenerPorId(idNec);
+                listaNecesidades.add(necesidad);
+            }
+        }
 
         virtualVoluntarios = createVirtualList(listaVoluntarios);
         virtualNecesidades = createVirtualList(listaNecesidades);

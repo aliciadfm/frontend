@@ -40,6 +40,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @PageTitle("SH - Crear tareas")
@@ -73,7 +74,7 @@ public class CreateTaskView extends VerticalLayout {
         this.voluntarioRestCliente = voluntarioRestCliente;
         this.necesidadRestCliente = necesidadRestCliente;
         this.tareaRestCliente = tareaRestCliente;
-
+        UI.getCurrent().setLocale(Locale.forLanguageTag("es-ES"));
         this.listaVoluntarios = TaskFormData.getVoluntariosSeleccionados();
         System.out.println("Voluntarios recuperados: " + listaVoluntarios);
 
@@ -147,7 +148,9 @@ public class CreateTaskView extends VerticalLayout {
         descripcionField = new TextField("");
         puntoEncuentro = new TextField("");
         inicioPicker = new DatePicker("");
+        inicioPicker.setLocale(Locale.forLanguageTag("es-ES"));
         finPicker = new DatePicker("");
+        finPicker.setLocale(Locale.forLanguageTag("es-ES"));
         horaEncuentroPicker = new TimePicker("");
 
         //COLUMNA DE LA IZQUIERDA

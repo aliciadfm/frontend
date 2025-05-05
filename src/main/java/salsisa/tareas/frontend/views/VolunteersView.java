@@ -12,9 +12,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.virtuallist.VirtualList;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouterLayout;
+import com.vaadin.flow.router.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.config.Task;
 import salsisa.tareas.frontend.dto.FiltroVoluntario1DTO;
@@ -27,13 +25,14 @@ import java.util.stream.Collectors;
 
 @PageTitle("Lista de voluntarios")
 @Route(value = "voluntarios", layout = MainLayout.class)
-public class VolunteersView extends VerticalLayout implements RouterLayout {
+public class VolunteersView extends VerticalLayout implements RouterLayout, HasUrlParameter<String> {
 
     @Autowired
     private VoluntarioRestCliente voluntarioRestCliente;
 
     private final Map<VoluntarioDTO, Checkbox> checkboxMap = new HashMap<>();
     VirtualList<VoluntarioDTO> virtualList;
+    private String vistaOrigen;
 
     public VolunteersView(VoluntarioRestCliente voluntarioRestCliente) {
         long startTime = System.currentTimeMillis();
@@ -146,15 +145,27 @@ public class VolunteersView extends VerticalLayout implements RouterLayout {
                     seleccionados.add(entry.getKey());
                 }
             }
-
             TaskFormData.setVoluntariosSeleccionados(seleccionados);
-            UI.getCurrent().navigate(CreateTaskView.class);
+            if ("edit-task".equals(vistaOrigen)) {
+                UI.getCurrent().navigate(EditTask.class);
+            } else {
+                UI.getCurrent().navigate(CreateTaskView.class);
+            }
         });
 
         acceptButton.getStyle().set("background-color", "#B64040");
         acceptButton.getStyle().set("color", "#ffffff");
         cancelButton.addClickListener(e -> {
-            UI.getCurrent().navigate(CreateTaskView.class);
+            if ("edit-task".equals(vistaOrigen)) {
+                UI.getCurrent().navigate(EditTask.class);
+            } else {
+                UI.getCurrent().navigate(CreateTaskView.class);
+            }
         });
+    }
+
+    @Override
+    public void setParameter(BeforeEvent beforeEvent, @OptionalParameter String parameter) {
+        this.vistaOrigen = parameter;
     }
 }
