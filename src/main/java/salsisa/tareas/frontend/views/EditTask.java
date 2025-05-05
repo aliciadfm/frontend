@@ -29,6 +29,8 @@ import salsisa.tareas.frontend.servicesAPI.VoluntarioRestCliente;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,14 +116,17 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
         if(tarea.getFechaInicio() != null) {
             inicioPicker.setPlaceholder(tarea.getFechaInicio().toString());
         }
+        inicioPicker.setMin(LocalDate.now());
         finPicker = new DatePicker("");
         if(tarea.getFechaFin() != null) {
             finPicker.setPlaceholder(tarea.getFechaFin().toString());
         }
+        finPicker.setMin(LocalDate.now());
         horaEncuentroPicker = new TimePicker("");
         if(tarea.getFechaInicio() != null) {
             horaEncuentroPicker.setPlaceholder(tarea.getHoraEncuentro().toString());
         }
+        horaEncuentroPicker.setMin(LocalTime.now());
         manana = new Checkbox("Mañana");
         manana.setValue(tarea.getTurnoManana());
         tarde = new Checkbox("Tarde");
@@ -151,7 +156,7 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
         Button necesidadesButton = new Button("Añadir necesidades");
         voluntariosButton.addClickListener(e -> {
             saveData();
-            UI.getCurrent().navigate("voluntarios", QueryParameters.fromString("edit-task"));
+            UI.getCurrent().navigate(VolunteersView.class, QueryParameters.fromString("edit-task"));
         });
         necesidadesButton.addClickListener(e -> {
             saveData();

@@ -10,18 +10,16 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.virtuallist.VirtualList;
-import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.*;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.config.Task;
 import salsisa.tareas.frontend.dto.FiltroVoluntario1DTO;
 import salsisa.tareas.frontend.dto.NecesidadDTO;
 import salsisa.tareas.frontend.dto.VoluntarioDTO;
 import salsisa.tareas.frontend.servicesAPI.VoluntarioRestCliente;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @PageTitle("Lista de voluntarios")
 @Route(value = "voluntarios", layout = MainLayout.class)
@@ -33,27 +31,6 @@ public class VolunteersView extends VerticalLayout implements RouterLayout, HasU
     private final Map<VoluntarioDTO, Checkbox> checkboxMap = new HashMap<>();
     VirtualList<VoluntarioDTO> virtualList;
     private String vistaOrigen;
-
-    public VolunteersView(VoluntarioRestCliente voluntarioRestCliente) {
-        long startTime = System.currentTimeMillis();
-
-        this.voluntarioRestCliente = voluntarioRestCliente;
-        setSpacing(false);
-        setPadding(false);
-        setAlignItems(Alignment.CENTER);
-        getStyle().set("padding", "0 5%");
-        createHeader();
-        try {
-            createVolunteersList();
-        } catch (IllegalArgumentException e) {
-            add(new Span("No hay voluntarios disponibles"));
-        }
-        createButtons();
-
-        long endTime = System.currentTimeMillis();
-        long totalTime = endTime - startTime;
-        System.out.println("Total time: " + totalTime);
-    }
 
     private void createHeader() {
         VerticalLayout headingDiv = new VerticalLayout();
@@ -87,7 +64,7 @@ public class VolunteersView extends VerticalLayout implements RouterLayout, HasU
         }
 
         virtualList = new VirtualList<>();
-        virtualList.setItems(totalVoluntarios); // Si aún no implementas paginación, al menos es una sola carga
+        virtualList.setItems(totalVoluntarios);
         virtualList.setRenderer(voluntarioCardRenderer);
         virtualList.setHeight("100%");
 
@@ -138,14 +115,13 @@ public class VolunteersView extends VerticalLayout implements RouterLayout, HasU
         acceptArea.setWidth("50%");
         buttons.add(cancelArea, acceptArea);
         acceptButton.addClickListener(e -> {
-            List<VoluntarioDTO> seleccionados = new ArrayList<>();
-
+            Set<VoluntarioDTO> seleccionados = new HashSet<>();
             for (Map.Entry<VoluntarioDTO, Checkbox> entry : checkboxMap.entrySet()) {
                 if (entry.getValue().getValue()) {
                     seleccionados.add(entry.getKey());
                 }
             }
-            TaskFormData.setVoluntariosSeleccionados(seleccionados);
+            TaskFormData.getVoluntariosSeleccionados().addAll(seleccionados);
             if ("edit-task".equals(vistaOrigen)) {
                 UI.getCurrent().navigate(EditTask.class);
             } else {
@@ -167,5 +143,22 @@ public class VolunteersView extends VerticalLayout implements RouterLayout, HasU
     @Override
     public void setParameter(BeforeEvent beforeEvent, @OptionalParameter String parameter) {
         this.vistaOrigen = parameter;
+        long startTime = System.currentTimeMillis();
+
+        setSpacing(false);
+        setPadding(false);
+        setAlignItems(Alignment.CENTER);
+        getStyle().set("padding", "0 5%");
+        createHeader();
+        try {
+            createVolunteersList();
+        } catch (IllegalArgumentException e) {
+            add(new Span("No hay voluntarios disponibles"));
+        }
+        createButtons();
+
+        long endTime = System.currentTimeMillis();
+        long totalTime = endTime - startTime;
+        System.out.println("Total time: " + totalTime);
     }
 }

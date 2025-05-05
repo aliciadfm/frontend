@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -148,10 +149,13 @@ public class CreateTaskView extends VerticalLayout {
         descripcionField = new TextField("");
         puntoEncuentro = new TextField("");
         inicioPicker = new DatePicker("");
+        inicioPicker.setMin(LocalDate.now());
         inicioPicker.setLocale(Locale.forLanguageTag("es-ES"));
         finPicker = new DatePicker("");
+        finPicker.setMin(LocalDate.now());
         finPicker.setLocale(Locale.forLanguageTag("es-ES"));
         horaEncuentroPicker = new TimePicker("");
+        horaEncuentroPicker.setMin(LocalTime.now());
 
         //COLUMNA DE LA IZQUIERDA
         VerticalLayout column1 = new VerticalLayout();

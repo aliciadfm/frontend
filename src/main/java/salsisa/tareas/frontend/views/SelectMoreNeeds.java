@@ -19,7 +19,7 @@ import salsisa.tareas.frontend.components.NeedCard;
 
 @PageTitle("SH - Visualizar Necesidades") // Nombre que sale arriba en el tab del navegador
 @Route(value = "SelectMoreNeeds", layout = MainLayout.class)
-public class SelectMoreNeeds extends VerticalLayout implements HasUrlParameter<Long> {
+public class SelectMoreNeeds extends VerticalLayout implements HasUrlParameter<Long>{
 
     @Autowired
     private NecesidadRestCliente necesidadRestCliente;
@@ -29,6 +29,7 @@ public class SelectMoreNeeds extends VerticalLayout implements HasUrlParameter<L
     private final Map<NecesidadDTO, Checkbox> checkboxMap = new HashMap<>(); // este mapa es para relacionar cada necesidad con su correspondiente checkbox
     private Long categoriaId;
     private boolean comprobacion;
+    private String vistaOrigen;
 
     public SelectMoreNeeds(NecesidadRestCliente necesidadRestCliente, CategoriaRestCliente categoriaRestCliente,
                            List<NecesidadDTO> necesidadesSeleccionadas) {
