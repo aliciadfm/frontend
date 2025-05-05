@@ -45,10 +45,13 @@ public class NeedCard extends Div {
         H4 title = new H4(necesidadDTO.getNombre());
         Span categoryLabel = new Span("Disponible");
         categoryLabel.getStyle()
-                .set("background-color", "#67f913")
+                .set("background-color", "#B1EEA1")
                 .set("padding", "5px 10px")
                 .set("border-radius", "10px")
-                .set("font-weight", "bold");
+                .set("font-weight", "bold")
+                .set("text-align", "center")
+                .setWidth("90px")
+                .setHeight("25px");
 
         Div bottomSection = new Div(title, categoryLabel);
         bottomSection.getStyle()
@@ -67,7 +70,7 @@ public class NeedCard extends Div {
             if (yaSeleccionada) {
                 checkbox.setValue(true);
                 categoryLabel.setText("Seleccionado");
-                categoryLabel.getStyle().set("background-color", "#ffa500");
+                categoryLabel.getStyle().set("background-color", "#efc48f");
             }
 
             checkbox.addValueChangeListener(e -> {
@@ -82,11 +85,11 @@ public class NeedCard extends Div {
                     }
                     necesidadesSeleccionadas.add(necesidadDTO);
                     categoryLabel.setText("Seleccionado");
-                    categoryLabel.getStyle().set("background-color", "#ffa500");
+                    categoryLabel.getStyle().set("background-color", "#efc48f");
                 } else {
                     necesidadesSeleccionadas.removeIf(n -> n.getIdNecesidad().equals(necesidadDTO.getIdNecesidad()));
                     categoryLabel.setText("Disponible");
-                    categoryLabel.getStyle().set("background-color", "#67f913");
+                    categoryLabel.getStyle().set("background-color", "#b1eea1");
                 }
             });
             checkboxMap.put(necesidadDTO, checkbox);

@@ -55,7 +55,10 @@ public class TareasView extends VerticalLayout {
         taskcreated.setWidth("100%");
 
         List<Estado> estado = new ArrayList();
+        estado.add(Estado.ENPROCESO);
         estado.add(Estado.ASIGNADA);
+        estado.add(Estado.TERMINADA);
+        estado.add(Estado.PENDIENTE);
         List<TareaResumenDTO> listaTareas  = tareaRestCliente.filtrarPorEstados(estado);
         for (TareaResumenDTO tarea : listaTareas) {
             TaskCard taskCard = new TaskCard(tarea);
