@@ -4,9 +4,13 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import salsisa.tareas.frontend.dto.Estado;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class TaskFilters extends VerticalLayout {
     private CheckboxGroup<String> estadoSeleccionado = new CheckboxGroup<>();
+
+    private Consumer<Estado> estadoChangeListener;
+
 
     private static final String MOSTRAR_TODO = "Mostrar todo";
 
@@ -56,7 +60,9 @@ public class TaskFilters extends VerticalLayout {
                 estadoSeleccionado.setValue(Set.of(MOSTRAR_TODO));
             }
 
-            // Aquí podrías invocar lógica externa: applyFilter(getSelectedEstado());
+            if (estadoChangeListener != null) {
+                estadoChangeListener.accept(getSelectedEstado());
+            }
         });
     }
 
@@ -67,6 +73,10 @@ public class TaskFilters extends VerticalLayout {
             return null;
         }
         return etiquetaAEstado.get(seleccion);
+    }
+
+    public void setEstadoChangeListener(Consumer<Estado> listener) {
+        this.estadoChangeListener = listener;
     }
 
 }

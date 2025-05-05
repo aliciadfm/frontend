@@ -14,6 +14,7 @@ import salsisa.tareas.frontend.dto.TareaResumenDTO;
 import salsisa.tareas.frontend.servicesAPI.TareaRestCliente;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @PageTitle("SH - Visualizar tareas")
@@ -22,6 +23,8 @@ import java.util.List;
 public class TareasView extends VerticalLayout {
     @Autowired
     private TareaRestCliente tareaRestCliente;
+    private VerticalLayout taskContainer;
+    private TaskFilters taskFilters;
 
     public TareasView(TareaRestCliente tareaRestCliente) {
         this.tareaRestCliente = tareaRestCliente;
@@ -44,10 +47,14 @@ public class TareasView extends VerticalLayout {
     public void createCentralContainer() {
         HorizontalLayout centralContainer = new HorizontalLayout();
         centralContainer.setWidth("100%");
-        TaskFilters taskFilters = new TaskFilters();
+
+        taskFilters = new TaskFilters();
+        taskFilters.setEstadoChangeListener(this::updateTaskList);
+
+        taskContainer = createTasksContainer();
+
         add(centralContainer);
-        centralContainer.add(createTasksContainer());
-        centralContainer.add(taskFilters);
+        centralContainer.add(taskContainer, taskFilters);
     }
 
     public VerticalLayout createTasksContainer() {
@@ -65,5 +72,22 @@ public class TareasView extends VerticalLayout {
             taskcreated.add(taskCard);
         }
         return taskcreated;
+    }
+
+    private void updateTaskList(Estado selected) {
+        taskContainer.removeAll();
+
+        List<Estado> estadosFiltrados = new ArrayList<>();
+        if (selected == null) {
+            estadosFiltrados.addAll(Arrays.asList(Estado.values()));
+        } else {
+            estadosFiltrados.add(selected);
+        }
+
+        List<TareaResumenDTO> listaTareas = tareaRestCliente.filtrarPorEstados(estadosFiltrados);
+        for (TareaResumenDTO tarea : listaTareas) {
+            TaskCard taskCard = new TaskCard(tarea);
+            taskContainer.add(taskCard);
+        }
     }
 }
