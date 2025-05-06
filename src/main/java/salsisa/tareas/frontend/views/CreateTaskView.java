@@ -464,7 +464,7 @@ public class CreateTaskView extends VerticalLayout {
         listaNecesidades.clear();
         virtualVoluntarios.setItems(listaVoluntarios);
         virtualNecesidades.setItems(listaNecesidades);
-        manana.setEnabled(false);
-        tarde.setEnabled(false);
+        manana.setValue(false);
+        tarde.setValue(false);
     }
 }
