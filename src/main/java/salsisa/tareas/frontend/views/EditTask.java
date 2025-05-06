@@ -82,6 +82,9 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
         this.listaVoluntarios = new ArrayList<>();
         this.listaNecesidades = new ArrayList<>();
 
+        this.virtualVoluntarios = new VirtualList<>();
+        this.virtualNecesidades = new VirtualList<>();
+
         if(!TaskFormData.getVoluntariosSeleccionados().isEmpty()) {
             listaVoluntarios.addAll(TaskFormData.getVoluntariosSeleccionados());
         }
@@ -483,12 +486,12 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
             Notification.show("Tarea no encontrada.");
             return;
         }
+        createCentralContainer(false);
+
         if(!listaVoluntarios.isEmpty()) {
             virtualVoluntarios.setItems(listaVoluntarios);
         }
 
-
-        createCentralContainer(false);
         createButton();
     }
 }
