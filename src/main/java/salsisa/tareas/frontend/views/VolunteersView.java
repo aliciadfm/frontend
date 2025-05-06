@@ -32,6 +32,27 @@ public class VolunteersView extends VerticalLayout implements RouterLayout, HasU
     VirtualList<VoluntarioDTO> virtualList;
     private String vistaOrigen;
 
+    public VolunteersView(VoluntarioRestCliente voluntarioRestCliente) {
+        long startTime = System.currentTimeMillis();
+
+        this.voluntarioRestCliente = voluntarioRestCliente;
+        setSpacing(false);
+        setPadding(false);
+        setAlignItems(Alignment.CENTER);
+        getStyle().set("padding", "0 5%");
+        createHeader();
+        try {
+            createVolunteersList();
+        } catch (IllegalArgumentException e) {
+            add(new Span("No hay voluntarios disponibles"));
+        }
+        createButtons();
+
+        long endTime = System.currentTimeMillis();
+        long totalTime = endTime - startTime;
+        System.out.println("Total time: " + totalTime);
+    }
+
     private void createHeader() {
         VerticalLayout headingDiv = new VerticalLayout();
         //headingDiv.getStyle().set("border", "1px solid red");
@@ -143,22 +164,5 @@ public class VolunteersView extends VerticalLayout implements RouterLayout, HasU
     @Override
     public void setParameter(BeforeEvent beforeEvent, @OptionalParameter String parameter) {
         this.vistaOrigen = parameter;
-        long startTime = System.currentTimeMillis();
-
-        setSpacing(false);
-        setPadding(false);
-        setAlignItems(Alignment.CENTER);
-        getStyle().set("padding", "0 5%");
-        createHeader();
-        try {
-            createVolunteersList();
-        } catch (IllegalArgumentException e) {
-            add(new Span("No hay voluntarios disponibles"));
-        }
-        createButtons();
-
-        long endTime = System.currentTimeMillis();
-        long totalTime = endTime - startTime;
-        System.out.println("Total time: " + totalTime);
     }
 }
