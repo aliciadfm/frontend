@@ -226,7 +226,7 @@ public class CreateTaskView extends VerticalLayout {
                 long categoriaId = listaNecesidades.getFirst().getIdCategoria();
                 UI.getCurrent().navigate("SelectMoreNeeds/createTask/" + categoriaId);
             } else {
-                UI.getCurrent().navigate("SelectMoreNeeds");
+                UI.getCurrent().navigate("SelectMoreNeeds/createTask");
             }
         });
 

@@ -146,6 +146,19 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
             necesidadesButton.setEnabled(false);
             tarde.setReadOnly(true);
             manana.setReadOnly(true);
+
+            tituloField.setValue(tarea.getTitulo());
+            descripcionField.setValue(tarea.getDescripcion());
+            puntoEncuentro.setValue(tarea.getPuntoEncuentro());
+            if(tarea.getFechaInicio() != null) {
+                inicioPicker.setValue(tarea.getFechaInicio());
+            }
+            if(tarea.getFechaFin() != null) {
+                finPicker.setValue(tarea.getFechaFin());
+            }
+            if(tarea.getHoraEncuentro() != null) {
+                horaEncuentroPicker.setValue(tarea.getHoraEncuentro());
+            }
         }
 
         if(tarea.getEstado() == Estado.TERMINADA) {
@@ -328,6 +341,7 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
             tareaRestCliente.actualizar(tarea.getIdTarea(), tarea);
             Notification.show("Tarea actualizada correctamente");
             UI.getCurrent().navigate("tareas");
+            clearForm();
         });
     }
 
@@ -473,6 +487,21 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
         TaskFormData.setVoluntariosSeleccionados(listaVoluntarios);
         System.out.println("Voluntarios guardados: " + listaVoluntarios);
         TaskFormData.setNecesidadesSeleccionadas(listaNecesidades);
+    }
+
+    private void clearForm() {
+        tituloField.clear();
+        descripcionField.clear();
+        inicioPicker.clear();
+        finPicker.clear();
+        puntoEncuentro.clear();
+        horaEncuentroPicker.clear();
+        listaVoluntarios.clear();
+        listaNecesidades.clear();
+        virtualVoluntarios.setItems(listaVoluntarios);
+        virtualNecesidades.setItems(listaNecesidades);
+        manana.setEnabled(false);
+        tarde.setEnabled(false);
     }
 
     @Override
