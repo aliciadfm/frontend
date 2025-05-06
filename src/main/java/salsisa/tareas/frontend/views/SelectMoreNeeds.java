@@ -18,7 +18,7 @@ import java.util.*;
 import salsisa.tareas.frontend.components.NeedCard;
 
 @PageTitle("SH - Visualizar Necesidades") // Nombre que sale arriba en el tab del navegador
-@Route(value = "SelectMoreNeeds", layout = MainLayout.class)
+@Route(value = "SelectMoreNeeds/:origen/:categoriaId?", layout = MainLayout.class)
 public class SelectMoreNeeds extends VerticalLayout implements HasUrlParameter<Long>{
 
     @Autowired
@@ -30,6 +30,7 @@ public class SelectMoreNeeds extends VerticalLayout implements HasUrlParameter<L
     private Long categoriaId;
     private boolean comprobacion;
     private String vistaOrigen;
+    private Long tareaId;
 
     public SelectMoreNeeds(NecesidadRestCliente necesidadRestCliente, CategoriaRestCliente categoriaRestCliente,
                            List<NecesidadDTO> necesidadesSeleccionadas) {
@@ -139,7 +140,11 @@ public class SelectMoreNeeds extends VerticalLayout implements HasUrlParameter<L
                 }
 
                 TaskFormData.setNecesidadesSeleccionadas(seleccionados);
-                UI.getCurrent().navigate(CreateTaskView.class);
+                if ("editTask".equals(vistaOrigen)) {
+                    UI.getCurrent().navigate("editTask/" + tareaId);
+                } else {
+                    UI.getCurrent().navigate(CreateTaskView.class);
+                }
             } else {
                 Notification.show("No has seleccionado ninguna necesidad.");
             }
@@ -148,12 +153,29 @@ public class SelectMoreNeeds extends VerticalLayout implements HasUrlParameter<L
     }
 
     @Override
-    public void setParameter(BeforeEvent beforeEvent, @OptionalParameter Long aLong) {
-        if (aLong == null) {
-            comprobacion = false;
-        } else {
-            comprobacion = true;
-            this.categoriaId = aLong;
+    public void setParameter(BeforeEvent event, @OptionalParameter Long categoriaId) {
+        Location location = event.getLocation();
+        List<String> segments = location.getSegments();
+
+        if (segments.size() > 1) {
+            vistaOrigen = segments.get(1); // 0 = "SelectMoreNeeds", 1 = origen
+        }
+
+        if (segments.size() > 2) {
+            try {
+                this.categoriaId = Long.parseLong(segments.get(2));
+                comprobacion = true;
+            } catch (NumberFormatException e) {
+                comprobacion = false;
+            }
+        }
+
+        if (segments.size() > 3) {
+            try {
+                this.tareaId = Long.parseLong(segments.get(3));
+            } catch (NumberFormatException e) {
+                this.tareaId = null;
+            }
         }
 
         if (!TaskFormData.getNecesidadesSeleccionadas().isEmpty()) {
@@ -166,5 +188,7 @@ public class SelectMoreNeeds extends VerticalLayout implements HasUrlParameter<L
 
         createNeedsView();
     }
+
+
 }
 

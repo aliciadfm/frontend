@@ -191,7 +191,7 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
             virtualVoluntarios.setItems(listaVoluntarios);
             if (!listaNecesidades.isEmpty()) {
                 long categoriaId = listaNecesidades.getFirst().getIdCategoria();
-                UI.getCurrent().navigate(SelectMoreNeeds.class, categoriaId);
+                UI.getCurrent().navigate("SelectMoreNeeds/editTask/" + categoriaId + "/" + tarea.getIdTarea());
             } else {
                 UI.getCurrent().navigate("SelectMoreNeeds");
             }
@@ -315,6 +315,7 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
             tarea.setTurnoManana(manana.getValue());
             tarea.setTurnoTarde(tarde.getValue());
             tareaRestCliente.actualizar(tarea.getIdTarea(), tarea);
+            Notification.show("Tarea actualizada correctamente");
         });
     }
 
