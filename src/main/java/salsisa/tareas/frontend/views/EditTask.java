@@ -156,7 +156,7 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
         Button necesidadesButton = new Button("Añadir necesidades");
         voluntariosButton.addClickListener(e -> {
             saveData();
-            UI.getCurrent().navigate("voluntarios/edit-task");
+            UI.getCurrent().navigate("voluntarios/edit-task/" + tarea.getIdTarea());
         });
         necesidadesButton.addClickListener(e -> {
             saveData();

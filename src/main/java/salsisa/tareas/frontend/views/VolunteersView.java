@@ -7,6 +7,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.virtuallist.VirtualList;
@@ -23,7 +24,7 @@ import java.util.*;
 
 @PageTitle("Lista de voluntarios")
 @Route(value = "voluntarios", layout = MainLayout.class)
-public class VolunteersView extends VerticalLayout implements RouterLayout, HasUrlParameter<String> {
+public class VolunteersView extends VerticalLayout implements HasUrlParameter<String> {
 
     @Autowired
     private VoluntarioRestCliente voluntarioRestCliente;
@@ -31,6 +32,7 @@ public class VolunteersView extends VerticalLayout implements RouterLayout, HasU
     private final Map<VoluntarioDTO, Checkbox> checkboxMap = new HashMap<>();
     VirtualList<VoluntarioDTO> virtualList;
     private String vistaOrigen;
+    private Long tareaId;
 
     public VolunteersView(VoluntarioRestCliente voluntarioRestCliente) {
         long startTime = System.currentTimeMillis();
@@ -144,7 +146,7 @@ public class VolunteersView extends VerticalLayout implements RouterLayout, HasU
             }
             TaskFormData.getVoluntariosSeleccionados().addAll(seleccionados);
             if ("edit-task".equals(vistaOrigen)) {
-                UI.getCurrent().navigate(EditTask.class);
+                UI.getCurrent().navigate(EditTask.class, tareaId);
             } else {
                 UI.getCurrent().navigate(CreateTaskView.class);
             }
@@ -154,7 +156,7 @@ public class VolunteersView extends VerticalLayout implements RouterLayout, HasU
         acceptButton.getStyle().set("color", "#ffffff");
         cancelButton.addClickListener(e -> {
             if ("edit-task".equals(vistaOrigen)) {
-                UI.getCurrent().navigate(EditTask.class);
+                UI.getCurrent().navigate(EditTask.class, tareaId);
             } else {
                 UI.getCurrent().navigate(CreateTaskView.class);
             }
@@ -162,7 +164,26 @@ public class VolunteersView extends VerticalLayout implements RouterLayout, HasU
     }
 
     @Override
-    public void setParameter(BeforeEvent beforeEvent, @OptionalParameter String parameter) {
-        this.vistaOrigen = parameter;
+    public void setParameter(BeforeEvent event, @WildcardParameter String parameter) {
+        if (parameter != null && !parameter.isEmpty()) {
+            String[] parts = parameter.split("/");
+
+            if (parts.length >= 1) {
+                vistaOrigen = parts[0];
+            }
+
+            if (parts.length >= 2) {
+                try {
+                    tareaId = Long.parseLong(parts[1]);
+                } catch (NumberFormatException e) {
+                    Notification.show("ID de tarea inválido.");
+                }
+            }
+
+            if ("edit-task".equals(vistaOrigen) && tareaId != null) {
+                System.out.println("Vengo de edit-task con ID: " + tareaId);
+            }
+        }
     }
+
 }
