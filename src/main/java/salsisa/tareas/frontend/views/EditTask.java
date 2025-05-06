@@ -81,9 +81,6 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
         this.listaVoluntarios = new ArrayList<>();
         this.listaNecesidades = new ArrayList<>();
 
-//        virtualVoluntarios = new VirtualList<>();
-//        virtualVoluntarios.setRenderer(voluntarioCardRenderer);
-
         setSpacing(false);
         setPadding(false);
         getStyle().set("padding", "0 5%");

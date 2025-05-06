@@ -71,7 +71,8 @@ public class CreateTaskView extends VerticalLayout {
     private Checkbox tarde;
     private Checkbox pendienteCheckbox;
 
-    public CreateTaskView(VoluntarioRestCliente voluntarioRestCliente, NecesidadRestCliente necesidadRestCliente, TareaRestCliente tareaRestCliente) {
+    public CreateTaskView(VoluntarioRestCliente voluntarioRestCliente, NecesidadRestCliente necesidadRestCliente,
+                          TareaRestCliente tareaRestCliente) {
         this.voluntarioRestCliente = voluntarioRestCliente;
         this.necesidadRestCliente = necesidadRestCliente;
         this.tareaRestCliente = tareaRestCliente;
