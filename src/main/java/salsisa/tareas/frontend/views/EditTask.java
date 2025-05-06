@@ -470,7 +470,6 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
             Notification.show("No se ha proporcionado una tarea.");
             return;
         }
-
         tarea = tareaRestCliente.obtenerPorId(tareaId);
         if (tarea == null) {
             Notification.show("Tarea no encontrada.");

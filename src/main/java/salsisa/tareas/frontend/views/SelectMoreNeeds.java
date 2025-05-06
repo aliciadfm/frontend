@@ -18,8 +18,8 @@ import java.util.*;
 import salsisa.tareas.frontend.components.NeedCard;
 
 @PageTitle("SH - Visualizar Necesidades") // Nombre que sale arriba en el tab del navegador
-@Route(value = "SelectMoreNeeds/:origen/:categoriaId?", layout = MainLayout.class)
-public class SelectMoreNeeds extends VerticalLayout implements HasUrlParameter<Long>{
+@Route(value = "SelectMoreNeeds/:origen/:categoriaId?/:tareaId?", layout = MainLayout.class)
+public class SelectMoreNeeds extends VerticalLayout implements HasUrlParameter<Long> {
 
     @Autowired
     private NecesidadRestCliente necesidadRestCliente;
@@ -158,7 +158,7 @@ public class SelectMoreNeeds extends VerticalLayout implements HasUrlParameter<L
         List<String> segments = location.getSegments();
 
         if (segments.size() > 1) {
-            vistaOrigen = segments.get(1); // 0 = "SelectMoreNeeds", 1 = origen
+            vistaOrigen = segments.get(1); // 0 = "SelectMoreNeeds", 1 = origen (createTask/editTask)
         }
 
         if (segments.size() > 2) {
@@ -167,6 +167,7 @@ public class SelectMoreNeeds extends VerticalLayout implements HasUrlParameter<L
                 comprobacion = true;
             } catch (NumberFormatException e) {
                 comprobacion = false;
+                this.categoriaId = null;
             }
         }
 
@@ -178,14 +179,17 @@ public class SelectMoreNeeds extends VerticalLayout implements HasUrlParameter<L
             }
         }
 
+        // Recuperar necesidades previamente seleccionadas (evita duplicados)
         if (!TaskFormData.getNecesidadesSeleccionadas().isEmpty()) {
             TaskFormData.getNecesidadesSeleccionadas().forEach(n -> {
-                if (this.necesidadesSeleccionadas.stream().noneMatch(existing -> existing.getIdNecesidad().equals(n.getIdNecesidad()))) {
+                if (this.necesidadesSeleccionadas.stream()
+                        .noneMatch(existing -> existing.getIdNecesidad().equals(n.getIdNecesidad()))) {
                     this.necesidadesSeleccionadas.add(n);
                 }
             });
         }
 
+        // Crear vista
         createNeedsView();
     }
 

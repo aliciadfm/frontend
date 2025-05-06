@@ -156,7 +156,6 @@ public class CreateTaskView extends VerticalLayout {
         finPicker.setMin(LocalDate.now());
         finPicker.setLocale(Locale.forLanguageTag("es-ES"));
         horaEncuentroPicker = new TimePicker("");
-        horaEncuentroPicker.setMin(LocalTime.now());
 
         //COLUMNA DE LA IZQUIERDA
         VerticalLayout column1 = new VerticalLayout();
@@ -225,7 +224,7 @@ public class CreateTaskView extends VerticalLayout {
             virtualVoluntarios.setItems(listaVoluntarios);
             if (!listaNecesidades.isEmpty()) {
                 long categoriaId = listaNecesidades.getFirst().getIdCategoria();
-                UI.getCurrent().navigate(SelectMoreNeeds.class, categoriaId);
+                UI.getCurrent().navigate("SelectMoreNeeds/createTask/" + categoriaId);
             } else {
                 UI.getCurrent().navigate("SelectMoreNeeds");
             }
@@ -465,5 +464,7 @@ public class CreateTaskView extends VerticalLayout {
         listaNecesidades.clear();
         virtualVoluntarios.setItems(listaVoluntarios);
         virtualNecesidades.setItems(listaNecesidades);
+        manana.setEnabled(false);
+        tarde.setEnabled(false);
     }
 }
