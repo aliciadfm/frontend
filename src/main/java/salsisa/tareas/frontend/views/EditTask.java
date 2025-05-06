@@ -19,6 +19,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.StreamResource;
 import org.springframework.beans.factory.annotation.Autowired;
+import salsisa.tareas.frontend.dto.Estado;
 import salsisa.tareas.frontend.dto.NecesidadDTO;
 import salsisa.tareas.frontend.dto.TareaDTO;
 import salsisa.tareas.frontend.dto.VoluntarioDTO;
@@ -80,6 +81,9 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
         this.listaVoluntarios = new ArrayList<>();
         this.listaNecesidades = new ArrayList<>();
 
+//        virtualVoluntarios = new VirtualList<>();
+//        virtualVoluntarios.setRenderer(voluntarioCardRenderer);
+
         setSpacing(false);
         setPadding(false);
         getStyle().set("padding", "0 5%");
@@ -107,30 +111,55 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
         add(fieldsArea);
 
         tituloField = new TextField("");
-        tituloField.setPlaceholder(tarea.getTitulo());
         descripcionField = new TextField("");
-        descripcionField.setPlaceholder(tarea.getDescripcion());
         puntoEncuentro = new TextField("");
-        puntoEncuentro.setPlaceholder(tarea.getPuntoEncuentro());
         inicioPicker = new DatePicker("");
-        if(tarea.getFechaInicio() != null) {
-            inicioPicker.setPlaceholder(tarea.getFechaInicio().toString());
-        }
         inicioPicker.setMin(LocalDate.now());
         finPicker = new DatePicker("");
-        if(tarea.getFechaFin() != null) {
-            finPicker.setPlaceholder(tarea.getFechaFin().toString());
-        }
         finPicker.setMin(LocalDate.now());
         horaEncuentroPicker = new TimePicker("");
-        if(tarea.getFechaInicio() != null) {
-            horaEncuentroPicker.setPlaceholder(tarea.getHoraEncuentro().toString());
-        }
-        horaEncuentroPicker.setMin(LocalTime.now());
         manana = new Checkbox("Mañana");
         manana.setValue(tarea.getTurnoManana());
         tarde = new Checkbox("Tarde");
         tarde.setValue(tarea.getTurnoTarde());
+
+
+        Button voluntariosButton = new Button("Añadir voluntarios");
+        Button necesidadesButton = new Button("Añadir necesidades");
+
+        if(tarea.getEstado() == Estado.ASIGNADA || tarea.getEstado() == Estado.ENPROCESO ) {
+            tituloField.setReadOnly(true);
+            descripcionField.setReadOnly(true);
+            inicioPicker.setReadOnly(true);
+            finPicker.setReadOnly(true);
+            necesidadesButton.setEnabled(false);
+            tarde.setReadOnly(true);
+            manana.setReadOnly(true);
+        }
+
+        if(tarea.getEstado() == Estado.TERMINADA) {
+            tituloField.setReadOnly(true);
+            descripcionField.setReadOnly(true);
+            puntoEncuentro.setReadOnly(true);
+            horaEncuentroPicker.setReadOnly(true);
+            inicioPicker.setReadOnly(true);
+            finPicker.setReadOnly(true);
+            necesidadesButton.setEnabled(false);
+            voluntariosButton.setEnabled(false);
+        }
+
+        tituloField.setPlaceholder(tarea.getTitulo());
+        descripcionField.setPlaceholder(tarea.getDescripcion());
+        puntoEncuentro.setPlaceholder(tarea.getPuntoEncuentro());
+        if(tarea.getFechaInicio() != null) {
+            inicioPicker.setPlaceholder(tarea.getFechaInicio().toString());
+        }
+        if(tarea.getFechaFin() != null) {
+            finPicker.setPlaceholder(tarea.getFechaFin().toString());
+        }
+        if(tarea.getHoraEncuentro() != null) {
+            horaEncuentroPicker.setPlaceholder(tarea.getHoraEncuentro().toString());
+        }
 
         VerticalLayout column1 = new VerticalLayout();
         VerticalLayout column2 = new VerticalLayout();
@@ -152,8 +181,6 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
         necesidadesArea.setSpacing(false);
         necesidadesArea.setPadding(false);
 
-        Button voluntariosButton = new Button("Añadir voluntarios");
-        Button necesidadesButton = new Button("Añadir necesidades");
         voluntariosButton.addClickListener(e -> {
             saveData();
             UI.getCurrent().navigate("voluntarios/edit-task/" + tarea.getIdTarea());
@@ -447,6 +474,11 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
             Notification.show("Tarea no encontrada.");
             return;
         }
+        if(!listaVoluntarios.isEmpty()) {
+            virtualVoluntarios.setItems(listaVoluntarios);
+        }
+
+
         createCentralContainer(false);
         createButton();
     }
