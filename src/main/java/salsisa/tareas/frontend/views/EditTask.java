@@ -88,6 +88,9 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
         setPadding(false);
         getStyle().set("padding", "0 5%");
         createHeader();
+
+        System.out.println("Lista de voluntarios: " + listaVoluntarios);
+        System.out.println("Lista de necesidades: " + listaNecesidades);
     }
 
     public void createHeader() {
@@ -316,6 +319,7 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
             tarea.setTurnoTarde(tarde.getValue());
             tareaRestCliente.actualizar(tarea.getIdTarea(), tarea);
             Notification.show("Tarea actualizada correctamente");
+            UI.getCurrent().navigate("tareas");
         });
     }
 
