@@ -19,6 +19,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.StreamResource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.config.Task;
 import salsisa.tareas.frontend.dto.Estado;
 import salsisa.tareas.frontend.dto.NecesidadDTO;
 import salsisa.tareas.frontend.dto.TareaDTO;
@@ -80,6 +81,13 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
 
         this.listaVoluntarios = new ArrayList<>();
         this.listaNecesidades = new ArrayList<>();
+
+        if(!TaskFormData.getVoluntariosSeleccionados().isEmpty()) {
+            listaVoluntarios.addAll(TaskFormData.getVoluntariosSeleccionados());
+        }
+        if(!TaskFormData.getNecesidadesSeleccionadas().isEmpty()) {
+            listaNecesidades.addAll(TaskFormData.getNecesidadesSeleccionadas());
+        }
 
         setSpacing(false);
         setPadding(false);
