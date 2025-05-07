@@ -8,6 +8,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import salsisa.tareas.frontend.dto.Estado;
 import salsisa.tareas.frontend.dto.TareaDTO;
 import salsisa.tareas.frontend.dto.TareaResumenDTO;
+import salsisa.tareas.frontend.dto.FiltroTareaDTO;
+
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,12 +24,31 @@ public class TareaRestCliente extends ClienteRestBase<TareaDTO> {
         super(restTemplate, BASE_URL, TareaDTO.class);
     }
 
-    public List<TareaResumenDTO> filtrarPorEstados(List<Estado> estados) {
-        String url = UriComponentsBuilder.fromHttpUrl(BASE_URL + "/filtro")
-                .queryParam("estados", estados.toArray())
-                .toUriString();
+    public List<TareaResumenDTO> obtenerTodos(FiltroTareaDTO filtro) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(BASE_URL);
+
+        if (filtro.getEstados() != null && !filtro.getEstados().isEmpty()) {
+            for (String estado : filtro.getEstados()) {
+                builder.queryParam("estados", estado);
+            }
+        }
+
+        if (filtro.getFechaInicio() != null) {
+            builder.queryParam("fechaInicio", filtro.getFechaInicio());
+        }
+
+        if (filtro.getFechaFin() != null) {
+            builder.queryParam("fechaFin", filtro.getFechaFin());
+        }
+
+        if (filtro.getOrden() != null && !filtro.getOrden().isBlank()) {
+            builder.queryParam("orden", filtro.getOrden());
+        }
+
+        String url = builder.toUriString();
 
         TareaResumenDTO[] tareasArray = getRestTemplate().getForObject(url, TareaResumenDTO[].class);
         return Arrays.asList(tareasArray);
     }
+
 }
