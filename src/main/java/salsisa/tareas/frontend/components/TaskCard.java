@@ -82,6 +82,10 @@ public class TaskCard extends HorizontalLayout {
             edit.setHeight("20px");
             Button editar = new Button(edit);
             editar.setWidth("5%");
+            if(tarea.getEstado() == Estado.ENPROCESO) {
+                estado.removeAll();
+                estado.add("EN PROCESO");
+            }
             add(titulo, fechaInicio, fechaFin, localizacion, estado, voluntarios, asistentes, editar);
             editar.addClickListener(e -> {
                 UI.getCurrent().navigate("editTask/" + tarea.getIdTarea());

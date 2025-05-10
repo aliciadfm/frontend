@@ -8,8 +8,9 @@ import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 import salsisa.tareas.frontend.components.TaskCard;
 import salsisa.tareas.frontend.components.TaskFilters;
+import salsisa.tareas.frontend.components.TaskFilters2;
 import salsisa.tareas.frontend.dto.Estado;
-import salsisa.tareas.frontend.dto.TareaDTO;
+import salsisa.tareas.frontend.dto.FiltroTareaDTO;
 import salsisa.tareas.frontend.dto.TareaResumenDTO;
 import salsisa.tareas.frontend.servicesAPI.TareaRestCliente;
 
@@ -25,6 +26,7 @@ public class TareasView extends VerticalLayout {
     private TareaRestCliente tareaRestCliente;
     private VerticalLayout taskContainer;
     private TaskFilters taskFilters;
+    //private TaskFilters2 taskFilters2;
 
     public TareasView(TareaRestCliente tareaRestCliente) {
         this.tareaRestCliente = tareaRestCliente;
@@ -51,22 +53,28 @@ public class TareasView extends VerticalLayout {
         taskFilters = new TaskFilters();
         taskFilters.setEstadoChangeListener(this::updateTaskList);
 
+        //taskFilters2 = new TaskFilters2();
+
         taskContainer = createTasksContainer();
 
         add(centralContainer);
         centralContainer.add(taskContainer, taskFilters);
+        //centralContainer.add(taskFikters2);
     }
 
     public VerticalLayout createTasksContainer() {
         VerticalLayout taskcreated = new VerticalLayout();
         taskcreated.setWidth("100%");
 
-        List<Estado> estado = new ArrayList();
-        estado.add(Estado.ENPROCESO);
-        estado.add(Estado.ASIGNADA);
-        estado.add(Estado.TERMINADA);
-        estado.add(Estado.PENDIENTE);
-        List<TareaResumenDTO> listaTareas  = tareaRestCliente.filtrarPorEstados(estado);
+        FiltroTareaDTO filtro = new FiltroTareaDTO();
+        filtro.setEstados(Arrays.asList(
+                Estado.ENPROCESO.name(),
+                Estado.ASIGNADA.name(),
+                Estado.TERMINADA.name(),
+                Estado.PENDIENTE.name()
+        ));
+
+        List<TareaResumenDTO> listaTareas  = tareaRestCliente.obtenerTodos(filtro);
         for (TareaResumenDTO tarea : listaTareas) {
             TaskCard taskCard = new TaskCard(tarea);
             taskcreated.add(taskCard);
@@ -77,14 +85,19 @@ public class TareasView extends VerticalLayout {
     private void updateTaskList(Estado selected) {
         taskContainer.removeAll();
 
-        List<Estado> estadosFiltrados = new ArrayList<>();
-        if (selected == null) {
-            estadosFiltrados.addAll(Arrays.asList(Estado.values()));
-        } else {
-            estadosFiltrados.add(selected);
-        }
+        FiltroTareaDTO filtro = new FiltroTareaDTO();
 
-        List<TareaResumenDTO> listaTareas = tareaRestCliente.filtrarPorEstados(estadosFiltrados);
+        List<String> estadosFiltrados = new ArrayList<>();
+        if (selected == null) {
+            for (Estado e : Estado.values()) {
+                estadosFiltrados.add(e.name());
+            }
+        } else {
+            estadosFiltrados.add(selected.name());
+        }
+        filtro.setEstados(estadosFiltrados);
+
+        List<TareaResumenDTO> listaTareas = tareaRestCliente.obtenerTodos(filtro);
         for (TareaResumenDTO tarea : listaTareas) {
             TaskCard taskCard = new TaskCard(tarea);
             taskContainer.add(taskCard);
