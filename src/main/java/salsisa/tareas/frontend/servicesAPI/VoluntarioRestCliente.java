@@ -9,6 +9,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import salsisa.tareas.frontend.dto.FiltroVoluntario1DTO;
 import salsisa.tareas.frontend.dto.FiltroVoluntario2DTO;
 import salsisa.tareas.frontend.dto.VoluntarioDTO;
+import salsisa.tareas.frontend.dto.VoluntarioListadoDTO;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,15 +34,16 @@ public class VoluntarioRestCliente extends ClienteRestBase<VoluntarioDTO> {
 
     private static final Class<VoluntarioDTO[]> VOLUNTARIO_ARRAY_CLASS = VoluntarioDTO[].class;
 
-    public List<VoluntarioDTO> obtenerVoluntariosValidos(FiltroVoluntario1DTO filtro) {
+    public List<VoluntarioListadoDTO> obtenerVoluntariosValidos(FiltroVoluntario1DTO filtro) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(VOLUNTARIOS_VALIDOS_URL);
+
         if (filtro.getFechaInicio() != null)
             builder.queryParam("fechaInicio", filtro.getFechaInicio());
 
         if (filtro.getFechaFin() != null)
             builder.queryParam("fechaFin", filtro.getFechaFin());
 
-        if (filtro.getTurnoManana()!= null)
+        if (filtro.getTurnoManana() != null)
             builder.queryParam("turnoManana", filtro.getTurnoManana());
 
         if (filtro.getTurnoTarde() != null)
@@ -50,12 +52,11 @@ public class VoluntarioRestCliente extends ClienteRestBase<VoluntarioDTO> {
         if (filtro.getIdCategoria() != null)
             builder.queryParam("idCategoria", filtro.getIdCategoria());
 
-
-        ResponseEntity<VoluntarioDTO[]> response = restTemplate.exchange(
+        ResponseEntity<VoluntarioListadoDTO[]> response = restTemplate.exchange(
                 builder.toUriString(),
                 HttpMethod.GET,
                 HttpEntity.EMPTY,
-                VOLUNTARIO_ARRAY_CLASS
+                VoluntarioListadoDTO[].class
         );
 
         return response.getBody() != null ? Arrays.asList(response.getBody()) : new ArrayList<>();
