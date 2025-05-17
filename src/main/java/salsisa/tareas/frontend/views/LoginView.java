@@ -2,6 +2,7 @@ package salsisa.tareas.frontend.views;
 
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.login.LoginForm;
+import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
@@ -26,7 +27,7 @@ public class LoginView extends HorizontalLayout {
         Image image = new Image("icons/SHLogoWhite.png", "Solidarity Hub Logo");
         logoBackground.add(image);
         image.setWidth("50%");
-        image.setHeight("40%");
+        image.setHeight("37%");
         logoBackground.setAlignItems(Alignment.CENTER);
         logoBackground.setJustifyContentMode(JustifyContentMode.CENTER);
     }
@@ -39,6 +40,14 @@ public class LoginView extends HorizontalLayout {
         loginFormDiv.add(loginForm);
         loginFormDiv.setJustifyContentMode(JustifyContentMode.CENTER);
         loginFormDiv.setAlignItems(Alignment.CENTER);
+
+        LoginI18n i18n = LoginI18n.createDefault();
+        i18n.getForm().setTitle("Iniciar sesión");
+        i18n.getForm().setUsername("Usuario");
+        i18n.getForm().setPassword("Contraseña");
+        i18n.getForm().setSubmit("Iniciar sesión");
+        i18n.getForm().setForgotPassword("He olvidado mi contraseña");
+        loginForm.setI18n(i18n);
         add(loginFormDiv);
     }
 }
