@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import salsisa.tareas.frontend.dto.FiltroVoluntario1DTO;
 import salsisa.tareas.frontend.dto.NecesidadDTO;
 import salsisa.tareas.frontend.dto.VoluntarioDTO;
+import salsisa.tareas.frontend.dto.VoluntarioListadoDTO;
 import salsisa.tareas.frontend.servicesAPI.VoluntarioRestCliente;
 
 import java.util.*;
@@ -29,8 +30,8 @@ public class VolunteersView extends VerticalLayout implements HasUrlParameter<St
     @Autowired
     private VoluntarioRestCliente voluntarioRestCliente;
 
-    private final Map<VoluntarioDTO, Checkbox> checkboxMap = new HashMap<>();
-    VirtualList<VoluntarioDTO> virtualList;
+    private final Map<VoluntarioListadoDTO, Checkbox> checkboxMap = new HashMap<>();
+    VirtualList<VoluntarioListadoDTO> virtualList;
     private String vistaOrigen;
     private Long tareaId;
 
@@ -70,7 +71,7 @@ public class VolunteersView extends VerticalLayout implements HasUrlParameter<St
         volunteersArea.setHeight("500px");
 
         List<NecesidadDTO> necesidadesSeleccionadas = TaskFormData.getNecesidadesSeleccionadas();
-        Set<VoluntarioDTO> totalVoluntarios = new HashSet<>();
+        Set<VoluntarioListadoDTO> totalVoluntarios = new HashSet<>();
         NecesidadDTO necesidad = necesidadesSeleccionadas.getFirst();
 
         FiltroVoluntario1DTO filtro = new FiltroVoluntario1DTO(
@@ -79,7 +80,7 @@ public class VolunteersView extends VerticalLayout implements HasUrlParameter<St
                 TaskFormData.getTurnoManana(),
                 TaskFormData.getTurnoTarde(),
                 necesidad.getIdCategoria());
-        List<VoluntarioDTO> respuesta = voluntarioRestCliente.obtenerVoluntariosValidos(filtro);
+        List<VoluntarioListadoDTO> respuesta = voluntarioRestCliente.obtenerVoluntariosValidos(filtro);
         totalVoluntarios.addAll(respuesta);
 
         if (totalVoluntarios.isEmpty()) {
@@ -96,7 +97,7 @@ public class VolunteersView extends VerticalLayout implements HasUrlParameter<St
     }
 
 
-    private final ComponentRenderer<Component, VoluntarioDTO> voluntarioCardRenderer = new ComponentRenderer<>(
+    private final ComponentRenderer<Component, VoluntarioListadoDTO> voluntarioCardRenderer = new ComponentRenderer<>(
             voluntario -> {
                 HorizontalLayout cardLayout = new HorizontalLayout();
                 cardLayout.setMargin(true);
@@ -138,8 +139,8 @@ public class VolunteersView extends VerticalLayout implements HasUrlParameter<St
         acceptArea.setWidth("50%");
         buttons.add(cancelArea, acceptArea);
         acceptButton.addClickListener(e -> {
-            Set<VoluntarioDTO> seleccionados = new HashSet<>();
-            for (Map.Entry<VoluntarioDTO, Checkbox> entry : checkboxMap.entrySet()) {
+            Set<VoluntarioListadoDTO> seleccionados = new HashSet<>();
+            for (Map.Entry<VoluntarioListadoDTO, Checkbox> entry : checkboxMap.entrySet()) {
                 if (entry.getValue().getValue()) {
                     seleccionados.add(entry.getKey());
                 }

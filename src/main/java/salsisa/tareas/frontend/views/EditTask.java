@@ -20,10 +20,7 @@ import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.StreamResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.config.Task;
-import salsisa.tareas.frontend.dto.Estado;
-import salsisa.tareas.frontend.dto.NecesidadDTO;
-import salsisa.tareas.frontend.dto.TareaDTO;
-import salsisa.tareas.frontend.dto.VoluntarioDTO;
+import salsisa.tareas.frontend.dto.*;
 import salsisa.tareas.frontend.servicesAPI.NecesidadRestCliente;
 import salsisa.tareas.frontend.servicesAPI.TareaRestCliente;
 import salsisa.tareas.frontend.servicesAPI.VoluntarioRestCliente;
@@ -59,9 +56,9 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
     private Checkbox tarde;
     private Checkbox pendienteCheckbox;
 
-    private List<VoluntarioDTO> listaVoluntarios;
+    private List<VoluntarioListadoDTO> listaVoluntarios;
     private List<NecesidadDTO> listaNecesidades;
-    private VirtualList<VoluntarioDTO> virtualVoluntarios;
+    private VirtualList<VoluntarioListadoDTO> virtualVoluntarios;
     private VirtualList<NecesidadDTO> virtualNecesidades;
 
     List<Long> idsVoluntariosID;
@@ -228,7 +225,8 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
         if (listaVoluntariosID != null) {
             for(Long idVol : listaVoluntariosID) {
                 VoluntarioDTO voluntario = voluntarioRestCliente.obtenerPorId(idVol);
-                listaVoluntarios.add(voluntario);
+                VoluntarioListadoDTO voluntarioListado = new VoluntarioListadoDTO(voluntario.getId() ,voluntario.getNombre(), voluntario.getEmail(), voluntario.getApellidos(), voluntario.getImagen());
+                listaVoluntarios.add(voluntarioListado);
             }
         }
 
@@ -376,7 +374,7 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
 
         if (!lista.isEmpty()) {
             T firstElement = lista.getFirst();
-            if (firstElement instanceof VoluntarioDTO) {
+            if (firstElement instanceof VoluntarioListadoDTO) {
                 renderer = (ComponentRenderer<Component, T>) voluntarioCardRenderer;
             } else if (firstElement instanceof NecesidadDTO) {
                 renderer = (ComponentRenderer<Component, T>) necesidadCardRenderer;
@@ -401,7 +399,7 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
         return virtualList;
     }
 
-    private ComponentRenderer<Component, VoluntarioDTO> voluntarioCardRenderer = new ComponentRenderer<>(
+    private ComponentRenderer<Component, VoluntarioListadoDTO> voluntarioCardRenderer = new ComponentRenderer<>(
             voluntario -> {
                 HorizontalLayout cardLayout = new HorizontalLayout();
                 cardLayout.setMargin(true);

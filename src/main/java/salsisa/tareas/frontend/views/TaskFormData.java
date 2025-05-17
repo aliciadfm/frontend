@@ -5,6 +5,7 @@ import lombok.Setter;
 import salsisa.tareas.frontend.dto.Estado;
 import salsisa.tareas.frontend.dto.NecesidadDTO;
 import salsisa.tareas.frontend.dto.VoluntarioDTO;
+import salsisa.tareas.frontend.dto.VoluntarioListadoDTO;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -42,7 +43,7 @@ public class TaskFormData {
     private static Estado estado;
     @Getter
     @Setter
-    private static List<VoluntarioDTO> voluntariosSeleccionados = new ArrayList<>();
+    private static List<VoluntarioListadoDTO> voluntariosSeleccionados = new ArrayList<>();
     @Getter
     @Setter
     private static List<NecesidadDTO> necesidadesSeleccionadas = new ArrayList<>();

@@ -25,10 +25,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.server.StreamResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import salsisa.tareas.frontend.dto.Estado;
-import salsisa.tareas.frontend.dto.NecesidadDTO;
-import salsisa.tareas.frontend.dto.TareaDTO;
-import salsisa.tareas.frontend.dto.VoluntarioDTO;
+import salsisa.tareas.frontend.dto.*;
 import salsisa.tareas.frontend.servicesAPI.NecesidadRestCliente;
 import salsisa.tareas.frontend.servicesAPI.TareaRestCliente;
 import salsisa.tareas.frontend.servicesAPI.VoluntarioRestCliente;
@@ -55,9 +52,9 @@ public class CreateTaskView extends VerticalLayout {
     @Autowired
     private TareaRestCliente tareaRestCliente;
 
-    List<VoluntarioDTO> listaVoluntarios;
+    List<VoluntarioListadoDTO> listaVoluntarios;
     List<NecesidadDTO> listaNecesidades;
-    private VirtualList<VoluntarioDTO> virtualVoluntarios;
+    private VirtualList<VoluntarioListadoDTO> virtualVoluntarios;
     private VirtualList<NecesidadDTO> virtualNecesidades;
 
     private TextField tituloField;
@@ -287,7 +284,7 @@ public class CreateTaskView extends VerticalLayout {
 
         if (!lista.isEmpty()) {
             T firstElement = lista.getFirst();
-            if (firstElement instanceof VoluntarioDTO) {
+            if (firstElement instanceof VoluntarioListadoDTO) {
                 renderer = (ComponentRenderer<Component, T>) voluntarioCardRenderer;
             } else if (firstElement instanceof NecesidadDTO) {
                 renderer = (ComponentRenderer<Component, T>) necesidadCardRenderer;
@@ -313,7 +310,7 @@ public class CreateTaskView extends VerticalLayout {
     }
 
 
-    private ComponentRenderer<Component, VoluntarioDTO> voluntarioCardRenderer = new ComponentRenderer<>(
+    private ComponentRenderer<Component, VoluntarioListadoDTO> voluntarioCardRenderer = new ComponentRenderer<>(
             voluntario -> {
                 HorizontalLayout cardLayout = new HorizontalLayout();
                 cardLayout.setMargin(true);
@@ -427,7 +424,7 @@ public class CreateTaskView extends VerticalLayout {
             List<Long> idsVoluntarios = new ArrayList<>();
             List<Long> idsNecesidades = new ArrayList<>();
 
-            for(VoluntarioDTO voluntario : listaVoluntarios) {
+            for(VoluntarioListadoDTO voluntario : listaVoluntarios) {
                 idsVoluntarios.add(voluntario.getId());
             }
 
@@ -441,7 +438,7 @@ public class CreateTaskView extends VerticalLayout {
                     pendienteCheckbox.getValue() ? Estado.PENDIENTE : Estado.ASIGNADA,
                     idsVoluntarios, idsNecesidades);
 
-            for(VoluntarioDTO voluntario : listaVoluntarios) {
+            for(VoluntarioListadoDTO voluntario : listaVoluntarios) {
                 System.out.println("Voluntario: " + voluntario.getId());
             }
             for(NecesidadDTO necesidad : listaNecesidades) {
