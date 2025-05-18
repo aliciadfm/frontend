@@ -224,17 +224,25 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
         List<Long> listaVoluntariosID = tarea.getIdsVoluntarios();
         if (listaVoluntariosID != null) {
             for(Long idVol : listaVoluntariosID) {
-                VoluntarioDTO voluntario = voluntarioRestCliente.obtenerPorId(idVol);
-                VoluntarioListadoDTO voluntarioListado = new VoluntarioListadoDTO(voluntario.getId() ,voluntario.getNombre(), voluntario.getEmail(), voluntario.getApellidos(), voluntario.getImagen());
-                listaVoluntarios.add(voluntarioListado);
+                if (!yaExisteVoluntario(listaVoluntarios, idVol)) {
+                    VoluntarioDTO voluntario = voluntarioRestCliente.obtenerPorId(idVol);
+                    VoluntarioListadoDTO voluntarioListado = new VoluntarioListadoDTO(
+                            voluntario.getId(), voluntario.getNombre(),
+                            voluntario.getEmail(), voluntario.getApellidos(),
+                            voluntario.getImagen()
+                    );
+                    listaVoluntarios.add(voluntarioListado);
+                }
             }
         }
 
         List<Long> listaNecesidadesID = tarea.getIdsNecesidades();
         if (listaNecesidadesID != null) {
             for(Long idNec : listaNecesidadesID) {
-                NecesidadDTO necesidad = necesidadRestCliente.obtenerPorId(idNec);
-                listaNecesidades.add(necesidad);
+                if (!yaExisteNecesidad(listaNecesidades, idNec)) {
+                    NecesidadDTO necesidad = necesidadRestCliente.obtenerPorId(idNec);
+                    listaNecesidades.add(necesidad);
+                }
             }
         }
 
@@ -472,6 +480,15 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
                 cardLayout.add(avatar, infoLayout);
                 return cardLayout;
             });
+
+    private boolean yaExisteVoluntario(List<VoluntarioListadoDTO> lista, Long id) {
+        return lista.stream().anyMatch(v -> v.getId().equals(id));
+    }
+
+    private boolean yaExisteNecesidad(List<NecesidadDTO> lista, Long id) {
+        return lista.stream().anyMatch(n -> n.getIdNecesidad().equals(id));
+    }
+
 
     private void saveData() {
         TaskFormData.setTitulo(tituloField.getValue());
