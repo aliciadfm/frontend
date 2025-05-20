@@ -31,6 +31,8 @@ public class TaskFilters2 extends VerticalLayout {
 
     private Button botonFiltrar;
 
+    private FiltroTareaDTO filtroActual = new FiltroTareaDTO();
+
     public TaskFilters2() {
         setWidth("250px");
         getStyle()
@@ -56,7 +58,21 @@ public class TaskFilters2 extends VerticalLayout {
         asignada = crearCheckboxConColor("Asignada", "#ffd9b3", "#e6c2a3");      // naranja claro -> más oscuro
         pendiente = crearCheckboxConColor("Pendiente", "#ffb3b3", "#e69999");    // rojo claro -> rojo más oscuro
 
+        List<Checkbox> otrosEstados = List.of(finalizada, enProceso, asignada, pendiente);
 
+        // Listener para "MostrarTodo"
+        mostrarTodo.addValueChangeListener(event -> {
+            if (event.getValue()) {
+                otrosEstados.forEach(cb -> cb.setValue(false));
+            }
+        });
+
+        // Listeners para cada checkbox de estado
+        otrosEstados.forEach(cb -> cb.addValueChangeListener(event -> {
+            if (event.getValue()) {
+                mostrarTodo.setValue(false);
+            }
+        }));
     }
 
     private void createOrdenarPorFilter() {
@@ -114,35 +130,47 @@ public class TaskFilters2 extends VerticalLayout {
     private void createBotonFiltrar() {
         botonFiltrar = new Button("Filtrar");
         botonFiltrar.addClickListener(event -> {
-            FiltroTareaDTO filtro = new FiltroTareaDTO();
+            filtroActual = new FiltroTareaDTO(); // Generar uno nuevo en cada clic
 
-            // Si "Mostrar tod" está activado, dejamos la lista como null
+            // Si "MostrarTodo" está activado, se deja como null
             if (!mostrarTodo.getValue()) {
                 List<String> estados = new ArrayList<>();
                 if (pendiente.getValue()) estados.add("PENDIENTE");
                 if (asignada.getValue()) estados.add("ASIGNADA");
-                if (enProceso.getValue()) estados.add("EN_PROCESO");
-                if (finalizada.getValue()) estados.add("FINALIZADA");
+                if (enProceso.getValue()) estados.add("ENPROCESO");
+                if (finalizada.getValue()) estados.add("TERMINADA");
 
                 if (!estados.isEmpty()) {
-                    filtro.setEstados(estados);
+                    filtroActual.setEstados(estados);
                 }
+            } else {
+                filtroActual.setEstados(null); // Mostrartodo: lista de estados en null
             }
 
-            // Fechas: solo si ambas están presentes
+            // Fechas
             LocalDate inicio = fechaInicio.getValue();
             LocalDate fin = fechaFin.getValue();
+
             if (inicio != null && fin != null) {
-                filtro.setFechaInicio(inicio);
-                filtro.setFechaFin(fin);
+                filtroActual.setFechaInicio(inicio);
+                filtroActual.setFechaFin(fin);
+            } else if (inicio != null) {
+                filtroActual.setFechaInicio(inicio);
+            } else if (fin != null) {
+                filtroActual.setFechaFin(fin);
             }
 
             // Orden
             String orden = ordenarPor.getValue();
             if (orden != null) {
-                filtro.setOrden(orden.toLowerCase());
+                filtroActual.setOrden(orden.toLowerCase());
             }
-            //Notification.show("Filtro creado:\n" + filtro.toString(), 5000, Notification.Position.MIDDLE);
         });
+    }
+    public FiltroTareaDTO getFiltroActual() {
+        return filtroActual;
+    }
+    public Button getBotonFiltrar() {
+        return botonFiltrar;
     }
 }
