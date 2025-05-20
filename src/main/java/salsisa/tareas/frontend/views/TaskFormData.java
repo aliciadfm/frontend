@@ -47,5 +47,19 @@ public class TaskFormData {
     @Getter
     @Setter
     private static List<NecesidadDTO> necesidadesSeleccionadas = new ArrayList<>();
+
+    public static void clear() {
+        titulo = "";
+        descripcion = "";
+        fechaInicio = null;
+        fechaFin = null;
+        horaEncuentro = null;
+        puntoEncuentro = null;
+        turnoManana = false;
+        turnoTarde = false;
+        estado = null;
+        voluntariosSeleccionados.clear();
+        necesidadesSeleccionadas.clear();
+    }
 }
 
