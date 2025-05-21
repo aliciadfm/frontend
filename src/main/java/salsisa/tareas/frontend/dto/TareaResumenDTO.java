@@ -23,5 +23,5 @@ public class TareaResumenDTO {
     private int totalAsistencias;
     private int totalAceptadas;
     private int totalCanceladas;
-    private boolean activo;
+    private boolean aviso;
 }
