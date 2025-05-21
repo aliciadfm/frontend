@@ -1,5 +1,6 @@
 package salsisa.tareas.frontend.views;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.login.LoginI18n;
@@ -7,11 +8,16 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import salsisa.tareas.frontend.controllers.LoginController;
 
 @PageTitle("SH - Inicio de sesión")
 @Route(value="login")
 public class LoginView extends HorizontalLayout {
+
+    private final LoginController controller;
+
     public LoginView() {
+        controller = new LoginController(this);
         setSizeFull();
         createLogoZone();
         createLoginForm();
@@ -48,6 +54,13 @@ public class LoginView extends HorizontalLayout {
         i18n.getForm().setSubmit("Iniciar sesión");
         i18n.getForm().setForgotPassword("He olvidado mi contraseña");
         loginForm.setI18n(i18n);
+        loginForm.addLoginListener(event -> {
+            controller.handleLogin(event.getUsername(), event.getPassword());
+        });
         add(loginFormDiv);
+    }
+
+    public void navigateToHome() {
+        UI.getCurrent().navigate("NeedsView");
     }
 }

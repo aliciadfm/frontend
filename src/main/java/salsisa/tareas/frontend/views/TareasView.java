@@ -25,8 +25,7 @@ public class TareasView extends VerticalLayout {
     @Autowired
     private TareaRestCliente tareaRestCliente;
     private VerticalLayout taskContainer;
-    private TaskFilters taskFilters;
-    //private TaskFilters2 taskFilters2;
+    private TaskFilters2 taskFilters2;
 
     public TareasView(TareaRestCliente tareaRestCliente) {
         this.tareaRestCliente = tareaRestCliente;
@@ -50,16 +49,16 @@ public class TareasView extends VerticalLayout {
         HorizontalLayout centralContainer = new HorizontalLayout();
         centralContainer.setWidth("100%");
 
-        taskFilters = new TaskFilters();
-        taskFilters.setEstadoChangeListener(this::updateTaskList);
-
-        //taskFilters2 = new TaskFilters2();
+        taskFilters2 = new TaskFilters2();
 
         taskContainer = createTasksContainer();
 
         add(centralContainer);
-        centralContainer.add(taskContainer, taskFilters);
-        //centralContainer.add(taskFikters2);
+        centralContainer.add(taskContainer, taskFilters2);
+        taskFilters2.getBotonFiltrar().addClickListener(event -> {
+            FiltroTareaDTO filtro = taskFilters2.getFiltroActual();
+            actualizarListaTareasConFiltro(filtro);
+        });
     }
 
     public VerticalLayout createTasksContainer() {
@@ -82,20 +81,8 @@ public class TareasView extends VerticalLayout {
         return taskcreated;
     }
 
-    private void updateTaskList(Estado selected) {
+    private void actualizarListaTareasConFiltro(FiltroTareaDTO filtro) {
         taskContainer.removeAll();
-
-        FiltroTareaDTO filtro = new FiltroTareaDTO();
-
-        List<String> estadosFiltrados = new ArrayList<>();
-        if (selected == null) {
-            for (Estado e : Estado.values()) {
-                estadosFiltrados.add(e.name());
-            }
-        } else {
-            estadosFiltrados.add(selected.name());
-        }
-        filtro.setEstados(estadosFiltrados);
 
         List<TareaResumenDTO> listaTareas = tareaRestCliente.obtenerTodos(filtro);
         for (TareaResumenDTO tarea : listaTareas) {

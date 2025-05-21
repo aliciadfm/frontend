@@ -35,7 +35,7 @@ import java.util.List;
 
 @PageTitle("Editar tarea")
 @Route(value="editTask", layout = MainLayout.class)
-public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
+public class EditTask extends VerticalLayout implements HasUrlParameter<Long>, BeforeLeaveObserver {
 
     @Autowired
     private VoluntarioRestCliente voluntarioRestCliente;
@@ -61,6 +61,8 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
     private VirtualList<VoluntarioListadoDTO> virtualVoluntarios;
     private VirtualList<NecesidadDTO> virtualNecesidades;
 
+    private boolean datosGuardados = false;
+
     List<Long> idsVoluntariosID;
     List<Long> idsNecesidadesID;
 
@@ -81,6 +83,8 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
 
         this.virtualVoluntarios = new VirtualList<>();
         this.virtualNecesidades = new VirtualList<>();
+
+        tarea = new TareaDTO();
 
         if(!TaskFormData.getVoluntariosSeleccionados().isEmpty()) {
             listaVoluntarios.addAll(TaskFormData.getVoluntariosSeleccionados());
@@ -344,6 +348,7 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
             if(finPicker.getValue() != null) tarea.setFechaFin(finPicker.getValue());
             tarea.setTurnoManana(manana.getValue());
             tarea.setTurnoTarde(tarde.getValue());
+            List<Long> idsVoluntarios = null;
             tareaRestCliente.actualizar(tarea.getIdTarea(), tarea);
             Notification.show("Tarea actualizada correctamente");
             UI.getCurrent().navigate("tareas");
@@ -502,6 +507,7 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
         TaskFormData.setVoluntariosSeleccionados(listaVoluntarios);
         System.out.println("Voluntarios guardados: " + listaVoluntarios);
         TaskFormData.setNecesidadesSeleccionadas(listaNecesidades);
+        datosGuardados = true;
     }
 
     private void clearForm() {
@@ -518,6 +524,7 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
         manana.setEnabled(false);
         tarde.setEnabled(false);
     }
+
 
     @Override
     public void setParameter(BeforeEvent event, @OptionalParameter Long tareaId) {
@@ -537,5 +544,12 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long> {
         }
 
         createButton();
+    }
+
+    @Override
+    public void beforeLeave(BeforeLeaveEvent beforeLeaveEvent) {
+        if (!datosGuardados) {
+            TaskFormData.clear();
+        }
     }
 }
