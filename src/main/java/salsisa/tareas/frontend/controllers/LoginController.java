@@ -26,7 +26,7 @@ public class LoginController {
         if(success) {
             view.navigateToHome();
         } else {
-            System.out.println("fallo");
+            view.showErrorMessage();
         }
     }
 

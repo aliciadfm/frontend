@@ -20,10 +20,12 @@ public class LoginView extends HorizontalLayout {
 
     private final LoginController controller;
     private GestorRestCliente gestorRestCliente;
+    private final LoginForm loginForm;
 
     public LoginView(GestorRestCliente gestorRestCliente) {
         this.gestorRestCliente = gestorRestCliente;
         controller = new LoginController(this, gestorRestCliente);
+        loginForm = new LoginForm();
         setSizeFull();
         createLogoZone();
         createLoginForm();
@@ -48,7 +50,6 @@ public class LoginView extends HorizontalLayout {
         VerticalLayout loginFormDiv = new VerticalLayout();
         loginFormDiv.setWidth("60%");
         add(loginFormDiv);
-        LoginForm loginForm = new LoginForm();
         loginFormDiv.add(loginForm);
         loginFormDiv.setJustifyContentMode(JustifyContentMode.CENTER);
         loginFormDiv.setAlignItems(Alignment.CENTER);
@@ -64,10 +65,15 @@ public class LoginView extends HorizontalLayout {
             controller.handleLogin(event.getUsername(), event.getPassword());
             loginFormDiv.setEnabled(true);
         });
+
         add(loginFormDiv);
     }
 
     public void navigateToHome() {
         UI.getCurrent().navigate("createTask");
+    }
+
+    public void showErrorMessage() {
+        loginForm.setError(true);
     }
 }
