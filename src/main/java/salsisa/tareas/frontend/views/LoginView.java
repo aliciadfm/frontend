@@ -8,16 +8,22 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteAlias;
 import salsisa.tareas.frontend.controllers.LoginController;
+import salsisa.tareas.frontend.dto.GestorLoginDTO;
+import salsisa.tareas.frontend.servicesAPI.GestorRestCliente;
 
 @PageTitle("SH - Inicio de sesión")
 @Route(value="login")
+@RouteAlias(value="")
 public class LoginView extends HorizontalLayout {
 
     private final LoginController controller;
+    private GestorRestCliente gestorRestCliente;
 
-    public LoginView() {
-        controller = new LoginController(this);
+    public LoginView(GestorRestCliente gestorRestCliente) {
+        this.gestorRestCliente = gestorRestCliente;
+        controller = new LoginController(this, gestorRestCliente);
         setSizeFull();
         createLogoZone();
         createLoginForm();
@@ -56,11 +62,12 @@ public class LoginView extends HorizontalLayout {
         loginForm.setI18n(i18n);
         loginForm.addLoginListener(event -> {
             controller.handleLogin(event.getUsername(), event.getPassword());
+            loginFormDiv.setEnabled(true);
         });
         add(loginFormDiv);
     }
 
     public void navigateToHome() {
-        UI.getCurrent().navigate("NeedsView");
+        UI.getCurrent().navigate("createTask");
     }
 }
