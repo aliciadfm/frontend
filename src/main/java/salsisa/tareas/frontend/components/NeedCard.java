@@ -10,6 +10,8 @@ import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.server.StreamResource;
 import salsisa.tareas.frontend.views.CreateTaskView;
 import salsisa.tareas.frontend.views.TaskFormData;
+
+import java.util.Arrays;
 import java.util.Map;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
@@ -30,7 +32,10 @@ public class NeedCard extends Div {
 
         byte[] imagenBytes = necesidadDTO.getImagen();
         if (imagenBytes != null && imagenBytes.length > 0) {
-            StreamResource resource = new StreamResource("imagen.png", () -> new ByteArrayInputStream(imagenBytes));
+            byte[] imageData = Arrays.copyOf(imagenBytes, imagenBytes.length); // Copia defensiva
+            StreamResource resource = new StreamResource("imagen.png", () -> {
+                return new ByteArrayInputStream(imageData); // Nunca será null
+            });
             Image imagen = new Image(resource, "Imagen de la necesidad");
             imagen.setWidth("100%");
             imagen.setHeight("100%");
@@ -41,6 +46,31 @@ public class NeedCard extends Div {
         } else {
             imageContainer.add(new Span("Imagen no disponible"));
         }
+
+        Div locationContainer = new Div();
+        locationContainer.getStyle()
+                .set("display", "flex")
+                .set("align-items", "center")
+                .set("margin-top", "8px")
+                .set("gap", "5px");
+
+        Image locationIcon = new Image("icons/location.png", "Localización");
+        locationIcon.setWidth("30px");
+        locationIcon.setHeight("30px");
+
+        Span locationText = new Span(
+                necesidadDTO.getZona() != null
+                        ? necesidadDTO.getZona()
+                        : "Ubicación no disponible"
+        );
+        locationText.getStyle()
+                .set("background-color", "#f1f1f1")
+                .set("padding", "3px 10px")
+                .set("border-radius", "8px")
+                .set("font-weight", "bold");
+        locationText.setWidth("100%");
+
+        locationContainer.add(locationIcon, locationText);
 
         H4 title = new H4(necesidadDTO.getNombre());
         Span categoryLabel = new Span("Disponible");
@@ -113,7 +143,7 @@ public class NeedCard extends Div {
                 .set("flex-direction", "column");
         descriptionContainer.setVisible(false);
 
-        Div card = new Div(imageContainer, bottomSection, descriptionContainer);
+        Div card = new Div(imageContainer,locationContainer, bottomSection, descriptionContainer);
         card.getStyle()
                 .set("flex", "1")
                 .set("min-width", "250px")
