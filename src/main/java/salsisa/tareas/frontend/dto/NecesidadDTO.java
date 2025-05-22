@@ -22,4 +22,5 @@ public class NecesidadDTO {
     private Long idAfectado;
     private Long idLocalizacion;
     private List<Long> idsHabilidades;
+    private String zona;
 }
