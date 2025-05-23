@@ -361,12 +361,22 @@ public class CreateTaskView extends VerticalLayout {
                 HorizontalLayout cardLayout = new HorizontalLayout();
                 cardLayout.setMargin(true);
 
-                StreamResource imageResource = new StreamResource(
-                        necesidad.getNombre() + ".png",
-                        () -> new ByteArrayInputStream(necesidad.getImagen())
-                );
+                byte[] imagen = necesidad.getImagen();
+                if (imagen == null || imagen.length == 0) {
+                    imagen = getDefaultImage();
+                }
 
-                Image avatar = new Image(imageResource, "Avatar");
+                Image avatar;
+
+                if (imagen != null && imagen.length > 0) {
+                    StreamResource imageResource = new StreamResource(
+                            necesidad.getNombre() + ".png",
+                            () -> new ByteArrayInputStream(necesidad.getImagen())
+                    );
+                    avatar = new Image(imageResource, "Avatar");
+                } else {
+                    avatar = new Image("icons/defaultuserimage.png", "Avatar");
+                }
                 avatar.getStyle()
                         .set("border-radius", "50%")
                         .set("object-fit", "cover")

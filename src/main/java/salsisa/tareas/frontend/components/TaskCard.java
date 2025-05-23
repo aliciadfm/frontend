@@ -40,8 +40,8 @@ public class TaskCard extends HorizontalLayout {
 
         Integer numVol = tarea.getTotalAsistencias();
         Image icon = new Image("icons/numeroVoluntarios.png", "Voluntario");
-        icon.setHeight("20px");
-        icon.setWidth("20px");
+        icon.setHeight("30px");
+        icon.setWidth("30px");
         Span nVoluntarios = new Span(numVol.toString());
         HorizontalLayout voluntarios = new HorizontalLayout(icon,nVoluntarios);
         voluntarios.setAlignItems(Alignment.CENTER);
@@ -78,15 +78,22 @@ public class TaskCard extends HorizontalLayout {
         }
         else {
             Image edit = new Image("icons/editarSimbolo.png", "Editar");
-            edit.setWidth("20px");
-            edit.setHeight("20px");
+            edit.setWidth("30px");
+            edit.setHeight("30px");
             Button editar = new Button(edit);
             editar.setWidth("5%");
+
+            Image basura = new Image("icons/recycle.png", "Eliminar");
+            basura.setWidth("30px");
+            basura.setHeight("30px");
+            Button eliminar = new Button(basura);
+            editar.setWidth("5%");
+
             if(tarea.getEstado() == Estado.ENPROCESO) {
                 estado.removeAll();
                 estado.add("EN PROCESO");
             }
-            add(titulo, fechaInicio, fechaFin, localizacion, estado, voluntarios, asistentes, editar);
+            add(titulo, fechaInicio, fechaFin, localizacion, estado, voluntarios, asistentes, editar, eliminar);
             editar.addClickListener(e -> {
                 UI.getCurrent().navigate("editTask/" + tarea.getIdTarea());
             });
