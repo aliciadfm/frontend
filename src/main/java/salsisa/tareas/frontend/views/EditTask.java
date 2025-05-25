@@ -19,7 +19,6 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.StreamResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.config.Task;
 import salsisa.tareas.frontend.dto.*;
 import salsisa.tareas.frontend.servicesAPI.NecesidadRestCliente;
 import salsisa.tareas.frontend.servicesAPI.TareaRestCliente;
@@ -29,7 +28,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -97,9 +95,6 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long>, B
         setPadding(false);
         getStyle().set("padding", "0 5%");
         createHeader();
-
-        System.out.println("Lista de voluntarios: " + listaVoluntarios);
-        System.out.println("Lista de necesidades: " + listaNecesidades);
     }
 
     public void createHeader() {
@@ -348,7 +343,11 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long>, B
             if(finPicker.getValue() != null) tarea.setFechaFin(finPicker.getValue());
             tarea.setTurnoManana(manana.getValue());
             tarea.setTurnoTarde(tarde.getValue());
-            List<Long> idsVoluntarios = null;
+            List<Long> voluntariosActualizados = tarea.getIdsVoluntarios();
+            for(VoluntarioListadoDTO voluntario : TaskFormData.getVoluntariosSeleccionados()) {
+                voluntariosActualizados.add(voluntario.getId());
+            }
+            tarea.setIdsVoluntarios(voluntariosActualizados);
             tareaRestCliente.actualizar(tarea.getIdTarea(), tarea);
             Notification.show("Tarea actualizada correctamente");
             UI.getCurrent().navigate("tareas");
@@ -463,12 +462,22 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long>, B
                 HorizontalLayout cardLayout = new HorizontalLayout();
                 cardLayout.setMargin(true);
 
-                StreamResource imageResource = new StreamResource(
-                        necesidad.getNombre() + ".png",
-                        () -> new ByteArrayInputStream(necesidad.getImagen())
-                );
+                byte[] imagen = necesidad.getImagen();
+                if (imagen == null || imagen.length == 0) {
+                    imagen = getDefaultImage();
+                }
 
-                Image avatar = new Image(imageResource, "Avatar");
+                Image avatar;
+
+                if (imagen != null && imagen.length > 0) {
+                    StreamResource imageResource = new StreamResource(
+                            necesidad.getNombre() + ".png",
+                            () -> new ByteArrayInputStream(necesidad.getImagen())
+                    );
+                    avatar = new Image(imageResource, "Avatar");
+                } else {
+                    avatar = new Image("icons/defaultuserimage.png", "Avatar");
+                }
                 avatar.getStyle()
                         .set("border-radius", "50%")
                         .set("object-fit", "cover")
@@ -505,7 +514,6 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long>, B
         TaskFormData.setTurnoManana(manana.getValue());
         TaskFormData.setTurnoTarde(tarde.getValue());
         TaskFormData.setVoluntariosSeleccionados(listaVoluntarios);
-        System.out.println("Voluntarios guardados: " + listaVoluntarios);
         TaskFormData.setNecesidadesSeleccionadas(listaNecesidades);
         datosGuardados = true;
     }

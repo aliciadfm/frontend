@@ -75,7 +75,6 @@ public class CreateTaskView extends VerticalLayout {
         this.tareaRestCliente = tareaRestCliente;
         UI.getCurrent().setLocale(Locale.forLanguageTag("es-ES"));
         this.listaVoluntarios = TaskFormData.getVoluntariosSeleccionados();
-        System.out.println("Voluntarios recuperados: " + listaVoluntarios);
 
         this.listaNecesidades = TaskFormData.getNecesidadesSeleccionadas();
 
@@ -102,7 +101,6 @@ public class CreateTaskView extends VerticalLayout {
 
     private void createHeader() {
         VerticalLayout headingDiv = new VerticalLayout();
-        //headingDiv.getStyle().set("border", "1px solid red");
         headingDiv.setWidth("100%");
         H1 title = new H1("Crear tarea");
         headingDiv.add(title);
@@ -112,12 +110,10 @@ public class CreateTaskView extends VerticalLayout {
     private HorizontalLayout createFieldArea(String label, Component field) {
         HorizontalLayout area = new HorizontalLayout();
         area.setWidth("100%");
-        //area.getStyle().set("border", "1px solid red");
         VerticalLayout labelArea = new VerticalLayout();
         labelArea.setSpacing(false);
         labelArea.setPadding(false);
         labelArea.setWidth("15%");
-        //labelArea.getStyle().set("border", "1px solid red");
         Span span = new Span(label);
         labelArea.setAlignSelf(Alignment.END, span);
         labelArea.setJustifyContentMode(JustifyContentMode.CENTER);
@@ -156,7 +152,6 @@ public class CreateTaskView extends VerticalLayout {
 
         //COLUMNA DE LA IZQUIERDA
         VerticalLayout column1 = new VerticalLayout();
-        //column1.getStyle().set("border", "1px solid red");
         HorizontalLayout tituloFieldArea = createFieldArea("Título", tituloField);
         HorizontalLayout descripcionFieldArea = createFieldArea("Descripción", descripcionField);
         HorizontalLayout puntoEncuentroArea = createFieldArea("Punto encuentro", puntoEncuentro);
@@ -190,7 +185,6 @@ public class CreateTaskView extends VerticalLayout {
 
         HorizontalLayout turnoYHora = new HorizontalLayout();
         turnoYHora.setWidthFull();
-        //turnoYHora.getStyle().set("border", "1px solid red");
         HorizontalLayout horaEncuentro = createFieldArea("Hora de encuentro", horaEncuentroPicker);
         turnoYHora.add(turnoArea, horaEncuentro);
         turnoArea.setWidthFull();
@@ -256,7 +250,6 @@ public class CreateTaskView extends VerticalLayout {
         TaskFormData.setTurnoManana(manana.getValue());
         TaskFormData.setTurnoTarde(tarde.getValue());
         TaskFormData.setVoluntariosSeleccionados(listaVoluntarios);
-        System.out.println("Voluntarios guardados: " + listaVoluntarios);
         TaskFormData.setNecesidadesSeleccionadas(listaNecesidades);
     }
 
@@ -292,8 +285,6 @@ public class CreateTaskView extends VerticalLayout {
                 throw new IllegalArgumentException("Tipo de elemento no compatible con ningún renderer.");
             }
         } else {
-            // Usamos el tipo de la lista que esperamos para determinar el renderer por contexto
-            // Este es un poco "hardcoded", pero seguro:
             if (listaVoluntarios == lista) {
                 renderer = (ComponentRenderer<Component, T>) voluntarioCardRenderer;
             } else if (listaNecesidades == lista) {
@@ -320,7 +311,6 @@ public class CreateTaskView extends VerticalLayout {
                         () -> {
                             byte[] imagen = voluntario.getImagen();
                             if (imagen == null) {
-                                // Cargar la imagen predeterminada si no existe imagen del voluntario
                                 return new ByteArrayInputStream(getDefaultImage());
                             }
                             return new ByteArrayInputStream(imagen);
@@ -347,11 +337,9 @@ public class CreateTaskView extends VerticalLayout {
             });
 
     private byte[] getDefaultImage() {
-        // Aquí debes cargar la imagen predeterminada como un byte[] (puede estar en resources, por ejemplo)
         try (InputStream is = getClass().getClassLoader().getResourceAsStream("defaultuserimage.png")) {
             return is != null ? is.readAllBytes() : new byte[0];
         } catch (IOException e) {
-            // Si no se encuentra la imagen, puedes devolver un array vacío o alguna imagen por defecto.
             return new byte[0];
         }
     }
@@ -387,8 +375,8 @@ public class CreateTaskView extends VerticalLayout {
                 VerticalLayout infoLayout = new VerticalLayout();
                 infoLayout.setSpacing(false);
                 infoLayout.setPadding(false);
-                infoLayout.add(new Span(necesidad.getNombre())); // Nombre del voluntario
-                infoLayout.add(new Span(necesidad.getDescripcion())); // Email
+                infoLayout.add(new Span(necesidad.getNombre()));
+                infoLayout.add(new Span(necesidad.getDescripcion()));
 
                 cardLayout.add(avatar, infoLayout);
                 return cardLayout;
@@ -396,7 +384,6 @@ public class CreateTaskView extends VerticalLayout {
 
     private void createButton() {
         VerticalLayout buttonArea = new VerticalLayout();
-        //buttonArea.getStyle().set("border", "1px solid red");
         add(buttonArea);
         Button aceptarButton = new Button("Crear");
         aceptarButton.getStyle().setBackgroundColor("#B64040");
@@ -448,12 +435,6 @@ public class CreateTaskView extends VerticalLayout {
                     pendienteCheckbox.getValue() ? Estado.PENDIENTE : Estado.ASIGNADA,
                     idsVoluntarios, idsNecesidades);
 
-            for(VoluntarioListadoDTO voluntario : listaVoluntarios) {
-                System.out.println("Voluntario: " + voluntario.getId());
-            }
-            for(NecesidadDTO necesidad : listaNecesidades) {
-                System.out.println("Necesidad: " + necesidad.getIdNecesidad());
-            }
             tareaRestCliente.crear(tarea);
             Notification.show("Tarea creada");
             clearForm();
