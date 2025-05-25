@@ -118,8 +118,11 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long>, B
         add(fieldsArea);
 
         tituloField = new TextField("");
+        tituloField.setMaxLength(50);
         descripcionField = new TextField("");
+        descripcionField.setMaxLength(150);
         puntoEncuentro = new TextField("");
+        puntoEncuentro.setMaxLength(75);
         inicioPicker = new DatePicker("");
         inicioPicker.setMin(LocalDate.now());
         finPicker = new DatePicker("");

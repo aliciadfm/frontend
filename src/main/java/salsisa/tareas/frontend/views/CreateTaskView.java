@@ -140,8 +140,11 @@ public class CreateTaskView extends VerticalLayout {
         fields.setWidth("100%");
 
         tituloField = new TextField("");
+        tituloField.setMaxLength(50);
         descripcionField = new TextField("");
+        descripcionField.setMaxLength(150);
         puntoEncuentro = new TextField("");
+        puntoEncuentro.setMaxLength(75);
         inicioPicker = new DatePicker("");
         inicioPicker.setMin(LocalDate.now());
         inicioPicker.setLocale(Locale.forLanguageTag("es-ES"));
