@@ -2,6 +2,7 @@ package salsisa.tareas.frontend.components;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -10,9 +11,13 @@ import org.springframework.scheduling.config.Task;
 import salsisa.tareas.frontend.dto.Estado;
 import salsisa.tareas.frontend.dto.TareaDTO;
 import salsisa.tareas.frontend.dto.TareaResumenDTO;
+import salsisa.tareas.frontend.servicesAPI.TareaRestCliente;
+import java.util.function.Consumer;
 
 public class TaskCard extends HorizontalLayout {
-    public TaskCard(TareaResumenDTO tarea) {
+    TareaRestCliente cliente;
+    public TaskCard(TareaResumenDTO tarea, TareaRestCliente cliente, Consumer<TaskCard> onDelete) {
+        this.cliente = cliente;
         setWidthFull();
         setAlignItems(Alignment.CENTER);
         setSpacing(true);
@@ -94,8 +99,41 @@ public class TaskCard extends HorizontalLayout {
                 estado.add("EN PROCESO");
             }
             add(titulo, fechaInicio, fechaFin, localizacion, estado, voluntarios, asistentes, editar, eliminar);
+
             editar.addClickListener(e -> {
                 UI.getCurrent().navigate("editTask/" + tarea.getIdTarea());
+            });
+
+            Dialog confirmDialog = new Dialog();
+            confirmDialog.setHeaderTitle("Confirmar eliminación");
+
+            Span message = new Span("¿Estás seguro de que quieres eliminar esta tarea?");
+
+            Button confirmButton = new Button("Sí");
+            confirmButton.addClickListener(event -> {
+                confirmDialog.close();
+                cliente.eliminar(tarea.getIdTarea());
+
+                // Notifica al contenedor que elimine esta tarjeta
+                onDelete.accept(this);
+            });
+
+
+            confirmButton.addClickListener(event -> {
+                confirmDialog.close();
+                cliente.eliminar(tarea.getIdTarea());
+
+
+                onDelete.accept(this);
+            });
+
+            Button cancelButton = new Button("No", event -> confirmDialog.close());
+
+            HorizontalLayout dialogButtons = new HorizontalLayout(confirmButton, cancelButton);
+            confirmDialog.add(message, dialogButtons);
+
+            eliminar.addClickListener(e -> {
+                confirmDialog.open();
             });
 
         }

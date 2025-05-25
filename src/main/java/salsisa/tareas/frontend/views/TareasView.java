@@ -109,7 +109,9 @@ public class TareasView extends VerticalLayout {
             }
 
             task.add(espacio);
-            TaskCard taskCard = new TaskCard(tarea);
+            TaskCard taskCard = new TaskCard(tarea, tareaRestCliente, card -> {
+                taskContainer.remove(task); // task es el HorizontalLayout que contiene la tarjeta
+            });
             task.add(taskCard);
             taskcreated.add(task);
         }
@@ -121,8 +123,31 @@ public class TareasView extends VerticalLayout {
 
         List<TareaResumenDTO> listaTareas = tareaRestCliente.obtenerTodos(filtro);
         for (TareaResumenDTO tarea : listaTareas) {
-            TaskCard taskCard = new TaskCard(tarea);
-            taskContainer.add(taskCard);
+            HorizontalLayout task = new HorizontalLayout();
+            task.setWidth("100%");
+            task.setAlignItems(Alignment.CENTER);
+
+            Div espacio = new Div();
+            espacio.setWidth("60px");
+            espacio.getStyle().set("padding-right", "3px");
+
+            if (tarea.isAviso()) {
+                Image warn = new Image("icons/Warning.png", "NoSuficientes");
+                warn.setWidth("60px");
+                warn.setHeight("60px");
+
+                Tooltip nosuf = Tooltip.forComponent(warn);
+                nosuf.setText("Demasiados voluntarios rechazaron la tarea");
+
+                espacio.add(warn);
+            }
+
+            task.add(espacio);
+            TaskCard taskCard = new TaskCard(tarea, tareaRestCliente, card -> {
+                taskContainer.remove(task); // task es el HorizontalLayout que contiene la tarjeta
+            });
+            task.add(taskCard);
+            taskContainer.add(task);
         }
     }
 }
