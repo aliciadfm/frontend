@@ -19,6 +19,8 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.StreamResource;
 import org.springframework.beans.factory.annotation.Autowired;
+import salsisa.tareas.frontend.components.MainLayout;
+import salsisa.tareas.frontend.components.TaskFormData;
 import salsisa.tareas.frontend.dto.*;
 import salsisa.tareas.frontend.servicesAPI.NecesidadRestCliente;
 import salsisa.tareas.frontend.servicesAPI.TareaRestCliente;
@@ -33,7 +35,7 @@ import java.util.List;
 
 @PageTitle("Editar tarea")
 @Route(value="editTask", layout = MainLayout.class)
-public class EditTask extends VerticalLayout implements HasUrlParameter<Long>, BeforeLeaveObserver {
+public class EditTaskView extends VerticalLayout implements HasUrlParameter<Long>, BeforeLeaveObserver {
 
     @Autowired
     private VoluntarioRestCliente voluntarioRestCliente;
@@ -67,8 +69,8 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long>, B
     TareaDTO tarea;
 
     @Autowired
-    public EditTask(VoluntarioRestCliente voluntarioRestCliente, NecesidadRestCliente necesidadRestCliente,
-                    TareaRestCliente tareaRestCliente) {
+    public EditTaskView(VoluntarioRestCliente voluntarioRestCliente, NecesidadRestCliente necesidadRestCliente,
+                        TareaRestCliente tareaRestCliente) {
         this.voluntarioRestCliente = voluntarioRestCliente;
         this.necesidadRestCliente = necesidadRestCliente;
         this.tareaRestCliente = tareaRestCliente;
@@ -111,11 +113,10 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long>, B
     }
 
     public void createCentralContainer(boolean borders) {
-        HorizontalLayout fieldsArea = new HorizontalLayout();
-        fieldsArea.setSpacing(false);
-        fieldsArea.setPadding(false);
-        fieldsArea.setWidth("100%");
-        add(fieldsArea);
+        HorizontalLayout fields = new HorizontalLayout();
+        fields.setSpacing(false);
+        add(fields);
+        fields.setWidth("100%");
 
         tituloField = new TextField("");
         tituloField.setMaxLength(50);
@@ -186,7 +187,7 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long>, B
 
         VerticalLayout column1 = new VerticalLayout();
         VerticalLayout column2 = new VerticalLayout();
-        fieldsArea.add(column1, column2);
+        fields.add(column1, column2);
         // Column1
         HorizontalLayout tituloFieldArea = createFieldArea("Titulo", tituloField);
         HorizontalLayout descripcionFieldArea = createFieldArea("Descripcion", descripcionField);
@@ -258,7 +259,7 @@ public class EditTask extends VerticalLayout implements HasUrlParameter<Long>, B
         column2.add(inicioPickerArea, finPickerArea, turnoYHora, voluntariosArea);
 
         if(borders) {
-            fieldsArea.getStyle().set("border", "1px solid red");
+            fields.getStyle().set("border", "1px solid red");
             column1.getStyle().set("border", "1px solid red");
             column2.getStyle().set("border", "1px solid red");
             tituloFieldArea.getStyle().set("border", "1px solid red");

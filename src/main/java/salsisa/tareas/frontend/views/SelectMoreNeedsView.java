@@ -10,7 +10,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import salsisa.tareas.frontend.components.MainLayout;
 import salsisa.tareas.frontend.components.NeedFilters;
+import salsisa.tareas.frontend.components.TaskFormData;
 import salsisa.tareas.frontend.dto.*;
 import salsisa.tareas.frontend.servicesAPI.CategoriaRestCliente;
 import salsisa.tareas.frontend.servicesAPI.NecesidadRestCliente;
@@ -19,7 +21,7 @@ import salsisa.tareas.frontend.components.NeedCard;
 
 @PageTitle("SH - Visualizar Necesidades") // Nombre que sale arriba en el tab del navegador
 @Route(value = "SelectMoreNeeds/:origen/:categoriaId?/:tareaId?", layout = MainLayout.class)
-public class SelectMoreNeeds extends VerticalLayout implements HasUrlParameter<Long> {
+public class SelectMoreNeedsView extends VerticalLayout implements HasUrlParameter<Long> {
 
     @Autowired
     private NecesidadRestCliente necesidadRestCliente;
@@ -32,8 +34,8 @@ public class SelectMoreNeeds extends VerticalLayout implements HasUrlParameter<L
     private String vistaOrigen;
     private Long tareaId;
 
-    public SelectMoreNeeds(NecesidadRestCliente necesidadRestCliente, CategoriaRestCliente categoriaRestCliente,
-                           List<NecesidadDTO> necesidadesSeleccionadas) {
+    public SelectMoreNeedsView(NecesidadRestCliente necesidadRestCliente, CategoriaRestCliente categoriaRestCliente,
+                               List<NecesidadDTO> necesidadesSeleccionadas) {
         this.necesidadRestCliente = necesidadRestCliente;
         this.categoriaRestCliente = categoriaRestCliente;
         if (!TaskFormData.getNecesidadesSeleccionadas().isEmpty()) {necesidadesSeleccionadas = TaskFormData.getNecesidadesSeleccionadas();}

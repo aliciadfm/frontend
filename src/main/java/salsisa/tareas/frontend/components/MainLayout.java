@@ -1,4 +1,4 @@
-package salsisa.tareas.frontend.views;
+package salsisa.tareas.frontend.components;
 
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -8,6 +8,10 @@ import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.html.Image;
+import salsisa.tareas.frontend.views.CreateTaskView;
+import salsisa.tareas.frontend.views.LoginView;
+import salsisa.tareas.frontend.views.NeedsView;
+import salsisa.tareas.frontend.views.TareasView;
 
 public class MainLayout extends AppLayout implements RouterLayout {
     public MainLayout() {

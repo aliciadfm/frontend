@@ -1,10 +1,9 @@
-package salsisa.tareas.frontend.views;
+package salsisa.tareas.frontend.components;
 
 import lombok.Getter;
 import lombok.Setter;
 import salsisa.tareas.frontend.dto.Estado;
 import salsisa.tareas.frontend.dto.NecesidadDTO;
-import salsisa.tareas.frontend.dto.VoluntarioDTO;
 import salsisa.tareas.frontend.dto.VoluntarioListadoDTO;
 
 import java.time.LocalDate;
