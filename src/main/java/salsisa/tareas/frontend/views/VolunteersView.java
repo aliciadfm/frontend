@@ -13,11 +13,11 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.virtuallist.VirtualList;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.*;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import salsisa.tareas.frontend.components.MainLayout;
+import salsisa.tareas.frontend.components.TaskFormData;
 import salsisa.tareas.frontend.dto.FiltroVoluntario1DTO;
 import salsisa.tareas.frontend.dto.NecesidadDTO;
-import salsisa.tareas.frontend.dto.VoluntarioDTO;
 import salsisa.tareas.frontend.dto.VoluntarioListadoDTO;
 import salsisa.tareas.frontend.servicesAPI.VoluntarioRestCliente;
 
@@ -147,7 +147,7 @@ public class VolunteersView extends VerticalLayout implements HasUrlParameter<St
             }
             TaskFormData.getVoluntariosSeleccionados().addAll(seleccionados);
             if ("edit-task".equals(vistaOrigen)) {
-                UI.getCurrent().navigate(EditTask.class, tareaId);
+                UI.getCurrent().navigate(EditTaskView.class, tareaId);
             } else {
                 UI.getCurrent().navigate(CreateTaskView.class);
             }
@@ -157,7 +157,7 @@ public class VolunteersView extends VerticalLayout implements HasUrlParameter<St
         acceptButton.getStyle().set("color", "#ffffff");
         cancelButton.addClickListener(e -> {
             if ("edit-task".equals(vistaOrigen)) {
-                UI.getCurrent().navigate(EditTask.class, tareaId);
+                UI.getCurrent().navigate(EditTaskView.class, tareaId);
             } else {
                 UI.getCurrent().navigate(CreateTaskView.class);
             }

@@ -452,11 +452,9 @@ public class EditTaskView extends VerticalLayout implements HasUrlParameter<Long
             });
 
     private byte[] getDefaultImage() {
-        // Aquí debes cargar la imagen predeterminada como un byte[] (puede estar en resources, por ejemplo)
         try (InputStream is = getClass().getClassLoader().getResourceAsStream("defaultuserimage.png")) {
             return is != null ? is.readAllBytes() : new byte[0];
         } catch (IOException e) {
-            // Si no se encuentra la imagen, puedes devolver un array vacío o alguna imagen por defecto.
             return new byte[0];
         }
     }
@@ -492,8 +490,8 @@ public class EditTaskView extends VerticalLayout implements HasUrlParameter<Long
                 VerticalLayout infoLayout = new VerticalLayout();
                 infoLayout.setSpacing(false);
                 infoLayout.setPadding(false);
-                infoLayout.add(new Span(necesidad.getNombre())); // Nombre del voluntario
-                infoLayout.add(new Span(necesidad.getDescripcion())); // Email
+                infoLayout.add(new Span(necesidad.getNombre()));
+                infoLayout.add(new Span(necesidad.getDescripcion()));
 
                 cardLayout.add(avatar, infoLayout);
                 return cardLayout;

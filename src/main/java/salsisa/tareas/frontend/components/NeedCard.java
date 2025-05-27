@@ -9,7 +9,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.server.StreamResource;
 import salsisa.tareas.frontend.views.CreateTaskView;
-import salsisa.tareas.frontend.views.TaskFormData;
 
 import java.util.Arrays;
 import java.util.Map;

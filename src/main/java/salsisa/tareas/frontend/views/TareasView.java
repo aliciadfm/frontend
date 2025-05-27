@@ -9,6 +9,7 @@ import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
+import salsisa.tareas.frontend.components.MainLayout;
 import salsisa.tareas.frontend.components.TaskCard;
 import salsisa.tareas.frontend.components.TaskFilters2;
 import salsisa.tareas.frontend.dto.Estado;
