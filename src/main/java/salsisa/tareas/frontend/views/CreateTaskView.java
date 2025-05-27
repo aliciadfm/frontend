@@ -310,18 +310,22 @@ public class CreateTaskView extends VerticalLayout {
                 HorizontalLayout cardLayout = new HorizontalLayout();
                 cardLayout.setMargin(true);
 
-                StreamResource imageResource = new StreamResource(
-                        voluntario.getNombre() + ".png",
-                        () -> {
-                            byte[] imagen = voluntario.getImagen();
-                            if (imagen == null) {
-                                return new ByteArrayInputStream(getDefaultImage());
-                            }
-                            return new ByteArrayInputStream(imagen);
-                        }
-                );
+                byte[] imagen = voluntario.getImagen();
+                if (imagen == null || imagen.length == 0) {
+                    imagen = getDefaultImage();
+                }
 
-                Image avatar = new Image(imageResource, "Avatar");
+                Image avatar;
+
+                if (imagen != null && imagen.length > 0) {
+                    StreamResource imageResource = new StreamResource(
+                            voluntario.getNombre() + ".png",
+                            () -> new ByteArrayInputStream(voluntario.getImagen())
+                    );
+                    avatar = new Image(imageResource, "Avatar");
+                } else {
+                    avatar = new Image("icons/defaultuserimage.png", "Avatar");
+                }
                 avatar.getStyle()
                         .set("border-radius", "50%")
                         .set("object-fit", "cover")
@@ -367,7 +371,7 @@ public class CreateTaskView extends VerticalLayout {
                     );
                     avatar = new Image(imageResource, "Avatar");
                 } else {
-                    avatar = new Image("icons/defaultuserimage.png", "Avatar");
+                    avatar = new Image("icons/defaultneedimage.png", "Avatar");
                 }
                 avatar.getStyle()
                         .set("border-radius", "50%")
