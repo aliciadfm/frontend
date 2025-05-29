@@ -25,8 +25,10 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.server.StreamResource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import salsisa.tareas.frontend.components.MainLayout;
 import salsisa.tareas.frontend.components.TaskFormData;
+import salsisa.tareas.frontend.components.TaskUtils;
 import salsisa.tareas.frontend.dto.*;
 import salsisa.tareas.frontend.servicesAPI.NecesidadRestCliente;
 import salsisa.tareas.frontend.servicesAPI.TareaRestCliente;
@@ -74,7 +76,9 @@ public class CreateTaskView extends VerticalLayout {
         this.voluntarioRestCliente = voluntarioRestCliente;
         this.necesidadRestCliente = necesidadRestCliente;
         this.tareaRestCliente = tareaRestCliente;
-        UI.getCurrent().setLocale(Locale.forLanguageTag("es-ES"));
+        if(UI.getCurrent() != null) {
+            UI.getCurrent().setLocale(Locale.forLanguageTag("es-ES"));
+        }
         this.listaVoluntarios = TaskFormData.getVoluntariosSeleccionados();
 
         this.listaNecesidades = TaskFormData.getNecesidadesSeleccionadas();
@@ -437,16 +441,25 @@ public class CreateTaskView extends VerticalLayout {
                 idsNecesidades.add(necesidad.getIdNecesidad());
             }
 
-            TareaDTO tarea = new TareaDTO(null, tituloField.getValue(), descripcionField.getValue(),
-                    fechaInicio, fechaFin, horaEncuentroPicker.getValue(), puntoEncuentro.getValue(),
-                    manana.getValue(), tarde.getValue(),
-                    pendienteCheckbox.getValue() ? Estado.PENDIENTE : Estado.ASIGNADA,
-                    idsVoluntarios, idsNecesidades);
+            if(TaskUtils.validateFields(tituloField.getValue(), descripcionField.getValue(),
+                    puntoEncuentro.getValue(), inicioPicker.getValue(), finPicker.getValue())) {
+                TareaDTO tarea = new TareaDTO(null, tituloField.getValue(), descripcionField.getValue(),
+                        fechaInicio, fechaFin, horaEncuentroPicker.getValue(), puntoEncuentro.getValue(),
+                        manana.getValue(), tarde.getValue(),
+                        pendienteCheckbox.getValue() ? Estado.PENDIENTE : Estado.ASIGNADA,
+                        idsVoluntarios, idsNecesidades);
 
-            tareaRestCliente.crear(tarea);
-            Notification.show("Tarea creada");
-            clearForm();
+                tareaRestCliente.crear(tarea);
+                Notification.show("Tarea creada");
+                clearForm();
+            }
         });
+    }
+
+    boolean validateFields(String titulo, String descripcion, String punto, LocalDate inicio, LocalDate fin) {
+        return !titulo.isEmpty() && !descripcion.isEmpty() && !punto.isEmpty() &&
+                inicio != null && fin != null &&
+                !fin.isBefore(inicio) && !inicio.isBefore(LocalDate.now());
     }
 
     private void clearForm() {
